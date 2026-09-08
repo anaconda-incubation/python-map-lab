@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ChapterKicker from '@/components/ChapterKicker'
 import type { ProjectionScorecard } from '@/projection/metrics'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
@@ -185,13 +185,10 @@ export default function Ch08Scorecard() {
         : overlay === 'angle'
           ? ' with the angular-distortion overlay'
           : ' with Tissot indicatrices') +
-      '. Hover or focus a table row to change the projection.',
+      '. Select a projection card to change the map.',
     [activeName, overlay],
   )
 
-  const colHover = useCallback((col: string | null) => {
-    setOverlay(col === 'area' ? 'area' : col === 'shape' ? 'angle' : null)
-  }, [])
 
   return (
     <section
@@ -204,7 +201,7 @@ export default function Ch08Scorecard() {
         kicker="THE SCORECARD"
         title="What are we trying to preserve?"
         titleId="ch-08-title"
-        standfirst="Two kinds of rows live in this table. An exact property is a theorem about the projection — true or false, provable. A measured score is a statistic computed from sampling. Never confuse the map's promise with the map's performance."
+        standfirst="Compare the promise with the measured result. An exact property is a theorem about the projection — true or false, provable. A measured score is a statistic computed from sampling. Never confuse the map's promise with the map's performance."
         accent="vermilion"
       />
 
@@ -227,63 +224,26 @@ export default function Ch08Scorecard() {
           <div className="lg:sticky lg:top-24">
             <StageFrame hostRef={hostRef} ariaLabel={ariaLabel} height="min(50vh, 480px)" />
             <p className="mt-3 font-ui text-caption" style={{ color: 'var(--fg-2)' }}>
-              The stage answers the table: focus or hover a row to morph; hover the AREA or
-              LOCAL SHAPE headers to light the matching distortion overlay.
+              Choose a projection card to update the map. Use the layers below to inspect where its distortion falls.
             </p>
+            <div className="score-overlay-controls" role="group" aria-label="Scorecard map layers">
+              {([{id:null, label:'Circles'}, {id:'area', label:'Area distortion'}, {id:'angle', label:'Shape distortion'}] as const).map(item => <button key={item.label} aria-pressed={overlay === item.id} onClick={() => setOverlay(item.id)}>{item.label}</button>)}
+            </div>
+            <details className="score-reading-guide"><summary>How to read these measurements</summary><dl>{['area','shape','distance'].map(key => <div key={key}><dt>{key === 'shape' ? 'Local shape' : key}</dt><dd>{COL_TIPS[key]}</dd></div>)}</dl></details>
           </div>
         </div>
 
-        {/* The table */}
-        <div className="overflow-x-auto">
-          <table
-            className="w-full border-collapse"
-            style={{ borderTop: '2px solid var(--fg)', borderBottom: '2px solid var(--fg)' }}
-          >
-            <thead>
-              <tr>
-                <Th label="Projection" tip="The five answers from chapters 03–06, plus the reference globe." onHover={colHover} col="" className="sticky left-0 z-10 bg-bg text-left" />
-                <Th label="Area" tip={COL_TIPS.area} onHover={colHover} col="area" />
-                <Th label="Local shape" tip={COL_TIPS.shape} onHover={colHover} col="shape" />
-                <Th label="Distance" tip={COL_TIPS.distance} onHover={colHover} col="distance" />
-                <Th label="Direction" tip={COL_TIPS.direction} onHover={colHover} col="direction" />
-                <Th label="Continuity" tip={COL_TIPS.continuity} onHover={colHover} col="continuity" />
-                <Th label="Polar behavior" tip={COL_TIPS.polar} onHover={colHover} col="polar" />
-                <Th label="World outline" tip={COL_TIPS.outline} onHover={colHover} col="outline" />
-              </tr>
-            </thead>
-            <tbody>
-              {ROWS.map((row) => {
-                const sc = row.id === 'globe' ? undefined : scores[row.id]?.sc
-                const active = row.id === activeRow
-                return (
-                  <tr
-                    key={row.id}
-                    tabIndex={0}
-                    onMouseEnter={() => setActiveRow(row.id)}
-                    onFocus={() => setActiveRow(row.id)}
-                    onClick={() => setActiveRow(row.id)}
-                    aria-current={active}
-                    className="cursor-pointer align-top outline-none transition-colors duration-micro"
-                    style={{
-                      borderTop: '1px solid var(--hair)',
-                      background: active ? 'color-mix(in srgb, var(--bg-2) 70%, transparent)' : 'transparent',
-                    }}
-                  >
-                    <th
-                      scope="row"
-                      className="sticky left-0 z-10 whitespace-nowrap py-4 pr-4 text-left font-display"
-                      style={{
-                        background: active ? 'var(--bg-2)' : 'var(--bg)',
-                        color: active ? 'var(--accent)' : 'var(--fg)',
-                        fontWeight: 460,
-                        fontSize: '1.05rem',
-                        minWidth: 120,
-                      }}
-                    >
-                      {row.name}
-                    </th>
+        <div className="score-cards" aria-label="Projection comparison cards">
+          {ROWS.map(row => {
+            const sc = row.id === 'globe' ? undefined : scores[row.id]?.sc
+            const active = row.id === activeRow
+            return <article key={row.id} className="score-card" data-active={active} aria-labelledby={`score-${row.id}`}>
+              <button id={`score-${row.id}`} className="score-card-select" aria-pressed={active} onClick={() => setActiveRow(row.id)}>
+                <span>{row.name}</span><span>{active ? 'On the map' : 'Show on map ↗'}</span>
+              </button>
+              <div className="score-metrics">
                     {/* AREA */}
-                    <td className="py-4 pr-4" style={{ minWidth: 150 }}>
+                    <div className="score-metric"><h4>Area</h4>
                       <div className="flex items-center gap-2">
                         <Tag kind="exact" />
                         <Mark v={row.equalArea} />
@@ -302,9 +262,9 @@ export default function Ch08Scorecard() {
                         reduced={reducedMotion}
                         shimmer={measuring && row.id !== 'globe'}
                       />
-                    </td>
+                    </div>
                     {/* LOCAL SHAPE */}
-                    <td className="py-4 pr-4" style={{ minWidth: 170 }}>
+                    <div className="score-metric"><h4>Local shape</h4>
                       <div className="flex items-center gap-2">
                         <Tag kind="exact" />
                         <Mark v={row.conformal} />
@@ -330,9 +290,9 @@ export default function Ch08Scorecard() {
                           />
                         </>
                       )}
-                    </td>
+                    </div>
                     {/* DISTANCE */}
-                    <td className="py-4 pr-4" style={{ minWidth: 130 }}>
+                    <div className="score-metric"><h4>Distance</h4>
                       {row.id === 'globe' ? (
                         <Measured label="stress" value="0.00" suffix="reference" reduced={reducedMotion} />
                       ) : (
@@ -346,26 +306,17 @@ export default function Ch08Scorecard() {
                       <p className="mt-1 font-ui text-caption" style={{ color: 'var(--fg-3)', fontSize: 11 }}>
                         after optimal global scale
                       </p>
-                    </td>
-                    {/* DIRECTION / CONTINUITY / POLAR / OUTLINE — editorial */}
-                    {[row.direction, row.continuity, row.polar, row.outline].map((text, i) => (
-                      <td key={i} className="py-4 pr-4" style={{ minWidth: 150 }}>
-                        <div className="flex items-start gap-2">
-                          <span className="mt-0.5 shrink-0">
-                            <Tag kind={i === 0 && row.id === 'mercator' ? 'exact' : 'editorial'} />
-                          </span>
-                          <span className="font-ui text-caption" style={{ color: 'var(--fg-2)' }}>
-                            {text}
-                          </span>
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                    </div>
 
+              </div>
+              <details className="score-properties"><summary>Direction, continuity & world outline</summary>
+                <dl>{[row.direction, row.continuity, row.polar, row.outline].map((text, i) => <div key={i}>
+                  <dt>{['Direction', 'Continuity', 'Polar behavior', 'World outline'][i]} <Tag kind={i === 0 && row.id === 'mercator' ? 'exact' : 'editorial'} /></dt>
+                  <dd>{text}</dd>
+                </div>)}</dl>
+              </details>
+            </article>
+          })}
           <p className="mt-4 max-w-measure font-ui text-caption" style={{ color: 'var(--fg-3)' }}>
             Reference anchors from the literature: Kerkovits (2021) reports Equal Earth at
             RMSE 2.678° mean angular deformation; Narukawa (2022) reports AuthaGraph mean
@@ -418,7 +369,7 @@ export default function Ch08Scorecard() {
       </details>
 
       <p className="pull-line mt-16 max-w-measure text-pull">
-        Every projection in this table is the best answer to some question. The table&apos;s
+        Every projection here is the best answer to some question. The scorecard&apos;s
         job is not to crown a winner — it is to make the questions askable.
       </p>
     </section>
@@ -540,31 +491,4 @@ function trimNum(v: number, target: string): string {
   if (!m) return String(v)
   const decimals = m[0].includes('.') ? m[0].split('.')[1].length : 0
   return v.toFixed(decimals)
-}
-
-function Th({
-  label,
-  tip,
-  col,
-  onHover,
-  className,
-}: {
-  label: string
-  tip: string
-  col: string
-  onHover: (col: string | null) => void
-  className?: string
-}) {
-  return (
-    <th
-      scope="col"
-      title={tip}
-      onMouseEnter={() => onHover(col)}
-      onMouseLeave={() => onHover(null)}
-      className={`py-3 pr-4 text-left font-ui text-label uppercase ${className ?? ''}`}
-      style={{ color: 'var(--fg-3)', borderBottom: '1px solid var(--hair)', cursor: 'help' }}
-    >
-      {label}
-    </th>
-  )
 }

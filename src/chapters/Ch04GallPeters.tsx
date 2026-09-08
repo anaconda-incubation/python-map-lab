@@ -256,7 +256,7 @@ export default function Ch04GallPeters() {
             </p>
             <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
               className="mt-8"
-              tex={String.raw`\begin{aligned} x &= \lambda \cos\varphi_0 \\[4pt] y &= \frac{\sin\varphi}{\cos\varphi_0} \quad\Rightarrow\quad dy = \frac{\cos\varphi}{\cos\varphi_0}\,d\varphi \\[8pt] dA_{\text{map}} &= dx\,dy = \cos\varphi_0\,d\lambda \cdot \frac{\cos\varphi}{\cos\varphi_0}\,d\varphi = \cos\varphi\,d\lambda\,d\varphi = dA_{\text{sphere}} \end{aligned}`}
+              tex={String.raw`\begin{aligned} x &= \lambda\cos\varphi_0 \\[6pt] y &= \frac{\sin\varphi}{\cos\varphi_0} \\[6pt] dy &= \frac{\cos\varphi}{\cos\varphi_0}\,d\varphi \\[10pt] dA_{\text{map}} &= dx\,dy \\[6pt] &= \cos\varphi_0\,d\lambda\cdot\frac{\cos\varphi}{\cos\varphi_0}\,d\varphi \\[6pt] &= \cos\varphi\,d\lambda\,d\varphi \\[6pt] &= dA_{\text{sphere}} \end{aligned}`}
               glossary={[
                 { symbol: '\\varphi_0 = 45^\\circ', meaning: 'the standard parallel — the latitude where the map is undistorted (Gall chose 45°; Peters kept it)' },
                 { symbol: 'd(\\sin\\varphi) = \\cos\\varphi\\,d\\varphi', meaning: 'the derivative that makes everything work: y-movement on the map automatically carries the sphere’s cosine factor' },

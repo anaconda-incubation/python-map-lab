@@ -222,7 +222,7 @@ export default function Ch02DistortionEngine() {
               </p>
               <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
                 className="mt-8"
-                tex={String.raw`A = U\,\Sigma\,V^{T}, \qquad \Sigma = \begin{pmatrix} \sigma_1 & 0 \\ 0 & \sigma_2 \end{pmatrix}, \quad \sigma_1 \ge \sigma_2 > 0`}
+                tex={String.raw`\begin{gathered} A = U\,\Sigma\,V^{T} \\[6pt] \Sigma = \begin{pmatrix} \sigma_1 & 0 \\ 0 & \sigma_2 \end{pmatrix} \\[6pt] \sigma_1 \ge \sigma_2 > 0 \end{gathered}`}
                 caption="The SVD of the local derivative. σ₁ and σ₂ are Tissot's principal scale factors — the ellipse semi-axes."
               /></details>
               <div className="mt-8 grid grid-cols-3 gap-6">
@@ -247,7 +247,7 @@ export default function Ch02DistortionEngine() {
               </p>
               <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
                 className="mt-8"
-                tex={String.raw`s \;=\; \det A \;=\; \sigma_1\,\sigma_2 \qquad\text{(equal-area } \Longleftrightarrow s \equiv 1\text{)}`}
+                tex={String.raw`\begin{gathered} s = \det A = \sigma_1\,\sigma_2 \\[8pt] \text{equal-area}\ \Longleftrightarrow\ s \equiv 1 \end{gathered}`}
                 caption="Areal scale. An equal-area projection is a theorem about this number: it must be 1 at every point."
               /></details>
             </Reveal>
@@ -266,7 +266,7 @@ export default function Ch02DistortionEngine() {
               </p>
               <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
                 className="mt-8"
-                tex={String.raw`\sin\frac{\omega}{2} \;=\; \frac{\sigma_1 - \sigma_2}{\sigma_1 + \sigma_2} \qquad\text{(conformal } \Longleftrightarrow \omega \equiv 0\text{)}`}
+                tex={String.raw`\begin{gathered} \sin\frac{\omega}{2} = \frac{\sigma_1 - \sigma_2}{\sigma_1 + \sigma_2} \\[10pt] \text{conformal}\ \Longleftrightarrow\ \omega \equiv 0 \end{gathered}`}
                 caption="Maximum angular deformation (Tissot 1881). Zero everywhere defines the conformal projections."
               /></details>
               <p className="mt-6 pull-line text-pull">
