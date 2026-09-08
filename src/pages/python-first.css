@@ -19,7 +19,7 @@
 .pf-map-sticky { position:sticky; top:calc(var(--nav-h) + 20px); background:#10202a; color:#ede6d6; border:1px solid #2e444a; }
 .pf-map-header { display:flex; justify-content:space-between; gap:12px; padding:18px; font:10px/1.5 Inter,sans-serif; text-transform:uppercase; letter-spacing:.1em; }
 .pf-canvas { position:relative; height:clamp(300px,36vw,470px); overflow:hidden; }
-.pf-map-controls { padding:14px 18px; border-top:1px solid #2e444a; --fg:#ede6d6; --fg-2:#b5c6c7; --fg-3:#91a7a9; --hair:#3a5359; --accent:#dfac77; }
+.pf-map-controls { padding:14px 18px; border-top:1px solid #2e444a; --bg:#10202a; --fg:#f5f1e8; --fg-2:#f5f1e8; --fg-3:#c0d0d1; --hair:#71898f; --accent:#dfac77; --on-accent:#15232b; }
 .pf-map-status { padding:0 18px 16px; font:11px/1.6 Inter,sans-serif; color:#b5c6c7; }
 .pf-question { border-top:1px solid #2e444a; padding:22px; }
 .pf-question h2 { font:400 25px/1.25 Fraunces,serif; margin-bottom:12px; }
@@ -45,3 +45,7 @@
 @media(max-width:900px) { .pf-columns{grid-template-columns:1fr;} .pf-map-sticky{position:relative;top:auto;} .pf-canvas{height:360px;} .pf-intro-bottom{display:block;} .pf-runtime{display:block;margin-top:20px;} .pf-paths{grid-template-columns:1fr;} }
 @media(max-width:500px) { .pf-intro{padding-top:32px;} .pf-choices button{padding:12px 8px;} .pf-choices strong{font-size:18px;} .pf-choices span{font-size:9px;} .pf-canvas{height:300px;} .pf-intro-bottom p{font-size:18px;} }
 @media(prefers-reduced-motion:reduce) { .pf-choices button{transition:none;} }
+
+/* Keep dark-stage controls independent of the surrounding paper theme. */
+.pf-map-controls button { font-size:12px; font-weight:500; letter-spacing:.015em; text-transform:none; }
+.python-first .pf-map-controls button:focus-visible { outline-color:#dfac77; }
