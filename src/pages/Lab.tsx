@@ -700,8 +700,8 @@ export default function Lab() {
       {/* ---------- header ---------- */}
       <div className="mx-auto max-w-container px-[var(--gutter)] pb-8 pt-14">
         <p className="font-ui text-kicker uppercase" style={{ color: 'var(--fg-3)' }}>
-          <Link to="/story/" className="transition-colors hover:text-accent">
-            The essay
+          <Link to="/" className="transition-colors hover:text-accent">
+            Python field guide
           </Link>
           <span aria-hidden> / </span>
           <span style={{ color: 'var(--fg-2)' }}>Projection Lab</span>

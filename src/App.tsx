@@ -1,6 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 import Layout from '@/components/Layout'
-import Home from '@/pages/Home'
 import PythonFirst from '@/pages/PythonFirst'
 import Lab from '@/pages/Lab'
 
@@ -10,7 +9,7 @@ export default function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<PythonFirst />} />
-          <Route path="/story/*" element={<Home />} />
+          <Route path="/story/*" element={<Navigate to="/" replace />} />
           <Route path="/lab" element={<Lab />} />
         </Routes>
       </Layout>

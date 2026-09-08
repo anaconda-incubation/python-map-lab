@@ -111,3 +111,6 @@
 .pf-working-dot { flex-shrink: 0; width: 9px; height: 9px; border-radius: 50%; background: #dfac77; animation: pf-working-pulse 1.3s ease-in-out infinite; }
 @keyframes pf-working-pulse { 50% { opacity: .3; } }
 @media(prefers-reduced-motion:reduce) { .pf-working-dot { animation: none; } }
+.pf-paths-python { grid-template-columns: repeat(2,minmax(0,1fr)); }
+#experiments, #lesson-story-title { scroll-margin-top: calc(var(--nav-h) + 24px); }
+@media(max-width:700px) { .pf-paths-python { grid-template-columns: 1fr; } }

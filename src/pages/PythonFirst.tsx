@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
+import { scrollPageTo } from '@/utils/pageScroll'
 import PythonPanel from '@/chapters/PythonPanel'
 import EquationBlock from '@/components/EquationBlock'
 import StageToggle from '@/components/StageToggle'
@@ -15,6 +16,15 @@ import { bakeProjection } from '@/projection/bake'
 const GRID = buildLabGrid()
 
 export default function PythonFirst() {
+  const location = useLocation()
+  useEffect(() => {
+    if(location.hash !== '#experiments') return
+    const frame = requestAnimationFrame(() => {
+      const el = document.getElementById('experiments')
+      if(el) scrollPageTo(el.getBoundingClientRect().top + window.scrollY - 80)
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [location.hash])
   const [index, setIndex] = useState(-1)
   const [authSamples, setAuthSamples] = useState<Awaited<ReturnType<typeof getAuthagraphSamples>> | null>(null)
   const [busy, setBusy] = useState(false)
@@ -121,17 +131,16 @@ export default function PythonFirst() {
           <div className="pf-section-label pf-math-heading">03 / Connect the mathematics</div>
           <EquationBlock tex={lesson.tex} caption={custom || dirty ? 'Reference equations for the selected lesson. Your edited code may define a different projection.' : lesson.id==='authagraph' ? 'Facet-local angles λf and φf produce radius r and angle θ. The helpers then rotate and place each region in the rectangle.' : 'λ is longitude; φ is latitude. The function maps these angles to planar coordinates x and y.'}/>
           {lesson.id==='equalEarth' && <p className="pf-math-note">F(θ) = A₁θ + A₂θ³ + A₃θ⁷ + A₄θ⁹. The Python names its derivative explicitly.</p>}
-          <div className="pf-next-actions"><button onClick={downloadNotebook} disabled={dirty}>Download {lastCode?'your':'starter'} notebook ↓</button><Link to={`/story/#${lesson.chapter}`}>Read the full derivation ↗</Link></div>
+          <div className="pf-next-actions"><button onClick={downloadNotebook} disabled={dirty}>Download {lastCode?'your':'starter'} notebook ↓</button><a href="#lesson-story-title">Understand the code and its purpose ↓</a></div>
           {dirty && <p className="pf-math-note">Run your edits before downloading to include the executed version.</p>}
         </div>}
       </div>
     </section>
     {!globe && <section className="pf-story" aria-labelledby="lesson-story-title"><p className="pf-eyebrow">Understand {lesson.name}</p><h2 id="lesson-story-title">What is this code actually doing?</h2><div className="pf-story-grid"><div><h3>The simple explanation</h3><p>{story.simple}</p></div><div><h3>What the mapmaker wanted</h3><p>{story.objective}</p></div><div><h3>A little history</h3><p>{story.history}</p><a href={story.source} target="_blank" rel="noopener noreferrer">{story.sourceLabel} ↗</a></div></div></section>}
     <WeirdVariants />
-    <section className="pf-deeper"><p className="pf-eyebrow">Keep exploring</p><h2>There is a whole world behind the function.</h2><div className="pf-paths">
-      <Link to="/story/"><span>THE VISUAL ESSAY</span><h3>Every flat map is a choice.</h3><p>The rotating globe, the history, the proofs, and the consequences. Take the full guided journey.</p><b>Follow the story →</b></Link>
-      <Link to="/lab"><span>THE OPEN LAB</span><h3>Build your own answer.</h3><p>Write a projection from scratch, compare distortions, or let an optimizer search for your priorities.</p><b>Open the advanced lab →</b></Link>
-      <Link to="/story/#ch-06"><span>A DIFFERENT KIND OF MATHEMATICS</span><h3>Unfold AuthaGraph.</h3><p>Rotate the globe. Divide the surface. Follow the polyhedral construction, one transformation at a time.</p><b>Explore the construction →</b></Link>
+    <section className="pf-deeper"><p className="pf-eyebrow">Keep exploring</p><h2>There is a whole world behind the function.</h2><div className="pf-paths pf-paths-python">
+      <Link to="/lab#python"><span>WRITE PYTHON</span><h3>Build your own answer.</h3><p>Take what you learned into the open editor. Write a projection, run it, and inspect how it changes the world.</p><b>Open the Python lab →</b></Link>
+      <Link to="/lab#design"><span>EXPLORE THE TRADEOFFS</span><h3>Choose what matters.</h3><p>Set your priorities for area, shape, and distance. Let the optimizer search, then explore the Python behind its result.</p><b>Design a projection →</b></Link>
     </div></section>
   </div>
 }
