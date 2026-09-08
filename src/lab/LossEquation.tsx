@@ -4,7 +4,7 @@
  * whose slider moved most recently renders in vermilion.
  */
 import { useMemo } from 'react'
-import katex from 'katex'
+import EquationBlock from '@/components/EquationBlock'
 import { GOALS, type GoalWeights } from './types'
 
 const TERM_TEX: Record<keyof GoalWeights, string> = {
@@ -26,32 +26,21 @@ export interface LossEquationProps {
 }
 
 export default function LossEquation({ weights, hotKey }: LossEquationProps) {
-  const html = useMemo(() => {
+  const tex = useMemo(() => {
     const sum = GOALS.reduce((s, g) => s + Math.max(0, weights[g.key]), 0) || 1
     const parts = GOALS.map((g) => {
       const w = Math.max(0, weights[g.key]) / sum
       const color = g.key === hotKey ? HOT : INK
       return `\\textcolor{${color}}{${w.toFixed(2)}}\\,${TERM_TEX[g.key]}`
     })
-    const tex = `L = ${parts.join(' + ')}`
-    return katex.renderToString(tex, { displayMode: true, throwOnError: false, strict: false })
+    // One term per line keeps the full objective readable in a narrow lab column.
+    return String.raw`\begin{aligned}L &= ` + parts.join(String.raw` \\[3pt] &\quad + `) + String.raw`\end{aligned}`
   }, [weights, hotKey])
 
   return (
-    <figure
-      style={{ background: 'var(--bg-2)', border: '1px solid var(--hair)', padding: '1.25rem 1rem' }}
-    >
-      <div
-        className="overflow-x-auto text-center"
-        style={{ fontSize: '0.98em', color: 'var(--fg)' }}
-        aria-label="Loss equation with live weights"
-        // KaTeX output is generated locally from our own TeX strings.
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
-      <figcaption className="mt-3 font-ui text-caption" style={{ color: 'var(--fg-2)' }}>
-        This is the whole idea of the essay, written as one line of mathematics. A perfect
-        solution does not exist — the optimizer can only trade one term against another.
-      </figcaption>
-    </figure>
+    <EquationBlock
+      tex={tex}
+      caption="The six priorities form one objective. A perfect solution does not exist — the optimizer can only trade one term against another."
+    />
   )
 }
