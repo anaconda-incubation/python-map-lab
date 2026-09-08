@@ -38,6 +38,7 @@ export interface LabStage {
   ready: boolean
   /** id of the projection shown at morph t = 1 (the "current" map) */
   currentId: string
+  orbitBy: (yaw: number, pitch: number) => void
   layers: StageLayerState
   toggleLayer: (layer: StageLayer) => void
   /** Bake + register a custom projection; returns its key. */
@@ -63,6 +64,7 @@ export function useMapStage(initialId?: string): LabStage {
   const stageRef = useRef<MapStage | null>(null)
   const animRef = useRef<AnimHandle | null>(null)
   const currentIdRef = useRef<string>('globe')
+  const orbit = useRef({ yaw: 0, pitch: 0.05 })
   /** mirror of the stage's morph t (the hook drives every setMorph call) */
   const morphTRef = useRef(0)
   const [ready, setReady] = useState(false)
@@ -145,9 +147,9 @@ export function useMapStage(initialId?: string): LabStage {
         area: false,
         angle: false,
       })
-      stage.setAutoRotate(true)
+      stage.setAutoRotate(initial !== 'globe')
       // the globe greets, then morphs to the last-used / default projection
-      animateMorph(0, 1, 1600, () => {
+      animateMorph(0, 1, initial === 'globe' ? 0 : 1600, () => {
         stage.setAutoRotate(false)
         setReady(true)
       })
@@ -177,6 +179,7 @@ export function useMapStage(initialId?: string): LabStage {
       const stage = stageRef.current
       if (!stage) return
       const from = currentIdRef.current
+      orbit.current = { yaw: 0, pitch: 0.05 }
       if (from === id) {
         // A Python rerun or optimizer result may replace this registered key.
         await stage.setMorphTargets(id, id)
@@ -235,10 +238,24 @@ export function useMapStage(initialId?: string): LabStage {
     })
   }, [])
 
+  const orbitBy = useCallback((yaw: number, pitch: number) => {
+    const stage = stageRef.current
+    const container = containerRef.current
+    if (!stage || !container || currentIdRef.current !== 'globe') return
+    const o = orbit.current
+    o.yaw += yaw
+    o.pitch = Math.max(-1.35, Math.min(1.35, o.pitch + pitch))
+    const aspect = container.clientWidth / Math.max(1, container.clientHeight)
+    const d = 1.18 / Math.sin(16 * Math.PI / 180) / Math.min(1, aspect)
+    stage.setAutoRotate(false)
+    stage.setCameraState({position: [d * Math.sin(o.yaw) * Math.cos(o.pitch), d * Math.sin(o.pitch), d * Math.cos(o.yaw) * Math.cos(o.pitch)], target: [0, 0, 0], fov: 32})
+  }, [])
+
   return {
     containerRef,
     ready,
     currentId,
+    orbitBy,
     layers,
     toggleLayer,
     bakeAndRegister,

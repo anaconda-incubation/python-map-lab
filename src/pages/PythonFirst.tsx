@@ -14,7 +14,7 @@ import { getAuthagraphSamples } from './authagraphSamples'
 const GRID = buildLabGrid()
 
 export default function PythonFirst() {
-  const [index, setIndex] = useState(0)
+  const [index, setIndex] = useState(-1)
   const [authSamples, setAuthSamples] = useState<Awaited<ReturnType<typeof getAuthagraphSamples>> | null>(null)
   const [busy, setBusy] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -22,10 +22,12 @@ export default function PythonFirst() {
   const [error, setError] = useState('')
   const [runtime, setRuntime] = useState('Python is warming up')
   const [lastCode, setLastCode] = useState<string | null>(null)
-  const stage = useMapStage('mercator')
+  const stage = useMapStage('globe')
   const serial = useRef(0)
   const mounted = useRef(true)
-  const lesson = lessons[index]
+  const globe = index === -1
+  const drag = useRef<{id:number,x:number,y:number} | null>(null)
+  const lesson = lessons[Math.max(0,index)]
   const story = lessonStories[lesson.id]
   useEffect(() => {
     mounted.current = true
@@ -35,7 +37,7 @@ export default function PythonFirst() {
   async function choose(i: number) {
     if(busy || !stage.ready) return
     setBusy(true); setError('')
-    try { if(lessons[i].id === 'authagraph') setAuthSamples(await getAuthagraphSamples()); await stage.morphTo(lessons[i].id,1200); setIndex(i); setDirty(false); setCustom(false); setLastCode(null) }
+    try { if(i >= 0 && lessons[i].id === 'authagraph') setAuthSamples(await getAuthagraphSamples()); await stage.morphTo(i === -1 ? 'globe' : lessons[i].id,1200); setIndex(i); setDirty(false); setCustom(false); setLastCode(null) }
     catch {setError('The map could not load. Please try again.')}
     finally {setBusy(false)}
   }
@@ -74,17 +76,27 @@ export default function PythonFirst() {
       <aside className="pf-context-note" aria-label="Why this matters now"><span>Why this matters now</span><p>Mercator was designed for navigation in 1569. In September 2026, the UN encouraged equal-area projections for general-reference world maps, so countries and continents appear in their true relative sizes. <a href="https://news.un.org/en/story/2026/09/1168284" target="_blank" rel="noopener noreferrer">Read the UN News article ↗</a></p></aside>
     </section>
     <section className="pf-workspace" aria-label="Interactive Python lesson">
-      <div className="pf-choices" role="group" aria-label="Choose a projection">{lessons.map((l,i)=><button key={l.id} aria-pressed={index===i} disabled={busy || !stage.ready} onClick={()=>void choose(i)}><span>0{i+1} / {l.promise}</span><strong>{l.name}</strong></button>)}</div>
+      <div className="pf-choices" role="group" aria-label="Choose a projection"><button aria-pressed={globe} disabled={busy || !stage.ready} onClick={()=>void choose(-1)}><span>Start here / The reference</span><strong>Globe</strong></button>{lessons.map((l,i)=><button key={l.id} aria-pressed={index===i} disabled={busy || !stage.ready} onClick={()=>void choose(i)}><span>0{i+1} / {l.promise}</span><strong>{l.name}</strong></button>)}</div>
       <div className="pf-columns">
         <div className="pf-map-column"><div className="pf-map-sticky">
-          <div className="pf-map-header"><span>01 / Observe the world</span><span>{custom?'Your Python result':lesson.name}</span></div>
-          <div className="pf-canvas" role="img" aria-label={`${custom?'Python-generated':lesson.name} projection with geography and coordinate grid`}><div ref={stage.containerRef} className="absolute inset-0"/>{!stage.ready && <span className="pf-loading">Preparing the globe…</span>}</div>
+          <div className="pf-map-header"><span>01 / Observe the world</span><span>{globe?'Globe':custom?'Your Python result':lesson.name}</span></div>
+          <div className={`pf-canvas ${globe?'pf-globe':''}`} role={globe?'region':'img'} tabIndex={globe?0:undefined}
+            onPointerDown={e=>{if(!globe || busy || !stage.ready || e.button!==0)return;drag.current={id:e.pointerId,x:e.clientX,y:e.clientY};e.currentTarget.setPointerCapture(e.pointerId)}}
+            onPointerMove={e=>{const d=drag.current;if(!d || d.id!==e.pointerId || busy)return;stage.orbitBy((d.x-e.clientX)*.006,(e.clientY-d.y)*.006);d.x=e.clientX;d.y=e.clientY}}
+            onPointerUp={()=>{drag.current=null}} onPointerCancel={()=>{drag.current=null}} onLostPointerCapture={()=>{drag.current=null}}
+            onKeyDown={e=>{if(!globe || busy || !stage.ready)return;const direction:Record<string,[number,number]>={ArrowLeft:[-.15,0],ArrowRight:[.15,0],ArrowUp:[0,.15],ArrowDown:[0,-.15]};if(direction[e.key]){e.preventDefault();stage.orbitBy(...direction[e.key])}}}
+            aria-label={globe?'Interactive globe. Drag or use arrow keys to rotate.':`${custom?'Python-generated':lesson.name} projection with geography and coordinate grid`}><div ref={stage.containerRef} className="absolute inset-0"/>{!stage.ready && <span className="pf-loading">Preparing the globe…</span>}</div>
           <div className="pf-map-controls"><StageToggle layers={stage.layers} onChange={stage.toggleLayer}/></div>
-          <p className="pf-map-status" role="status">{busy?'Transforming the map…':dirty?'Code edited. Run Python to update the map.':custom?'Map drawn from your executed Python.':'Reference map loaded. Run the function to draw it with Python.'}</p>
-          <div className="pf-question"><h2>{lesson.question}</h2><p>{lesson.explanation}</p></div>
+          <p className="pf-map-status" role="status">{busy?'Transforming the map…':globe?'Drag to rotate · Arrow keys work too':dirty?'Code edited. Run Python to update the map.':custom?'Map drawn from your executed Python.':'Reference map loaded. Run the function to draw it with Python.'}</p>
+          <div className="pf-question"><h2>{globe?'One world. Different promises.':lesson.question}</h2><p>{globe?'A globe keeps the Earth’s geometry on a curved surface. Flattening it means choosing what to preserve and what to distort.':lesson.explanation}</p></div>
           {error && <p role="alert">{error}</p>}
         </div></div>
-        <div className="pf-code-column">
+        {globe ? <div className="pf-overview"><p className="pf-section-label">02 / Choose what matters</p><h2>You cannot flatten a sphere without changing it.</h2><p className="pf-overview-intro">Think of peeling an orange. To lay the peel flat, you have to stretch it or cut it. Each map makes a different bargain.</p><div className="pf-tradeoffs">{lessons.map((l,i)=><button key={l.id} disabled={busy || !stage.ready} onClick={()=>void choose(i)}><span><strong>{l.name}</strong><span aria-hidden="true">↗</span></span><p>{[
+'Made for navigation: keeps local angles and makes constant compass bearings straight. Areas near the poles look much too large.',
+'Keeps countries in their true relative sizes. Its rectangular layout stretches shapes, especially near the equator and poles.',
+'Also keeps relative areas, with a rounded outline that balances how shapes look. Angles and distances still change.',
+'Divides the globe into regions and unfolds them into a rectangle, keeping Antarctica whole. Cuts and distortion remain; the formulation here is not exactly equal-area.'
+][i]}</p><small>Explore the map and its Python →</small></button>)}</div><p className="pf-overview-footnote">The globe is our reference. Choose a flat map to see its mathematics, run its Python, and explore the tradeoffs yourself.</p></div> : <div className="pf-code-column">
           <div className="pf-section-label">02 / Read, change, run</div>
           <p className="pf-change">{lesson.change}</p>
           <PythonPanel key={lesson.id} filename={`${lesson.id}.py`} code={lesson.code} samples={lesson.id==='authagraph' && authSamples ? authSamples : GRID} supportCode={lesson.supportCode} annotations={lesson.annotations} initiallyEditable runLabel="Run Python → redraw map" onRunStateChange={setBusy} onEdit={()=>setDirty(true)} onResult={apply} onReset={()=>{setDirty(false);void choose(index)}}/>
@@ -94,10 +106,10 @@ export default function PythonFirst() {
           {lesson.id==='equalEarth' && <p className="pf-math-note">F(θ) = A₁θ + A₂θ³ + A₃θ⁷ + A₄θ⁹. The Python names its derivative explicitly.</p>}
           <div className="pf-next-actions"><button onClick={downloadNotebook} disabled={dirty}>Download {lastCode?'your':'starter'} notebook ↓</button><Link to={`/story/#${lesson.chapter}`}>Read the full derivation ↗</Link></div>
           {dirty && <p className="pf-math-note">Run your edits before downloading to include the executed version.</p>}
-        </div>
+        </div>}
       </div>
     </section>
-    <section className="pf-story" aria-labelledby="lesson-story-title"><p className="pf-eyebrow">Understand {lesson.name}</p><h2 id="lesson-story-title">What is this code actually doing?</h2><div className="pf-story-grid"><div><h3>The simple explanation</h3><p>{story.simple}</p></div><div><h3>What the mapmaker wanted</h3><p>{story.objective}</p></div><div><h3>A little history</h3><p>{story.history}</p><a href={story.source} target="_blank" rel="noopener noreferrer">{story.sourceLabel} ↗</a></div></div></section>
+    {!globe && <section className="pf-story" aria-labelledby="lesson-story-title"><p className="pf-eyebrow">Understand {lesson.name}</p><h2 id="lesson-story-title">What is this code actually doing?</h2><div className="pf-story-grid"><div><h3>The simple explanation</h3><p>{story.simple}</p></div><div><h3>What the mapmaker wanted</h3><p>{story.objective}</p></div><div><h3>A little history</h3><p>{story.history}</p><a href={story.source} target="_blank" rel="noopener noreferrer">{story.sourceLabel} ↗</a></div></div></section>}
     <WeirdVariants />
     <section className="pf-deeper"><p className="pf-eyebrow">Keep exploring</p><h2>There is a whole world behind the function.</h2><div className="pf-paths">
       <Link to="/story/"><span>THE VISUAL ESSAY</span><h3>Every flat map is a choice.</h3><p>The rotating globe, the history, the proofs, and the consequences. Take the full guided journey.</p><b>Follow the story →</b></Link>

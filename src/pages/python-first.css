@@ -84,3 +84,22 @@
 @media(max-width:700px) { .pf-context-note { display:block; } .pf-context-note>span { display:block; margin-bottom:6px; } }
 
 .pf-helper pre:focus-visible {outline:2px solid var(--pf-green);outline-offset:3px;}
+
+/* A shared starting point before the Python lessons. */
+.pf-choices { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.pf-globe { cursor: grab; touch-action: none; }
+.pf-globe:active { cursor: grabbing; }
+.pf-globe:focus-visible { outline: 3px solid #dfac77; outline-offset: -3px; }
+.pf-overview { min-width: 0; }
+.pf-overview h2 { font-family: var(--serif); font-size: clamp(25px, 2.4vw, 34px); line-height: 1.15; margin: 12px 0 18px; }
+.pf-overview-intro { font-family: var(--serif); font-size: 19px; line-height: 1.55; color: var(--ink-2); }
+.pf-tradeoffs { margin-top: 24px; border-top: 1px solid var(--hair); }
+.pf-tradeoffs button { display: block; width: 100%; text-align: left; padding: 18px 16px; border-bottom: 1px solid var(--hair); transition: background .2s; }
+.pf-tradeoffs button:hover, .pf-tradeoffs button:focus-visible { background: #47694d12; }
+.pf-tradeoffs button:focus-visible { outline: 2px solid var(--pf-green); outline-offset: -2px; }
+.pf-tradeoffs button > span { display: flex; justify-content: space-between; color: var(--pf-green); }
+.pf-tradeoffs strong { font-family: var(--serif); font-weight: 400; font-size: 23px; }
+.pf-tradeoffs p { margin: 8px 0; font-size: 15px; line-height: 1.55; }
+.pf-tradeoffs small { font-size: 12px; color: var(--pf-green); }
+.pf-overview-footnote { font-size: 14px; line-height: 1.6; margin-top: 20px; }
+@media(max-width: 700px) { .pf-choices { grid-template-columns: repeat(2,minmax(0,1fr)); } .pf-choices button:first-child { grid-column: 1 / -1; } }
