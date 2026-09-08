@@ -15,7 +15,7 @@ npm run dev
 
 The opening pairs a midnight atlas palette with a textured rotating globe. A single controllable sequence settles rotation, introduces the grid, unfolds the geographic surface and resolves to Equal Earth. Visitors can scroll, play, replay, return to the globe or use the keyboard-accessible range control. The global motion preference follows the system unless overridden in the navigation.
 
-Paper-toned reading sections follow an early linked globe/map experiment. Six curated places can be tracked through Mercator, Equal Earth and Gall–Peters, with endpoint local-area measurements and an optional prediction exercise. The full morph studio retains all projections. Mathematics and Python examples are expandable; the lab has four purpose presets.
+Paper-toned reading sections follow an early linked globe/map experiment. Fifteen curated places across all seven continents can be tracked through Mercator, Equal Earth and Gall–Peters, with endpoint local-area measurements and an optional prediction exercise. The full morph studio retains all projections. Mathematics and Python examples are expandable; the lab has four purpose presets.
 
 ## Geography and imagery
 
