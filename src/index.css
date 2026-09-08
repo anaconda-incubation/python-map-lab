@@ -519,3 +519,21 @@ main .pull-line { max-width:100%; overflow-wrap:break-word; }
   --indigo: #a8b9f5;
   --ochre: #dfbc7e;
 }
+
+/* Anaconda-inspired dark palette, matched to the supplied brand reference. */
+:root[data-theme='atlas'] {
+  --atlas: #0b0d0c;
+  --atlas-2: #171d19;
+  --atlas-ink: #f5f7f5;
+  --atlas-ink-2: #c1cbc3;
+  --atlas-hair: #35453a;
+  --ink: #f5f7f5;
+  --ink-2: #c1cbc3;
+  --ink-3: #a7b7ab;
+  --accent: #00ce48;
+  --on-accent: #071b0d;
+  --seaweed: #a9ee97;
+  --gold: #d9fbb0;
+  --indigo: #c9bfff;
+  --ochre: #ffe000;
+}
