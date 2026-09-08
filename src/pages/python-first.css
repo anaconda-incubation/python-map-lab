@@ -61,7 +61,7 @@
 .pf-story a { display:inline-block;margin-top:18px;font:12px/1.6 Inter,sans-serif;text-decoration:underline; }
 .pf-helper { margin-top:20px; border-block:1px solid var(--hair);padding:15px 0; }
 .pf-helper summary { cursor:pointer;font:13px/1.6 Inter,sans-serif; }
-.pf-helper pre { max-height:360px;overflow:auto;font:11px/1.6 'JetBrains Mono',monospace;padding:16px;background:#e9e5d9; }
+.pf-helper pre { max-height:360px;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;font:11px/1.6 'JetBrains Mono',monospace;padding:16px;background:#e9e5d9; }
 .pf-helper p { font:13px/1.6 Inter,sans-serif;margin:12px 0; }
 .pf-weird-intro { max-width:750px; }
 .pf-variant-choices { display:flex;flex-wrap:wrap;gap:12px;margin-top:22px; }
@@ -82,3 +82,5 @@
 .pf-context-note p { font:14px/1.65 'Source Serif 4',serif; color:var(--ink-2); }
 .pf-context-note a { color:var(--ink); text-decoration:underline; text-underline-offset:3px; }
 @media(max-width:700px) { .pf-context-note { display:block; } .pf-context-note>span { display:block; margin-bottom:6px; } }
+
+.pf-helper pre:focus-visible {outline:2px solid var(--pf-green);outline-offset:3px;}
