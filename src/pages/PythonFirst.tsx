@@ -71,6 +71,7 @@ export default function PythonFirst() {
       <p className="pf-eyebrow">An interactive Python field guide</p>
       <h1>A Few Lines Of <em>Python</em> Can Make the World of Difference</h1>
       <div className="pf-intro-bottom"><p>Choose a projection. Read its mathematics. Change the function and watch the world take a different shape.</p><span className="pf-runtime">● {runtime} · <a href="https://numpy.org/" target="_blank" rel="noopener noreferrer">NumPy ↗</a><br/><small>Runs here, in your browser. No setup.</small></span></div>
+      <aside className="pf-context-note" aria-label="Why this matters now"><span>Why this matters now</span><p>Mercator was designed for navigation in 1569. In September 2026, the UN encouraged equal-area projections for general-reference world maps, so countries and continents appear in their true relative sizes. <a href="https://news.un.org/en/story/2026/09/1168284" target="_blank" rel="noopener noreferrer">Read the UN News article ↗</a></p></aside>
     </section>
     <section className="pf-workspace" aria-label="Interactive Python lesson">
       <div className="pf-choices" role="group" aria-label="Choose a projection">{lessons.map((l,i)=><button key={l.id} aria-pressed={index===i} disabled={busy || !stage.ready} onClick={()=>void choose(i)}><span>0{i+1} / {l.promise}</span><strong>{l.name}</strong></button>)}</div>
