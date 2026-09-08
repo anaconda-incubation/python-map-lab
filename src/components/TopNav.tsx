@@ -34,7 +34,7 @@ export default function TopNav() {
   }, [location.pathname])
   return <header className="atlas-nav">
     <a href="/" onClick={() => setOpen(false)} className="atlas-wordmark"><span className="hidden sm:inline">Every flat map is a choice</span><span className="sm:hidden">A world of maps</span></a>
-    <span className="atlas-nav-current">{location.pathname === '/lab' ? 'Projection lab' : location.pathname === '/' ? 'Python field guide' : current}</span>
+    <a className="pf-anaconda" href="https://www.anaconda.com/" target="_blank" rel="noopener noreferrer">By Anaconda ↗</a><span className="atlas-nav-current">{location.pathname === '/lab' ? 'Projection lab' : location.pathname === '/' ? 'Python field guide' : current}</span>
     <nav aria-label="Site" className="atlas-nav-links">
       <div ref={dropdown} onKeyDown={e => { if (e.key === 'Escape') { setOpen(false); trigger.current?.focus() } }} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false) }}>
         <button ref={trigger} aria-expanded={open} aria-controls="atlas-chapters" onClick={() => setOpen(v => !v)}>Visual essay <span aria-hidden>⌄</span></button>

@@ -49,3 +49,30 @@
 /* Keep dark-stage controls independent of the surrounding paper theme. */
 .pf-map-controls button { font-size:12px; font-weight:500; letter-spacing:.015em; text-transform:none; }
 .python-first .pf-map-controls button:focus-visible { outline-color:#dfac77; }
+.pf-intro h1 { font-size:clamp(26px,2.75vw,40px); white-space:nowrap; letter-spacing:-.045em; }
+.pf-runtime a { text-decoration:underline; text-underline-offset:3px; }
+.pf-anaconda { font:12px Inter,sans-serif; color:var(--fg); white-space:nowrap; }
+.pf-choices { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.pf-story,.pf-weird { max-width:1440px; margin:auto; padding:64px clamp(20px,4vw,64px) 0; }
+.pf-story h2,.pf-weird h2 { font:400 clamp(28px,3vw,40px)/1.2 Fraunces,serif; margin:12px 0 28px; }
+.pf-story-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;border-top:1px solid var(--hair);padding-top:24px; }
+.pf-story h3 { font:400 23px/1.3 Fraunces,serif;margin-bottom:14px; }
+.pf-story-grid p,.pf-weird > .pf-weird-intro,.pf-weird .pf-columns > div > p { font:17px/1.65 'Source Serif 4',serif;color:var(--ink-2); }
+.pf-story a { display:inline-block;margin-top:18px;font:12px/1.6 Inter,sans-serif;text-decoration:underline; }
+.pf-helper { margin-top:20px; border-block:1px solid var(--hair);padding:15px 0; }
+.pf-helper summary { cursor:pointer;font:13px/1.6 Inter,sans-serif; }
+.pf-helper pre { max-height:360px;overflow:auto;font:11px/1.6 'JetBrains Mono',monospace;padding:16px;background:#e9e5d9; }
+.pf-helper p { font:13px/1.6 Inter,sans-serif;margin:12px 0; }
+.pf-weird-intro { max-width:750px; }
+.pf-variant-choices { display:flex;flex-wrap:wrap;gap:12px;margin-top:22px; }
+.pf-variant-choices button { border:1px solid var(--hair);padding:12px 18px;text-align:left; }
+.pf-variant-choices button[aria-pressed=true] { background:#dfe5d9;border-color:#47694d; }
+.pf-variant-choices span { display:block;font:12px/1.6 Inter,sans-serif;margin-top:5px; }
+.pf-weird-map { height:360px;position:relative;background:#10202a; }
+@media(max-width:1100px) { .pf-anaconda {font-size:11px;} .atlas-nav-current{display:none;} }
+@media(max-width:900px) { .pf-intro h1{white-space:normal;font-size:36px;} .pf-story-grid{grid-template-columns:1fr;} }
+@media(max-width:600px) { .pf-choices{grid-template-columns:repeat(2,minmax(0,1fr));} .pf-anaconda{font-size:10px;} .pf-intro h1{font-size:30px;} .pf-weird-map{height:280px;} }
+@media(max-width:600px) { .atlas-nav{padding-inline:16px;gap:12px;} .atlas-nav .atlas-wordmark{display:none;} .atlas-nav-links{gap:12px;font-size:11px;} .atlas-nav .python-nav-link{display:none;} }
+
+.pf-weird .pf-columns > div > .pf-math-note {font:12px/1.6 Inter,sans-serif;}
+.pf-variant-choices code {font-size:clamp(12px,1.5vw,16px);overflow-wrap:anywhere;}

@@ -1,5 +1,6 @@
+import authagraphSupport from '@/python/authagraph_lesson.py?raw'
 import type { PanelAnnotation } from '@/chapters/PythonPanel'
-export interface Lesson { id: string; name: string; promise: string; question: string; explanation: string; change: string; tex: string; code: string; annotations: PanelAnnotation[]; chapter: string }
+export interface Lesson { supportCode?: string; id: string; name: string; promise: string; question: string; explanation: string; change: string; tex: string; code: string; annotations: PanelAnnotation[]; chapter: string }
 export const lessons: Lesson[] = [
   { id:'mercator', name:'Mercator', promise:'Keep local angles', question:'Why does Greenland look so large?', explanation:'Mercator stretches both directions equally at each point. Local angles survive, but area grows rapidly toward the poles.', change:'Start with x = lon: equal steps in longitude become equal horizontal steps on the map. Then watch how the logarithm in y stretches high latitudes.', tex:String.raw`\begin{aligned}x&=\lambda\\[5pt]y&=\ln\tan\left(\frac\pi4+\frac\varphi2\right)\end{aligned}`, chapter:'ch-03',
     code:`import numpy as np
@@ -37,4 +38,19 @@ def project(lon, lat):
                   + 7*A3*t**6 + 9*A4*t**8)
     x = lon * np.cos(t) / (M * derivative)
     return x, y`,annotations:[{lines:[4,8],title:'01 · Shape the outline',body:'F is the polynomial on line 8. Try a small change to A1, such as 1.4, then run to see an Equal Earth-style variant.'},{lines:[9,11],title:'02 · Pair the function with its derivative',body:'Every coefficient appears in both F and its derivative. The matching horizontal compensation preserves area while the derivative remains nonzero.'}]}
+,
+  {id:'authagraph',name:'AuthaGraph',promise:'Unfold the sphere',question:'What if we flatten a solid instead?',explanation:'Route each point to a tetrahedral region, flatten the regions, then arrange them into a rectangle. The aim is to spread distortion across the whole world, including Antarctica.',change:'Read the four steps first. Each helper is real NumPy, available below the editor. This implements Narukawa’s 2022 mathematical formulation with the public Imago rectangle arrangement.',chapter:'ch-06',supportCode:authagraphSupport,
+  tex:String.raw`\begin{aligned}a&=\lambda_f-\arcsin(\sin\lambda_f/\sqrt3)\\\theta&=\arctan(2\sqrt3\,a/\pi)\\r&=\frac{\sqrt3(2+\cos\lambda_f)}{(2+\sqrt2\tan\varphi_f)\cos\theta}\end{aligned}`,
+  code:`import numpy as np
+
+# The helper implementations are shown below.
+# Try changing central_meridian to 20.
+central_meridian = 0
+
+def project(lon, lat):
+    lon = (lon - np.radians(central_meridian) + np.pi) % (2*np.pi) - np.pi
+    lon, lat = orient_to_tetrahedron(lon, lat)
+    lon, lat, face = choose_face(lon, lat)
+    x, y = flatten_face(lon, lat, face)
+    return unfold_rectangle(x, y, face)`,annotations:[{lines:[5,8],title:'01 · Turn the world',body:'Changing the central meridian rotates geography relative to the tetrahedron. It changes which places lie near the cuts.'},{lines:[9,12],title:'02 · Follow each point',body:'Orient the sphere, choose a face, flatten it, and place it in the rectangle. Open the helper code to see every calculation.'}]}
 ]

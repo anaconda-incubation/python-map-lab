@@ -67,3 +67,11 @@ This branch is a separate entry-point experiment. `/` is a three-lesson Python f
 The full existing essay lives at `/story/`, with chapter deep links preserved. `/lab` remains the advanced optimizer and Python lab. The original worktrees and previews are untouched. Run this edition with `npm run preview -- --host 127.0.0.1 --port 4175 --strictPort` after building. Deployment needs SPA fallback to `index.html` for `/story/` and `/lab`; assets use the origin root.
 
 Validation: 103 existing tests, production build, and lint pass. Browser review ran all three starter functions and an edited Equal Earth coefficient through Python to the map, and checked the reference/edited status labels. The starter equations are intentionally identified as references after code edits; they are not automatically derived from arbitrary Python.
+
+### Expanded lessons and experiments
+
+The Python-first entry now includes AuthaGraph, a four-step editable wrapper over a complete, expandable NumPy port of the existing Narukawa 2022 implementation. The helper is MPL-2.0, with attribution in `src/python/authagraph_lesson.py`. It preserves the implementation distinction from the original hand-built commercial map. Renderer query points are collected once and evaluated directly in Python so rectangle cuts are never interpolated through a regular grid. The frame is recomputed from each run.
+
+Each projection has a simple explanation, design objective, history, and source link. The separate experimental map offers `lon + lat`, `lon * lat`, and a sinusoidal offset, with real editable Python and an explanation of their consequences. The header includes Anaconda attribution and the runtime links to NumPy.
+
+Validation: the NumPy AuthaGraph result matched 143 canonical TypeScript coordinates at 1e-8 tolerance in a live browser run. Regenerate the in-editor verification code with `AUTHAGRAPH_REVIEW_OUT=/tmp/authagraph-verify.py npx vitest run src/pages/__tests__/authagraphLesson.test.ts`; paste it into the AuthaGraph editor (helpers are supplied by the lesson). Live visual review also exercised the addition and multiplication variants. The production build and lint pass; the suite now has 104 tests.

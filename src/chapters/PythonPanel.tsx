@@ -27,6 +27,7 @@ export interface PanelAnnotation {
 }
 
 export interface PythonPanelProps {
+  supportCode?: string
   filename: string
   onResult?: (result: RunProjectionResult, code: string) => Promise<void>
   onRunStateChange?: (running: boolean) => void
@@ -124,6 +125,7 @@ const DEFAULT_SAMPLES = (() => {
 
 export default function PythonPanel({
   filename,
+  supportCode,
   onResult, onReset, onEdit, onRunStateChange, initiallyEditable = false, runLabel = 'Run Python',
   code,
   annotations = [],
@@ -240,7 +242,7 @@ export default function PythonPanel({
     setError(null)
     const t0 = performance.now()
     try {
-      const executedCode = codeRef.current
+      const executedCode = supportCode ? `${supportCode}\n${codeRef.current}` : codeRef.current
       const res = await pythonClient.runProjection(executedCode, {}, samples.lon, samples.lat)
       await onResult?.(res, executedCode)
       const rows: string[] =
@@ -261,7 +263,7 @@ export default function PythonPanel({
       setStatus({ kind: 'idle' })
       toast(msg, { tone: 'error' })
     } finally { onRunStateChange?.(false) }
-  }, [samples, status.kind, toast, onResult, onRunStateChange])
+  }, [samples, status.kind, toast, onResult, onRunStateChange, supportCode])
   useEffect(() => { runRef.current = run })
 
   const reset = useCallback(() => {
