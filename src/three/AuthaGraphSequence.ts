@@ -1,3 +1,4 @@
+import { constructionCamera, constructionWeights } from './authagraphMotion'
 import { yieldToBrowser } from '../utils/cooperative'
 /**
  * AuthaGraphSequence — the staged construction renderer (design.md §7.2.4):
@@ -40,16 +41,8 @@ interface StageCam {
   fov: number
 }
 
-const STAGE_CAMS: StageCam[] = [
-  { position: [0, 0.35, 3.2], target: [0, 0, 0], fov: 32 },
-  { position: [0, 0.35, 3.2], target: [0, 0, 0], fov: 32 },
-  { position: [1.4, 1.1, 3.4], target: [0, 0, 0], fov: 32 },
-  { position: [0, 0.1, 4.6], target: [0, 0, 0], fov: 26 },
-  { position: [0, 0, 12.8], target: [0, 0, 0], fov: 12 },
-]
-
 const vert = /* glsl */ `
-uniform float uStage;
+uniform vec4 uShapeWeights;
 attribute vec3 posSphere;
 attribute vec3 posCone;
 attribute vec3 posNet;
@@ -59,12 +52,8 @@ attribute float aRegion;
 varying float vFacet;
 varying float vRegion;
 void main() {
-  float s = clamp(uStage, 0.0, 4.0);
-  vec3 pa = s < 1.0 ? posSphere : (s < 2.0 ? posCone : (s < 3.0 ? posNet : posRect));
-  vec3 pb = s < 1.0 ? posCone : (s < 2.0 ? posNet : (s < 3.0 ? posRect : posRect));
-  float f = s < 1.0 ? 0.0 : fract(s);
-  f = f * f * (3.0 - 2.0 * f);
-  vec3 pos = mix(pa, pb, f);
+  vec3 pos = posSphere * uShapeWeights.x + posCone * uShapeWeights.y
+    + posNet * uShapeWeights.z + posRect * uShapeWeights.w;
   vFacet = aFacet;
   vRegion = aRegion;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -175,8 +164,8 @@ export class AuthaGraphSequence {
   private resizeObserver: ResizeObserver | null = null
   private theme: StageTheme
   private stage = 0
-  private camGoal: StageCam = STAGE_CAMS[0]
-  private camCurrent: StageCam = STAGE_CAMS[0]
+  private camGoal: StageCam = constructionCamera(0)
+  private camCurrent: StageCam = constructionCamera(0)
   private landMesh: THREE.Mesh | null = null
   private regionLines: THREE.LineSegments | null = null
   private frameLines: THREE.LineSegments | null = null
@@ -235,10 +224,11 @@ export class AuthaGraphSequence {
    * toward the next stage (scroll-scrubbed by the chapter).
    */
   setStage(stage: number, t = 0): void {
-    const s = Math.min(3.999, Math.max(0, stage + Math.min(1, Math.max(0, t))))
+    const s = Math.min(4, Math.max(0, stage + Math.min(1, Math.max(0, t))))
     this.stage = s
+    const weights = constructionWeights(s)
     for (const m of this.materials) {
-      if (m.uniforms.uStage) m.uniforms.uStage.value = s
+      if (m.uniforms.uShapeWeights) (m.uniforms.uShapeWeights.value as THREE.Vector4).fromArray(weights)
     }
     // region highlight peaks at stage 1
     for (const m of this.materials) {
@@ -257,8 +247,7 @@ export class AuthaGraphSequence {
         Math.max(0, 1 - s / 2) * 0.9
       this.sphereMesh.visible = s < 2
     }
-    const camIdx = Math.min(4, Math.round(s))
-    this.camGoal = STAGE_CAMS[camIdx]
+    this.camGoal = constructionCamera(s)
     this.invalidate()
   }
 
@@ -375,7 +364,7 @@ export class AuthaGraphSequence {
     geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 6)
     const c = THEME_COLORS[this.theme]
     const mat = this.makeMat(vert, landFrag, {
-      uStage: { value: 0 },
+      uShapeWeights: { value: new THREE.Vector4(1, 0, 0, 0) },
       uColor: { value: new THREE.Color(c.land) },
       uOpacity: { value: 1 },
       uRegionOpacity: { value: 0 },
@@ -429,7 +418,7 @@ export class AuthaGraphSequence {
     geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 6)
     const c = THEME_COLORS[this.theme]
     const mat = this.makeMat(vert, lineFrag, {
-      uStage: { value: 0 },
+      uShapeWeights: { value: new THREE.Vector4(1, 0, 0, 0) },
       uColor: { value: new THREE.Color(c.landStroke) },
       uOpacity: { value: 0.15 },
     })

@@ -411,3 +411,9 @@ html { overflow-x: clip; }
 .atlas-handoff { height: clamp(140px, 22vh, 240px); background: linear-gradient(#101c23 0%, #37464b 24%, #8e9694 54%, #d8d8ce 78%, #f5f1e8 100%); }
 .atlas-nav { transition: background-color 450ms ease, color 450ms ease, border-color 450ms ease; }
 .atlas-nav a, .atlas-nav button { transition: color 450ms ease; }
+
+@media (max-height: 760px), (max-width: 640px) {
+  .auth-construction-title { padding-top:76px; }
+  .auth-construction-title h2 { font-size:clamp(28px, 4vw, 40px); line-height:1.12; }
+  .auth-construction-title h2 + p { font-size:16px; line-height:1.5; margin-top:16px; }
+}

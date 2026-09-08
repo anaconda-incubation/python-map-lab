@@ -1,3 +1,5 @@
+import { scrollPageTo } from '@/utils/pageScroll'
+import { constructionCaptionOpacity } from '@/three/authagraphMotion'
 import { yieldToBrowser } from '../utils/cooperative'
 /**
  * CHAPTER 06 — AUTHAGRAPH (home.md §06; design.md §5 full-width Atlas
@@ -130,6 +132,9 @@ export default function Ch06AuthaGraph() {
   return (
     <section id="ch-06" aria-labelledby="ch-06-title" className="scroll-mt-20">
       <ConstructionSequence reducedMotion={reducedMotion} />
+      <aside className="mx-auto max-w-container px-[var(--gutter)] py-8 font-ui text-caption" style={{ color: 'var(--fg-2)' }}>
+        <strong>About the construction.</strong> Narukawa’s 2022 formulation approximates the original hand-built curved tetrahedron with four congruent cones (&lt;4% radial deviation). The animation uses that published mathematics; the faces blend between prepared shapes rather than simulate physical hinges.
+      </aside>
       <CostsAndBuys reducedMotion={reducedMotion} />
       <TilingPlayground />
       <FacePanel />
@@ -142,6 +147,7 @@ export default function Ch06AuthaGraph() {
 function ConstructionSequence({ reducedMotion }: { reducedMotion: boolean }) {
   const pinRef = useRef<HTMLDivElement | null>(null)
   const stageFloatRef = useRef(0)
+  const captionRefs = useRef<Array<HTMLDivElement | null>>([])
   const [stageIdx, setStageIdx] = useState(0)
   const { containerRef, seqRef, alive } = useAuthaGraphStage('atlas')
   const dragRef = useRef<{ x: number; y: number; moved: number } | null>(null)
@@ -166,18 +172,22 @@ function ConstructionSequence({ reducedMotion }: { reducedMotion: boolean }) {
   useEffect(() => {
     const el = pinRef.current
     if (!el || !alive || reducedMotion) return
-    return bindScrub({
-      trigger: el,
-      start: 'top top',
-      end: 'bottom bottom',
-      onProgress: (p) => {
-        const s = p * 3.999
+    const playhead = { s: stageFloatRef.current }
+    const animation = gsap.fromTo(playhead, { s: 0 }, {
+      s: 4, ease: 'none',
+      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: .3 },
+      onUpdate: () => {
+        const s = playhead.s
         stageFloatRef.current = s
-        const base = Math.min(3, Math.floor(s))
-        seqRef.current?.setStage(base, s - base)
-        setStageIdx(Math.min(4, Math.round(s)))
+        seqRef.current?.setStage(s)
+        const active = Math.min(4, Math.round(s))
+        setStageIdx(active)
+        captionRefs.current.forEach((node, i) => {
+          if (node) node.style.opacity = String(constructionCaptionOpacity(s, i))
+        })
       },
     })
+    return () => { animation.scrollTrigger?.kill(); animation.kill() }
   }, [alive, reducedMotion, seqRef])
 
   /* reduced motion: show stage 0 on mount */
@@ -189,8 +199,9 @@ function ConstructionSequence({ reducedMotion }: { reducedMotion: boolean }) {
   const jumpTo = useCallback(
     (k: number) => {
       const el = pinRef.current
-      setStageIdx(k)
       if (reducedMotion) {
+        stageFloatRef.current = k
+        setStageIdx(k)
         seqRef.current?.setStage(k, 0)
         return
       }
@@ -199,7 +210,7 @@ function ConstructionSequence({ reducedMotion }: { reducedMotion: boolean }) {
       const top = rect.top + window.scrollY
       const span = el.offsetHeight - window.innerHeight
       const target = top + Math.min(0.999, k / 4 + 0.02) * span
-      window.scrollTo({ top: target, behavior: 'smooth' })
+      scrollPageTo(target)
     },
     [reducedMotion, seqRef],
   )
@@ -292,7 +303,7 @@ function ConstructionSequence({ reducedMotion }: { reducedMotion: boolean }) {
         </p>
 
         {/* title card */}
-        <div className="pointer-events-none absolute left-0 right-0 top-0 px-[var(--gutter)] pt-16 lg:pt-20">
+        <div className="auth-construction-title pointer-events-none absolute left-0 right-0 top-0 px-[var(--gutter)] pt-16 lg:pt-20">
           <div className="max-w-[620px]">
             <ChapterKicker
               numeral="06"
@@ -307,30 +318,21 @@ function ConstructionSequence({ reducedMotion }: { reducedMotion: boolean }) {
 
         {/* stage caption card */}
         <div className="pointer-events-none absolute inset-x-0 bottom-24 px-[var(--gutter)] lg:bottom-28">
-          <div className="max-w-[420px]">
+          <div className="grid max-w-[420px]">
+            {STAGE_META.map((caption, i) => <div key={caption.key} ref={node => { captionRefs.current[i] = node }} className="col-start-1 row-start-1" aria-hidden={stageIdx !== i} style={{ opacity: reducedMotion ? Number(stageIdx === i) : constructionCaptionOpacity(stageFloatRef.current, i), willChange: 'opacity' }}>
             <p className="font-ui text-kicker uppercase" style={{ color: 'var(--indigo)' }}>
-              {meta.key} · {meta.name}
+              {caption.key} · {caption.name}
             </p>
             <p
               className="mt-2 font-display text-[1.35rem] leading-snug"
               style={{ color: 'var(--fg)' }}
             >
-              {meta.title}
+              {caption.title}
             </p>
             <p className="mt-2 font-body text-body-sm" style={{ color: 'var(--fg-2)' }}>
-              {meta.text}
+              {caption.text}
             </p>
-            {stageIdx === 2 && (
-              <p
-                className="mt-3 border-l-2 pl-3 font-ui text-caption"
-                style={{ borderColor: 'var(--gold)', color: 'var(--fg-2)' }}
-              >
-                Honesty note: Narukawa’s 2022 published formulation approximates the
-                original hand-built curved tetrahedron with four congruent cones
-                (&lt;4% radial deviation). What you see is the published math, not the
-                1999 artisanal solid.
-              </p>
-            )}
+            </div>)}
           </div>
         </div>
 
