@@ -45,3 +45,9 @@ This branch (`python-experience`) is an isolated Git worktree beside the origina
 The early “A formula you can touch” lesson joins an equation, editable NumPy, and a live map. Actual worker output on a 1° global grid feeds the shared cooperative projection bake; successful runs morph from the previous result. Visitors can reset, inspect coordinates, download their last successful source, or continue in the full Python lab. Chapter mathematics and runnable code now start expanded. Runtime startup is lazy and shared; every Run executes afresh rather than returning cached results.
 
 Python and custom-map preparation run on demand, not during scroll. The new map retains the lazy stage lifecycle and the baseline scroll optimizations. Anchor navigation now uses the smooth-scroll controller.
+
+## AuthaGraph motion correction
+
+The construction now holds the sphere while subdivision appears, then blends continuously through cone → net → rectangle. The former shader skipped the sphere/cone interpolation at stage 1. Geometry weights now reach all five advertised endpoints exactly, and camera position/FOV interpolate across the same continuous stage coordinate instead of rounding to discrete camera targets. A short scroll scrub absorbs wheel steps; stage navigation uses the same Lenis controller as scrolling.
+
+All five captions remain mounted in one shared grid cell and crossfade without changing their position or container height. The longer construction note follows the animation. Drag and keyboard orbit remain available on the solid stages. Geometry is prepared once per stage mount and retained in GPU buffers during playback; scroll updates only change weights, camera targets and caption opacity. Regression coverage checks endpoints, continuity around every geometry/camera boundary, normalized weights and caption crossfades.

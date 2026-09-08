@@ -470,3 +470,9 @@ main .grid > *, main .flex > *, .python-equation-strip > * { min-width:0; }
  .atlas-nav-links .python-nav-link { display:none; }
  .python-equation-strip .katex-display { font-size:.8em; }
 }
+
+@media (max-height: 760px), (max-width: 640px) {
+  .auth-construction-title { padding-top:76px; }
+  .auth-construction-title h2 { font-size:clamp(28px, 4vw, 40px); line-height:1.12; }
+  .auth-construction-title h2 + p { font-size:16px; line-height:1.5; margin-top:16px; }
+}

@@ -1,3 +1,4 @@
+import { registerPageScroller } from '@/utils/pageScroll'
 import { useEffect, type ReactNode } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -38,6 +39,8 @@ function ScrollRoot({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (reducedMotion) return
     const lenis = new Lenis({ lerp: 0.09, anchors: { offset: -72 } })
+
+    registerPageScroller(lenis)
     lenis.on('scroll', ScrollTrigger.update)
     let refreshTimer: ReturnType<typeof setTimeout> | undefined
     let previousHeight = 0
@@ -56,6 +59,7 @@ function ScrollRoot({ children }: { children: ReactNode }) {
       observer.disconnect()
       clearTimeout(refreshTimer)
       gsap.ticker.remove(tick)
+      registerPageScroller(null)
       lenis.destroy()
     }
   }, [reducedMotion])
