@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import katex from 'katex'
 
 /**
@@ -25,6 +25,20 @@ export interface EquationBlockProps {
 }
 
 export default function EquationBlock({ tex, glossary, caption, className }: EquationBlockProps) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [overflowing, setOverflowing] = useState(false)
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    let active = true
+    const measure = () => { if (active) setOverflowing(el.scrollWidth > el.clientWidth + 2) }
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    if (el.firstElementChild) observer.observe(el.firstElementChild)
+    void document.fonts.ready.then(measure)
+    measure()
+    return () => { active = false; observer.disconnect() }
+  }, [tex])
   const html = useMemo(
     () =>
       katex.renderToString(tex, {
@@ -37,19 +51,23 @@ export default function EquationBlock({ tex, glossary, caption, className }: Equ
 
   return (
     <figure
-      className={className}
+      className={`equation-block ${className ?? ''}`}
       style={{
         background: 'var(--bg-2)',
         border: '1px solid var(--hair)',
-        padding: '1.75rem 1.5rem',
+
       }}
     >
       <div
-        className="overflow-x-auto text-center"
-        style={{ fontSize: '1.25em', color: 'var(--fg)' }}
+        ref={scrollRef}
+        className="equation-scroll"
+        tabIndex={overflowing ? 0 : undefined}
+        role={overflowing ? 'region' : undefined}
+        aria-label={overflowing ? 'Equation; scroll horizontally to read all terms' : undefined}
         // KaTeX output is generated locally from our own TeX strings.
         dangerouslySetInnerHTML={{ __html: html }}
       />
+      {overflowing && <p className="equation-scroll-hint">Scroll to read the full equation ↔</p>}
       {glossary && glossary.length > 0 && (
         <details className="mt-4">
           <summary

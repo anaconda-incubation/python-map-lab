@@ -379,7 +379,7 @@ export default function Ch05EqualEarth() {
             </p>
             <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
               className="mt-8"
-              tex={String.raw`\begin{aligned} \theta &= \arcsin\!\left(\tfrac{\sqrt{3}}{2}\sin\varphi\right) \\[4pt] y &= F(\theta) = A_1\theta + A_2\theta^3 + A_3\theta^7 + A_4\theta^9 \\[4pt] x &= \frac{\lambda\cos\theta}{M\,F'(\theta)}, \qquad M = \tfrac{\sqrt{3}}{2} \end{aligned}`}
+              tex={String.raw`\begin{aligned} \theta &= \arcsin\!\left(\tfrac{\sqrt{3}}{2}\sin\varphi\right) \\[4pt] y &= F(\theta) \\[4pt] &= A_1\theta + A_2\theta^3 \\ &\quad + A_3\theta^7 + A_4\theta^9 \\[4pt] x &= \frac{\lambda\cos\theta}{M\,F'(\theta)} \\[6pt] M &= \tfrac{\sqrt{3}}{2} \end{aligned}`}
               glossary={[
                 { symbol: '\\theta', meaning: 'an auxiliary latitude: the authalic-like remapping sin θ = (√3/2) sin φ' },
                 { symbol: 'F(\\theta)', meaning: 'the spacing of the parallels — this polynomial is the entire visual design' },

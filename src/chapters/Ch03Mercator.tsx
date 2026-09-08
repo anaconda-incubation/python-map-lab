@@ -465,7 +465,7 @@ export default function Ch03Mercator() {
               </p>
               <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
                 className="mt-8"
-                tex={String.raw`\frac{dy}{d\varphi} = \frac{1}{\cos\varphi}\frac{dx}{d\lambda} = \sec\varphi \;\;\Longrightarrow\;\; y = \int_0^{\varphi} \sec u \, du = \ln\tan\!\left(\frac{\pi}{4} + \frac{\varphi}{2}\right)`}
+                tex={String.raw`\begin{aligned} \frac{dy}{d\varphi} &= \frac{1}{\cos\varphi}\frac{dx}{d\lambda} = \sec\varphi \\[10pt] y &= \int_0^{\varphi} \sec u\,du \\[6pt] &= \ln\tan\!\left(\frac{\pi}{4}+\frac{\varphi}{2}\right) \end{aligned}`}
                 caption="Conformality is a differential equation. Its solution is the 1569 projection."
                 glossary={[
                   { symbol: String.raw`\sec\varphi`, meaning: 'how much a degree of longitude shrinks on the sphere — the map must match it vertically' },
@@ -583,7 +583,7 @@ export default function Ch03Mercator() {
               </p>
               <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
                 className="mt-8"
-                tex={String.raw`\lim_{\varphi \to 90^{\circ}} \ln\tan\!\left(\frac{\pi}{4} + \frac{\varphi}{2}\right) = +\infty \qquad\Rightarrow\qquad |\varphi| \le 85^{\circ}`}
+                tex={String.raw`\begin{gathered} \lim_{\varphi \to 90^{\circ}} \ln\tan\!\left(\frac{\pi}{4}+\frac{\varphi}{2}\right)=+\infty \\[10pt] \text{Our map clips at } |\varphi|\le85^{\circ} \end{gathered}`}
                 caption="The poles live at infinity. The clamp is not a flaw in the code — it is the map admitting its own horizon."
               /></details>
               <p className="mt-6 pull-line text-pull">
