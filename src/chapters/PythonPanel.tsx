@@ -381,9 +381,6 @@ export default function PythonPanel({
 
       {/* editor */}
       <div ref={editorHostRef} className="px-2" />
-      <p className="px-4 pb-1 font-ui text-[10px] uppercase" style={{ color: 'var(--fg-3)', letterSpacing: '0.14em' }}>
-        ⌘/Ctrl+Enter runs · Esc blurs · Edit unlocks the buffer
-      </p>
 
       {/* output */}
       {(stdout !== null || table || error) && (
