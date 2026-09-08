@@ -530,10 +530,10 @@ main .pull-line { max-width:100%; overflow-wrap:break-word; }
   --ink: #f5f7f5;
   --ink-2: #c1cbc3;
   --ink-3: #a7b7ab;
-  --accent: #00ce48;
+  --accent: #08ca4a;
   --on-accent: #071b0d;
-  --seaweed: #a9ee97;
+  --seaweed: #deffaa;
   --gold: #d9fbb0;
-  --indigo: #c9bfff;
+  --indigo: #ccc6ff;
   --ochre: #ffe000;
 }
