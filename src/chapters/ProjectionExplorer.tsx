@@ -13,6 +13,16 @@ const PLACES = [
   { name: 'Nairobi · Kenya', lon: 36.82, lat: -1.29 },
   { name: 'Cape Town · South Africa', lon: 18.42, lat: -33.92 },
   { name: 'London · United Kingdom', lon: -0.13, lat: 51.51 },
+  { name: 'New York, NY · USA', lon: -74.01, lat: 40.71 },
+  { name: 'Austin, TX · USA', lon: -97.74, lat: 30.27 },
+  { name: 'Los Angeles, CA · USA', lon: -118.24, lat: 34.05 },
+  { name: 'Fairbanks, AK · USA', lon: -147.72, lat: 64.84 },
+  { name: 'São Paulo · Brazil', lon: -46.63, lat: -23.55 },
+  { name: 'Sydney · Australia', lon: 151.21, lat: -33.87 },
+  { name: 'Tokyo · Japan', lon: 139.69, lat: 35.68 },
+  { name: 'Hong Kong · China', lon: 114.17, lat: 22.32 },
+  // NSF: https://www.nsf.gov/od/opp/ail/mcmurdo-station
+  { name: 'McMurdo Station · Antarctica', lon: 166.67, lat: -77.85 },
 ]
 const MAPS = [{ id: 'mercator', name: 'Mercator', promise: 'Local shapes stay true. Areas grow toward the poles.' },
   { id: 'equalEarth', name: 'Equal Earth', promise: 'Relative areas stay true. Local shapes change.' },
