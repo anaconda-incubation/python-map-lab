@@ -110,7 +110,7 @@ const SOURCES: SourceEntry[] = [
   {
     chapter: '12 · The decision',
     citation:
-      'UN General Assembly, September 4, 2026: non-binding resolution (164–1, 6 abstentions; African-led, Togo drafting) encouraging equal-area projections such as Equal Earth for general world maps. Editorial premise of this essay; contextual reporting: AllAfrica on the African Union “Correct The Map” campaign (Aug 2025).',
+      'UN General Assembly, September 4, 2026: non-binding resolution (African-led, Togo drafting) encouraging equal-area projections such as Equal Earth for general world maps. Editorial premise of this essay; contextual reporting: AllAfrica on the African Union “Correct The Map” campaign (Aug 2025).',
     href: 'https://allafrica.com/stories/202508180103.html',
   },
 ]
@@ -154,17 +154,19 @@ export default function Drawer() {
       }
     }
     document.addEventListener('keydown', onKeyDown)
+    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.removeEventListener('keydown', onKeyDown)
-      document.body.style.overflow = ''
+      document.body.style.overflow = previousOverflow
       lastFocused.current?.focus?.()
     }
   }, [open, closeDrawer])
 
   return (
     <div
-      className="fixed inset-0 z-drawer"
+      className="fixed inset-0 z-[120]"
+      data-lenis-prevent
       style={{ pointerEvents: open ? 'auto' : 'none' }}
       aria-hidden={!open}
     >
@@ -183,7 +185,7 @@ export default function Drawer() {
         role="dialog"
         aria-modal="true"
         aria-label="Sources and notes"
-        className="absolute right-0 top-0 flex h-full w-full flex-col overflow-y-auto transition-transform duration-ui ease-atlas"
+        className="absolute right-0 top-0 flex h-full w-full flex-col overflow-hidden transition-transform duration-ui ease-atlas"
         style={{
           maxWidth: '480px',
           background: 'var(--bg)',
@@ -194,26 +196,27 @@ export default function Drawer() {
         }}
       >
         <div
-          className="sticky top-0 flex items-center justify-between px-6 py-4"
+          className="flex shrink-0 items-center justify-between gap-4 px-6 py-4"
           style={{ background: 'var(--bg)', borderBottom: '1px solid var(--hair)' }}
         >
           <p className="kicker">SOURCES &amp; NOTES</p>
           <button
             type="button"
             onClick={closeDrawer}
-            className="font-ui text-caption uppercase tracking-[0.14em] transition-colors duration-micro ease-atlas"
+            aria-label="Close sources and notes"
+            className="min-h-11 px-3 font-ui text-caption uppercase tracking-[0.14em] transition-colors duration-micro ease-atlas"
             style={{ color: 'var(--fg-2)' }}
           >
             Close ✕
           </button>
         </div>
-        <ol className="flex flex-col gap-6 px-6 py-6">
+        <ol tabIndex={0} aria-label="Source references" data-lenis-prevent className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain px-6 py-6" style={{scrollbarGutter: 'stable'}}>
           {SOURCES.map((s, i) => (
             <li key={i} className="flex gap-4">
               <span className="footnote-ref" aria-hidden>
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <div>
+              <div className="min-w-0 break-words">
                 <p className="font-ui text-label uppercase" style={{ color: 'var(--gold)' }}>
                   {s.chapter}
                 </p>
