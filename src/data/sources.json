@@ -116,9 +116,9 @@
       "entries": [
         {
           "id": "un-2026",
-          "citation": "UN General Assembly, September 4, 2026 — non-binding resolution (164 for, 1 against, 6 abstentions) encouraging the use of equal-area projections such as Equal Earth for general-reference world maps. African-led initiative, with Togo in a leading drafting role.",
-          "href": "https://www.un.org/en/un-tells-world-stop-making-africa-look-small",
-          "note": "The resolution encourages; it does not require. Mercator is neither banned nor criticized by name — it remains the correct projection for navigation, the job it was designed for."
+          "citation": "UN News, September 4, 2026 — reporting on the decision to encourage equal-area projections for general-reference world maps.",
+          "href": "https://news.un.org/en/story/2026/09/1168284",
+          "note": "The cartographic tradeoff: equal-area maps preserve relative sizes; Mercator preserves local angles and supports constant-bearing navigation."
         }
       ]
     },
