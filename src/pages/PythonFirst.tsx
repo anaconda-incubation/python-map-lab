@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { scrollPageTo } from '@/utils/pageScroll'
 import PythonPanel from '@/chapters/PythonPanel'
 import EquationBlock from '@/components/EquationBlock'
@@ -17,10 +17,15 @@ const GRID = buildLabGrid()
 
 export default function PythonFirst() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const experimenting = location.hash === '#experiments'
+  function selectMode(experiments: boolean) {
+    void navigate(experiments ? '/#experiments' : '/#learn', {replace:true})
+  }
   useEffect(() => {
-    if(location.hash !== '#experiments') return
+    if(!['#experiments','#learn'].includes(location.hash)) return
     const frame = requestAnimationFrame(() => {
-      const el = document.getElementById('experiments')
+      const el = document.getElementById('workspace-modes')
       if(el) scrollPageTo(el.getBoundingClientRect().top + window.scrollY - 80)
     })
     return () => cancelAnimationFrame(frame)
@@ -102,6 +107,13 @@ export default function PythonFirst() {
       <div className="pf-intro-bottom"><p>Choose a projection. Read its mathematics. Change the function and watch the world take a different shape.</p><span className="pf-runtime">● {runtime} · <a href="https://numpy.org/" target="_blank" rel="noopener noreferrer">NumPy ↗</a><br/><small>Runs here, in your browser. No setup.</small></span></div>
       <aside className="pf-context-note" aria-label="Why this matters now"><span>Why this matters now</span><p>Mercator was designed for navigation in 1569. In September 2026, the UN encouraged equal-area projections for general-reference world maps, so countries and continents appear in their true relative sizes. <a href="https://news.un.org/en/story/2026/09/1168284" target="_blank" rel="noopener noreferrer">Read the UN News article ↗</a></p></aside>
     </section>
+    <section id="workspace-modes" className="pf-mode-switch" aria-label="Choose how to explore">
+      <div role="tablist" aria-label="Workspace mode" className="pf-mode-tabs" onKeyDown={e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?false:e.key==='End'?true:!experimenting;selectMode(next);document.getElementById(next?'experiment-tab':'learn-tab')?.focus()}}}>
+        <button id="learn-tab" role="tab" aria-selected={!experimenting} aria-controls="learn-panel" tabIndex={experimenting?-1:0} onClick={()=>selectMode(false)}><strong>Learn the projections</strong><span>Explore the globe, equations, and mapmakers’ choices.</span></button>
+        <button id="experiment-tab" role="tab" aria-selected={experimenting} aria-controls="experiment-panel" tabIndex={experimenting?0:-1} onClick={()=>selectMode(true)}><strong>What if we change the rules?</strong><span>Flip, stretch, and reshape the world with Python.</span></button>
+      </div>
+    </section>
+    <div id="learn-panel" role="tabpanel" aria-labelledby="learn-tab" hidden={experimenting}>
     <section className="pf-workspace" aria-label="Interactive Python lesson">
       <div className="pf-choices" role="group" aria-label="Choose a projection"><button aria-pressed={globe} disabled={busy || !stage.ready} onClick={()=>void choose(-1)}><span>Start here / The reference</span><strong>Globe</strong></button>{lessons.map((l,i)=><button key={l.id} onPointerEnter={()=>{if(l.id==='authagraph')warmAuthagraph()}} onFocus={()=>{if(l.id==='authagraph')warmAuthagraph()}} aria-pressed={index===i} disabled={busy || !stage.ready} onClick={()=>void choose(i)}><span>0{i+1} / {l.promise}</span><strong>{l.name}</strong></button>)}</div>
       <div className="pf-columns">
@@ -127,6 +139,7 @@ export default function PythonFirst() {
           <div className="pf-section-label">02 / Read, change, run</div>
           <p className="pf-change">{lesson.change}</p>
           <PythonPanel key={lesson.id} filename={`${lesson.id}.py`} code={lesson.code} samples={lesson.id==='authagraph' && authSamples ? authSamples : GRID} supportCode={lesson.supportCode} annotations={lesson.annotations} initiallyEditable runLabel="Run Python → redraw map" onRunStateChange={running=>{setBusy(running);if(running)setWorkMessage(lesson.id==='authagraph'?'Running AuthaGraph’s Python across the globe…':'Running your Python…')}} onEdit={()=>setDirty(true)} onResult={apply} onReset={()=>{setDirty(false);void choose(index)}}/>
+          {lesson.id==='equalEarth' && <aside className="pf-constant-note"><h3>Where do A₁, A₂, A₃, and A₄ come from?</h3><p>They are the published polynomial coefficients chosen by Equal Earth’s designers, Bojan Šavrič, Tom Patterson, and Bernhard Jenny. The designers used least-squares fitting to turn their chosen spacing of parallels into a smooth polynomial. The aim was a familiar, Robinson-like outline that also preserves relative areas.</p><p>These are design coefficients, not physical constants. They control F(θ), the vertical spacing. Pairing F with its derivative in x is what preserves area. Changing a coefficient creates your own variant; it is no longer the published Equal Earth projection.</p><a href="https://shadedrelief.com/ee_proj/EEp_Math_and_Implementation_details_%202019-04-16.pdf" target="_blank" rel="noopener noreferrer">Read the published equations ↗</a><a href="https://www.equal-earth.com/NACIS_slides.pdf" target="_blank" rel="noopener noreferrer">See the designers’ fitting method ↗</a></aside>}
           {lesson.supportCode && <details className="pf-helper"><summary>Open the complete AuthaGraph helper code</summary><p>These functions run before the editable steps above. They are included in the notebook download.</p><pre data-lenis-prevent tabIndex={0} role="region" aria-label="Complete AuthaGraph helper code; scroll to read"><code>{lesson.supportCode}</code></pre></details>}
           <div className="pf-section-label pf-math-heading">03 / Connect the mathematics</div>
           <EquationBlock tex={lesson.tex} caption={custom || dirty ? 'Reference equations for the selected lesson. Your edited code may define a different projection.' : lesson.id==='authagraph' ? 'Facet-local angles λf and φf produce radius r and angle θ. The helpers then rotate and place each region in the rectangle.' : 'λ is longitude; φ is latitude. The function maps these angles to planar coordinates x and y.'}/>
@@ -137,6 +150,7 @@ export default function PythonFirst() {
       </div>
     </section>
     {!globe && <section className="pf-story" aria-labelledby="lesson-story-title"><p className="pf-eyebrow">Understand {lesson.name}</p><h2 id="lesson-story-title">What is this code actually doing?</h2><div className="pf-story-grid"><div><h3>The simple explanation</h3><p>{story.simple}</p></div><div><h3>What the mapmaker wanted</h3><p>{story.objective}</p></div><div><h3>A little history</h3><p>{story.history}</p><a href={story.source} target="_blank" rel="noopener noreferrer">{story.sourceLabel} ↗</a></div></div></section>}
-    <WeirdVariants />
+    </div>
+    <div id="experiment-panel" role="tabpanel" aria-labelledby="experiment-tab" hidden={!experimenting}><WeirdVariants /></div>
   </div>
 }
