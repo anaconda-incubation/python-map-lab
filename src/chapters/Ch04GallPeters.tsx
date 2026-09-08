@@ -254,7 +254,7 @@ export default function Ch04GallPeters() {
               cosine is that shrinking. A cylindrical map sets x from λ alone; if the map
               also sets y = sin&nbsp;φ, something elegant happens:
             </p>
-            <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
+            <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
               className="mt-8"
               tex={String.raw`\begin{aligned} x &= \lambda \cos\varphi_0 \\[4pt] y &= \frac{\sin\varphi}{\cos\varphi_0} \quad\Rightarrow\quad dy = \frac{\cos\varphi}{\cos\varphi_0}\,d\varphi \\[8pt] dA_{\text{map}} &= dx\,dy = \cos\varphi_0\,d\lambda \cdot \frac{\cos\varphi}{\cos\varphi_0}\,d\varphi = \cos\varphi\,d\lambda\,d\varphi = dA_{\text{sphere}} \end{aligned}`}
               glossary={[
@@ -373,7 +373,7 @@ export default function Ch04GallPeters() {
               two scale factors at several latitudes, then checks the areal ratio on a
               10° grid and asserts it equals 1 to machine precision.
             </p>
-            <details className="atlas-optional"><summary>Run & explore the Python</summary><PythonPanelB
+            <details open className="atlas-optional python-chapter"><summary>Experiment in Python · run, change, observe</summary><PythonPanelB
               filename="gall_peters.py"
               initialCode={GP_SOURCE}
               accent="ochre"

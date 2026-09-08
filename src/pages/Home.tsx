@@ -1,3 +1,4 @@
+import PythonDiscovery from '@/chapters/PythonDiscovery'
 import ProjectionExplorer from '@/chapters/ProjectionExplorer'
 import Ch00Opening from '@/chapters/Ch00Opening'
 import Ch01Impossibility from '@/chapters/Ch01Impossibility'
@@ -25,6 +26,7 @@ export default function Home() {
       <Ch00Opening />
       <div className="atlas-handoff" aria-hidden="true" />
       <ProjectionExplorer />
+      <PythonDiscovery />
       <Ch01Impossibility />
       <Ch02DistortionEngine />
       <Ch03Mercator />

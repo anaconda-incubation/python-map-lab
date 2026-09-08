@@ -463,7 +463,7 @@ export default function Ch03Mercator() {
                 horizontal shrink of the parallels, sec φ — and integrating it produces Mercator's
                 formula on the spot.
               </p>
-              <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
+              <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
                 className="mt-8"
                 tex={String.raw`\frac{dy}{d\varphi} = \frac{1}{\cos\varphi}\frac{dx}{d\lambda} = \sec\varphi \;\;\Longrightarrow\;\; y = \int_0^{\varphi} \sec u \, du = \ln\tan\!\left(\frac{\pi}{4} + \frac{\varphi}{2}\right)`}
                 caption="Conformality is a differential equation. Its solution is the 1569 projection."
@@ -581,7 +581,7 @@ export default function Ch03Mercator() {
                 viewport becomes a perfect square; Antarctica and the Arctic Ocean are sacrificed
                 to make the tile math clean.
               </p>
-              <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
+              <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
                 className="mt-8"
                 tex={String.raw`\lim_{\varphi \to 90^{\circ}} \ln\tan\!\left(\frac{\pi}{4} + \frac{\varphi}{2}\right) = +\infty \qquad\Rightarrow\qquad |\varphi| \le 85^{\circ}`}
                 caption="The poles live at infinity. The clamp is not a flaw in the code — it is the map admitting its own horizon."
@@ -605,7 +605,7 @@ export default function Ch03Mercator() {
                 system catch the explosion.
               </p>
               <div className="mt-6">
-                <details className="atlas-optional"><summary>Run & explore the Python</summary><PythonPanel
+                <details open className="atlas-optional python-chapter"><summary>Experiment in Python · run, change, observe</summary><PythonPanel
                   filename="mercator.py"
                   code={PANEL_CODE}
                   annotations={annotations}

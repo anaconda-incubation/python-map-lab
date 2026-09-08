@@ -37,7 +37,7 @@ function ScrollRoot({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (reducedMotion) return
-    const lenis = new Lenis({ lerp: 0.09 })
+    const lenis = new Lenis({ lerp: 0.09, anchors: { offset: -72 } })
     lenis.on('scroll', ScrollTrigger.update)
     let refreshTimer: ReturnType<typeof setTimeout> | undefined
     let previousHeight = 0

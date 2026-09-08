@@ -821,7 +821,7 @@ function FacePanel() {
           face, verbatim. Run them: the script prints the region’s three corners — the
           face center N and its two tetrahedron vertices — in the face’s local frame.
         </p>
-        <details className="atlas-optional"><summary>Run & explore the Python</summary><PythonPanelB
+        <details open className="atlas-optional python-chapter"><summary>Experiment in Python · run, change, observe</summary><PythonPanelB
           filename="authagraph_face.py"
           initialCode={AUTHAGRAPH_FACE_PY}
           accent="indigo"

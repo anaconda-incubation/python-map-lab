@@ -256,9 +256,9 @@ export default function Ch11Interlude() {
         <ChapterKicker
           numeral="11"
           kicker="INTERLUDE"
-          title="The Python doorway."
+          title="Take the experiment further."
           titleId="ch-11-title"
-          standfirst="Everything you've seen is arithmetic. Every overlay, every ellipse, every morph — a few lines of NumPy. Before the finale, the map laboratory."
+          standfirst="Everything you've seen is arithmetic. Every overlay, every ellipse, every morph — a few lines of NumPy. You have changed the equations. Now see how the engine turns those numbers into a world."
           accent="vermilion"
         />
 
@@ -300,7 +300,7 @@ export default function Ch11Interlude() {
             ))}
           </ol>
           <p className="mt-4 text-center font-ui text-caption" style={{ color: 'var(--fg-3)' }}>
-            Six steps. The only one you haven&rsquo;t met yet is the third.
+            Six steps connect the Python you edited to the map you see.
           </p>
         </div>
 

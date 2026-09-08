@@ -87,11 +87,12 @@ export default function Ch00Opening() {
           <div className="atlas-hero-copy">
             <p className="atlas-eyebrow">A world of tradeoffs</p>
             <h1 id="ch-00-title">Earth has no<br /><em>flat version.</em></h1>
-            <p className="atlas-intro">Keep the shapes. Keep the sizes. You can’t keep both. Discover what changes when we flatten our world.</p>
+            <p className="atlas-intro">Keep the shapes. Keep the sizes. You can’t keep both. Discover what changes when we flatten our world—then change the mathematics yourself in Python.</p>
             <div className="atlas-actions">
               <button className="atlas-button primary" disabled={!ready} onClick={() => play(value > 0.98 ? 0 : 1)}>{value > 0.98 ? 'Return to globe' : 'Flatten the Earth'}</button>
               <a className="atlas-button" href="#explore">Explore the maps <span aria-hidden>↗</span></a>
             </div>
+            <a className="python-hero-link" href="#python-discovery">From equation to Python to Earth →</a>
             <p className="atlas-scroll-hint">{reducedMotion ? 'Choose a view at your own pace' : 'Scroll to unfold · or use the controls'}</p>
           </div>
           <div className="atlas-hero-visual">

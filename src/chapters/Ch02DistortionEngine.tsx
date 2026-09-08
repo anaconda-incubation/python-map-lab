@@ -195,7 +195,7 @@ export default function Ch02DistortionEngine() {
                 only cos φ as long as a degree of latitude, so the longitude column is divided by
                 cos φ to put both axes in true ground units.
               </p>
-              <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
+              <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
                 className="mt-8"
                 tex={String.raw`A(\lambda,\varphi)=\begin{pmatrix} \dfrac{1}{\cos\varphi}\dfrac{\partial x}{\partial \lambda} & \dfrac{\partial x}{\partial \varphi} \\[2ex] \dfrac{1}{\cos\varphi}\dfrac{\partial y}{\partial \lambda} & \dfrac{\partial y}{\partial \varphi} \end{pmatrix}`}
                 caption="The metric-corrected Jacobian (Snyder 1987, eqs. 4-1…4-7). It maps an infinitesimal step on the sphere to the step it becomes on the map."
@@ -220,7 +220,7 @@ export default function Ch02DistortionEngine() {
                 circle exactly when σ₁ = σ₂. On this Mercator map that holds everywhere — which is
                 precisely what "conformal" means — but look how the pair grows with latitude.
               </p>
-              <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
+              <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
                 className="mt-8"
                 tex={String.raw`A = U\,\Sigma\,V^{T}, \qquad \Sigma = \begin{pmatrix} \sigma_1 & 0 \\ 0 & \sigma_2 \end{pmatrix}, \quad \sigma_1 \ge \sigma_2 > 0`}
                 caption="The SVD of the local derivative. σ₁ and σ₂ are Tissot's principal scale factors — the ellipse semi-axes."
@@ -245,7 +245,7 @@ export default function Ch02DistortionEngine() {
                 doubling. Mercator's equator sits at true scale; by 60°N the map is using four
                 times the paper per square kilometer of Earth.
               </p>
-              <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
+              <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
                 className="mt-8"
                 tex={String.raw`s \;=\; \det A \;=\; \sigma_1\,\sigma_2 \qquad\text{(equal-area } \Longleftrightarrow s \equiv 1\text{)}`}
                 caption="Areal scale. An equal-area projection is a theorem about this number: it must be 1 at every point."
@@ -264,7 +264,7 @@ export default function Ch02DistortionEngine() {
                 Switch to the <em>angle</em> layer and Mercator reads a flat, honest zero from
                 equator to clamp. That is its genius and its excuse.
               </p>
-              <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
+              <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
                 className="mt-8"
                 tex={String.raw`\sin\frac{\omega}{2} \;=\; \frac{\sigma_1 - \sigma_2}{\sigma_1 + \sigma_2} \qquad\text{(conformal } \Longleftrightarrow \omega \equiv 0\text{)}`}
                 caption="Maximum angular deformation (Tissot 1881). Zero everywhere defines the conformal projections."

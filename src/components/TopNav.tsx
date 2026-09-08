@@ -4,11 +4,11 @@ import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { useSourcesDrawer } from './Drawer'
 
 const CHAPTERS = [
-  ['ch-00', 'The opening'], ['explore', 'Explore the maps'],
+  ['ch-00', 'The opening'], ['explore', 'Explore the maps'], ['python-discovery', 'Equation → Python → map'],
   ['ch-01', 'Why every flat map changes something'], ['ch-02', 'Measuring distortion'],
   ['ch-03', 'Mercator'], ['ch-04', 'Gall–Peters'], ['ch-05', 'Equal Earth'], ['ch-06', 'AuthaGraph'],
   ['ch-07', 'The morph studio'], ['ch-08', 'The scorecard'], ['ch-09', 'Compare regions'],
-  ['ch-10', 'Move a circle'], ['ch-11', 'The Python doorway'], ['ch-12', 'The UN decision'],
+  ['ch-10', 'Move a circle'], ['ch-11', 'Inside the Python engine'], ['ch-12', 'The UN decision'],
   ['ch-13', 'Back to Earth'], ['ch-14', 'Sources & notes'],
 ]
 export default function TopNav() {
@@ -40,6 +40,7 @@ export default function TopNav() {
         <button ref={trigger} aria-expanded={open} aria-controls="atlas-chapters" onClick={() => setOpen(v => !v)}>Chapters <span aria-hidden>⌄</span></button>
         {open && <div id="atlas-chapters" className="atlas-chapter-menu"><p>Choose your own route</p>{CHAPTERS.map(([id, name], i) => <a key={id} href={`/#${id}`} onClick={() => setOpen(false)}><span>{String(i + 1).padStart(2, '0')}</span>{name}</a>)}<button onClick={() => { setOpen(false); openDrawer() }}>Open sources & notes ↗</button></div>}
       </div>
+      <a href="/#python-discovery" className="python-nav-link">Python</a>
       <Link to="/lab" onClick={() => setOpen(false)}>Lab <span aria-hidden>↗</span></Link>
       <button className="hidden sm:block" onClick={() => openDrawer()}>Sources</button>
       <button aria-pressed={reducedMotion} aria-label={reducedMotion ? 'Reduced motion on; enable full motion' : 'Reduce motion'} onClick={toggle}>{reducedMotion ? 'Motion off' : 'Motion on'}</button>

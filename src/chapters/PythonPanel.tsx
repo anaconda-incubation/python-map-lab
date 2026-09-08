@@ -5,7 +5,7 @@ import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { python } from '@codemirror/lang-python'
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { tags } from '@lezer/highlight'
-import { pythonClient } from '@/projection/worker-client'
+import { pythonClient, type RunProjectionResult } from '@/projection/worker-client'
 import { useToast } from '@/hooks/useToast'
 
 /**
@@ -28,6 +28,11 @@ export interface PanelAnnotation {
 
 export interface PythonPanelProps {
   filename: string
+  onResult?: (result: RunProjectionResult, code: string) => Promise<void>
+  onReset?: () => void
+  onEdit?: () => void
+  initiallyEditable?: boolean
+  runLabel?: string
   /** Initial (and Reset) editor contents — the code that actually runs. */
   code: string
   annotations?: PanelAnnotation[]
@@ -118,6 +123,7 @@ const DEFAULT_SAMPLES = (() => {
 
 export default function PythonPanel({
   filename,
+  onResult, onReset, onEdit, initiallyEditable = false, runLabel = 'Run Python',
   code,
   annotations = [],
   samples = DEFAULT_SAMPLES,
@@ -129,8 +135,10 @@ export default function PythonPanel({
   const runRef = useRef<() => void>(() => {})
   const viewRef = useRef<EditorView | null>(null)
   const codeRef = useRef(code)
+  const editCallback = useRef(onEdit)
+  useEffect(() => { editCallback.current = onEdit }, [onEdit])
   const readOnlyCompartment = useRef(new Compartment())
-  const [editable, setEditable] = useState(false)
+  const [editable, setEditable] = useState(initiallyEditable)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const [stdout, setStdout] = useState<string | null>(null)
   const [table, setTable] = useState<Array<{ label: string; x: number; y: number }> | null>(null)
@@ -161,6 +169,7 @@ export default function PythonPanel({
       state: EditorState.create({
         doc: codeRef.current,
         extensions: [
+          EditorView.contentAttributes.of({ 'aria-label': 'Python source code' }),
           lineNumbers(),
           history(),
           python(),
@@ -173,7 +182,7 @@ export default function PythonPanel({
             EditorView.editable.of(false),
           ]),
           EditorView.updateListener.of((u) => {
-            if (u.docChanged) codeRef.current = u.state.doc.toString()
+            if (u.docChanged) { codeRef.current = u.state.doc.toString(); editCallback.current?.() }
           }),
         ],
       }),
@@ -189,11 +198,11 @@ export default function PythonPanel({
   useEffect(() => {
     viewRef.current?.dispatch({
       effects: readOnlyCompartment.current.reconfigure([
-        EditorState.readOnly.of(!editable),
-        EditorView.editable.of(editable),
+        EditorState.readOnly.of(!editable || status.kind === 'running'),
+        EditorView.editable.of(editable && status.kind !== 'running'),
       ]),
     })
-  }, [editable])
+  }, [editable, status.kind])
 
   /* ---- lazy Pyodide warmup when the panel nears the viewport ---- */
   useEffect(() => {
@@ -229,13 +238,15 @@ export default function PythonPanel({
     setError(null)
     const t0 = performance.now()
     try {
-      const res = await pythonClient.runProjection(codeRef.current, {}, samples.lon, samples.lat)
+      const executedCode = codeRef.current
+      const res = await pythonClient.runProjection(executedCode, {}, samples.lon, samples.lat)
+      await onResult?.(res, executedCode)
       const rows: string[] =
         samples.rows ?? Array.from({ length: samples.lon.length }, (_, i) => `point ${i + 1}`)
       setStdout(res.stdout)
       setWarnings(res.warnings)
       setTable(
-        rows.slice(0, res.x.length).map((label, i) => ({
+        rows.slice(0, Math.min(res.x.length, 9)).map((label, i) => ({
           label,
           x: res.x[i],
           y: res.y[i],
@@ -248,7 +259,7 @@ export default function PythonPanel({
       setStatus({ kind: 'idle' })
       toast(msg, { tone: 'error' })
     }
-  }, [samples, status.kind, toast])
+  }, [samples, status.kind, toast, onResult])
   useEffect(() => { runRef.current = run })
 
   const reset = useCallback(() => {
@@ -258,12 +269,13 @@ export default function PythonPanel({
       changes: { from: 0, to: view.state.doc.length, insert: code },
     })
     codeRef.current = code
+    onReset?.()
     setStdout(null)
     setTable(null)
     setWarnings([])
     setError(null)
     setStatus({ kind: 'idle' })
-  }, [code])
+  }, [code, onReset])
 
   const highlight = useCallback(
     (ann: PanelAnnotation | null) => {
@@ -285,7 +297,7 @@ export default function PythonPanel({
           : `done in ${status.ms} ms`
 
   return (
-    <div ref={rootRef} className={`code-well ${className ?? ''}`} style={{ background: 'var(--bg-2)' }}>
+    <div ref={rootRef} aria-label={`Runnable Python: ${filename}`} className={`code-well ${className ?? ''}`} style={{ background: 'var(--bg-2)' }}>
       {/* header row: filename tab + status chip + buttons */}
       <div
         className="flex flex-wrap items-center gap-2 border-b px-4 py-2.5"
@@ -329,11 +341,12 @@ export default function PythonPanel({
             className="rounded-sm px-3.5 py-1.5 font-ui text-label uppercase text-paper transition-all duration-micro ease-atlas disabled:opacity-50"
             style={{ background: 'var(--accent)' }}
           >
-            Run
+            {runLabel}
           </button>
           <button
             type="button"
             onClick={reset}
+            disabled={status.kind === 'running'}
             className="rounded-sm border px-3.5 py-1.5 font-ui text-label uppercase transition-colors duration-micro ease-atlas"
             style={{ borderColor: 'var(--hair)', color: 'var(--fg-2)', background: 'transparent' }}
           >
@@ -387,7 +400,7 @@ export default function PythonPanel({
             </pre>
           )}
           {table && (
-            <table className="mt-2 w-full font-mono text-caption" style={{ color: 'var(--fg-2)' }}>
+            <details className="python-coordinates"><summary>Inspect sample coordinates (first {table.length})</summary><table className="mt-2 w-full font-mono text-caption" style={{ color: 'var(--fg-2)' }}>
               <thead>
                 <tr className="text-left font-ui text-label uppercase" style={{ color: 'var(--fg-3)' }}>
                   <th className="py-1 pr-4 font-medium">point</th>
@@ -404,7 +417,7 @@ export default function PythonPanel({
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></details>
           )}
         </div>
       )}

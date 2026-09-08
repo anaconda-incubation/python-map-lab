@@ -377,7 +377,7 @@ export default function Ch05EqualEarth() {
               polynomial that spaces the parallels, plus one forcing condition that ties
               the horizontal scale to it:
             </p>
-            <details className="atlas-optional"><summary>Explore the mathematics</summary><EquationBlock
+            <details open className="atlas-optional python-math"><summary>The mathematics behind the map</summary><EquationBlock
               className="mt-8"
               tex={String.raw`\begin{aligned} \theta &= \arcsin\!\left(\tfrac{\sqrt{3}}{2}\sin\varphi\right) \\[4pt] y &= F(\theta) = A_1\theta + A_2\theta^3 + A_3\theta^7 + A_4\theta^9 \\[4pt] x &= \frac{\lambda\cos\theta}{M\,F'(\theta)}, \qquad M = \tfrac{\sqrt{3}}{2} \end{aligned}`}
               glossary={[
@@ -600,7 +600,7 @@ export default function Ch05EqualEarth() {
               approach PROJ uses). Run it: the script prints the reference table and
               asserts every row.
             </p>
-            <details className="atlas-optional"><summary>Run & explore the Python</summary><PythonPanelB
+            <details open className="atlas-optional python-chapter"><summary>Experiment in Python · run, change, observe</summary><PythonPanelB
               filename="equal_earth.py"
               initialCode={EE_SOURCE}
               accent="seaweed"
