@@ -106,3 +106,8 @@
 .pf-log-note { border-left: 2px solid var(--pf-green); padding: 12px 20px; margin: 24px 0; max-width: 850px; background: #47694d09; }
 .pf-log-note p { font-size: 15px; line-height: 1.6; margin: 8px 0 0; }
 .pf-log-note code { font-size: .9em; overflow-wrap: anywhere; }
+.pf-working { position: absolute; z-index: 5; left: 18px; right: 18px; top: 18px; display: flex; gap: 12px; align-items: center; padding: 15px 18px; background: #10202af2; color: #f5f1e8; border: 1px solid #71898f; font: 14px/1.5 Inter,sans-serif; pointer-events: none; }
+.pf-working small { display: block; margin-top: 3px; color: #c0d0d1; font-size: 12px; }
+.pf-working-dot { flex-shrink: 0; width: 9px; height: 9px; border-radius: 50%; background: #dfac77; animation: pf-working-pulse 1.3s ease-in-out infinite; }
+@keyframes pf-working-pulse { 50% { opacity: .3; } }
+@media(prefers-reduced-motion:reduce) { .pf-working-dot { animation: none; } }

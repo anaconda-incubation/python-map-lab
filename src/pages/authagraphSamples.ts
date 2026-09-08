@@ -16,4 +16,4 @@ async function collect() {
   }, AUTHAGRAPH_FRAME, {tissotStepDeg:30})
   return {lon:new Float64Array(lon),lat:new Float64Array(lat),indices}
 }
-export function getAuthagraphSamples() { return pending ??= collect() }
+export function getAuthagraphSamples() { return pending ??= collect().catch(error => {pending = undefined; throw error}) }
