@@ -160,10 +160,12 @@ async function optimizeProjection(
   const p = await init()
   p.runPython(OPTIMIZER_PY)
   p.globals.set('__efc_family', family)
-  p.globals.set('__efc_weights', weights)
+  // JavaScript objects arrive as JsProxy, not Python dictionaries.
+  p.globals.set('__efc_weights_json', JSON.stringify(weights))
   p.globals.set('__efc_maxiter', opts.maxiter ?? 600)
   p.runPython(
-    `__efc_opt = optimize_projection(__efc_family, __efc_weights, __efc_maxiter)`,
+    `import json
+__efc_opt = optimize_projection(__efc_family, json.loads(__efc_weights_json), __efc_maxiter)`,
   )
   const proxy = p.globals.get('__efc_opt') as {
     toJs: (o?: unknown) => Map<string, unknown>
