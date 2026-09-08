@@ -104,7 +104,7 @@ export default function PythonFirst() {
     <section className="pf-intro">
       <p className="pf-eyebrow">An interactive Python field guide</p>
       <h1>A Few Lines Of <em>Python</em> Can Make the World of Difference</h1>
-      <div className="pf-intro-bottom"><p>Choose a projection. Read its mathematics. Change the function and watch the world take a different shape.</p><span className="pf-runtime">● {runtime} · <a href="https://numpy.org/" target="_blank" rel="noopener noreferrer">NumPy ↗</a><br/><small>Runs here, in your browser. No setup.</small></span></div>
+      <div className="pf-intro-bottom"><p>Choose a projection. Read its mathematics. Change the function and watch the world take a different shape.</p><span className="pf-runtime">● {runtime} · <a href="https://numpy.org/" target="_blank" rel="noopener noreferrer">NumPy ↗</a><br/><small>Runs directly in your browser via <a href="https://pyodide.org/" target="_blank" rel="noopener noreferrer">Pyodide ↗</a>.</small></span></div>
       <aside className="pf-context-note" aria-label="Why this matters now"><span>Why this matters now</span><p>Mercator was designed for navigation in 1569. In September 2026, the UN encouraged equal-area projections for general-reference world maps, so countries and continents appear in their true relative sizes. <a href="https://news.un.org/en/story/2026/09/1168284" target="_blank" rel="noopener noreferrer">Read the UN News article ↗</a></p></aside>
     </section>
     <section id="workspace-modes" className="pf-mode-switch" aria-label="Choose how to explore">
