@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation } from 'react-router'
+import { useLocation } from 'react-router'
 import { scrollPageTo } from '@/utils/pageScroll'
 import PythonPanel from '@/chapters/PythonPanel'
 import EquationBlock from '@/components/EquationBlock'
@@ -138,9 +138,5 @@ export default function PythonFirst() {
     </section>
     {!globe && <section className="pf-story" aria-labelledby="lesson-story-title"><p className="pf-eyebrow">Understand {lesson.name}</p><h2 id="lesson-story-title">What is this code actually doing?</h2><div className="pf-story-grid"><div><h3>The simple explanation</h3><p>{story.simple}</p></div><div><h3>What the mapmaker wanted</h3><p>{story.objective}</p></div><div><h3>A little history</h3><p>{story.history}</p><a href={story.source} target="_blank" rel="noopener noreferrer">{story.sourceLabel} ↗</a></div></div></section>}
     <WeirdVariants />
-    <section className="pf-deeper"><p className="pf-eyebrow">Keep exploring</p><h2>There is a whole world behind the function.</h2><div className="pf-paths pf-paths-python">
-      <Link to="/lab#python"><span>WRITE PYTHON</span><h3>Build your own answer.</h3><p>Take what you learned into the open editor. Write a projection, run it, and inspect how it changes the world.</p><b>Open the Python lab →</b></Link>
-      <Link to="/lab#design"><span>EXPLORE THE TRADEOFFS</span><h3>Choose what matters.</h3><p>Set your priorities for area, shape, and distance. Let the optimizer search, then explore the Python behind its result.</p><b>Design a projection →</b></Link>
-    </div></section>
   </div>
 }

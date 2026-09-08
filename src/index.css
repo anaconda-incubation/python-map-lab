@@ -510,3 +510,12 @@ main .pull-line { max-width:100%; overflow-wrap:break-word; }
 .score-reading-guide dt { text-transform:capitalize; margin-top:12px; font-weight:600; }
 @container (max-width:480px) { .score-metrics { grid-template-columns:1fr; gap:16px; } .score-metric + .score-metric { border-top:1px solid var(--hair); padding-top:16px; } .score-properties dl { grid-template-columns:1fr; } }
 @container (max-width:440px) { .equation-block dl { grid-template-columns:1fr; } .equation-block dd { margin-bottom:12px; } }
+
+/* Python field guide uses the lab's Atlas palette throughout. */
+:root[data-theme='atlas'] {
+  --ink: #f2eddf;
+  --ink-2: #b7c0bd;
+  --ink-3: #a3b2b4;
+  --indigo: #a8b9f5;
+  --ochre: #dfbc7e;
+}
