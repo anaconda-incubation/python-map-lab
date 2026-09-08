@@ -1,0 +1,38 @@
+{
+  "$comment": "Equal Earth projection constants (Savric, Patterson & Jenny 2018, DOI 10.1080/13658816.2018.1504949). Spherical forward equations (R=1, lambda0=0): theta = asin(M sin phi); y = F(theta) = A1*theta + A2*theta^3 + A3*theta^7 + A4*theta^9; x = lambda*cos(theta)/(M*F'(theta)), F'(theta) = A1 + 3*A2*theta^2 + 7*A3*theta^6 + 9*A4*theta^8. A2 is NEGATIVE (a misprint on one equal-earth.com PDF shows +0.081106; the paper, Wikipedia, and PROJ eqearth.cpp all confirm the negative sign).",
+  "name": "Equal Earth",
+  "authors": ["Bojan Savric", "Tom Patterson", "Bernhard Jenny"],
+  "year": 2018,
+  "doi": "10.1080/13658816.2018.1504949",
+  "constants": {
+    "A1": 1.340264,
+    "A2": -0.081106,
+    "A3": 0.000893,
+    "A4": 0.003796,
+    "M": 0.8660254037844386,
+    "M_expression": "sqrt(3)/2"
+  },
+  "properties": {
+    "equalArea": true,
+    "pseudocylindrical": true,
+    "poleLineRatioOfEquator": 0.59247,
+    "equatorVsCentralMeridian": 2.05,
+    "angularRMSEdeg": 2.678,
+    "angularRMSESource": "Kerkovits 2021, ISPRS IJGI 11(1):1"
+  },
+  "referencePoints": [
+    { "lon": 0, "lat": 0, "x": 0.0, "y": 0.0 },
+    { "lon": 122, "lat": 47, "x": 1.549254331, "y": 0.893308325, "note": "PROJ documentation worked example (1.55, 0.89)" },
+    { "lon": 0, "lat": 90, "x": 0.0, "y": 1.317362759, "note": "Equals PROJ eqearth.cpp MAX_Y constant 1.3173627591574" },
+    { "lon": 180, "lat": 0, "x": 2.706629984, "y": 0.0, "note": "Exact from formula: pi/(M*A1) = 2.7066299837...; antimeridian half-width" },
+    { "lon": 90, "lat": 45, "x": 1.159854499, "y": 0.860231086 },
+    { "lon": -75, "lat": 15, "x": -1.109359393, "y": 0.302049072 },
+    { "lon": 30, "lat": -60, "x": 0.339843348, "y": -1.088300836 },
+    { "lon": 180, "lat": 45, "x": 2.319708998, "y": 0.860231086 },
+    { "lon": -150, "lat": -30, "x": -2.109751397, "y": -0.59293512 }
+  ],
+  "validation": {
+    "arealScaleEverywhere": 1.0,
+    "inverse": "Newton-Raphson on y to recover theta, then lambda = M*x*F'(theta)/cos(theta), phi = asin(sin(theta)/M). Reference: PROJ eqearth.cpp (<=12 iterations, tol 1e-11)."
+  }
+}

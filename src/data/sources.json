@@ -1,0 +1,145 @@
+{
+  "$comment": "Endnotes for EVERY FLAT MAP IS A CHOICE (home.md §14). Grouped by chapter; each entry carries a citation, an external link, and an optional editorial note. Consumed by the on-page sources list in Ch14Colophon.tsx (the SourcesDrawerProvider drawer opened from nav/footnotes mirrors the same citations). Chapter anchors deep-link into the essay.",
+  "groups": [
+    {
+      "id": "g-foundations",
+      "label": "Chapters 01–02 · Impossibility & the distortion engine",
+      "anchor": "#ch-02",
+      "entries": [
+        {
+          "id": "snyder-1987",
+          "citation": "Snyder, J. P. (1987). Map Projections: A Working Manual. USGS Professional Paper 1395. United States Government Printing Office, Washington.",
+          "href": "https://pubs.usgs.gov/pp/1395/report.pdf",
+          "note": "The working manual behind our distortion math: Tissot's indicatrix and the scale-factor derivations (equations 4-1 to 4-12)."
+        },
+        {
+          "id": "goldberg-gott-2007",
+          "citation": "Goldberg, D. M., & Gott, J. R. (2007). “Flexion and Skewness in Map Projections of the Earth.” Cartographica 42(4), 297–318.",
+          "href": "https://utpjournals.press/doi/10.3138/carto.42.4.297",
+          "note": "The flexion/skewness decomposition referenced when the scorecard separates kinds of distortion."
+        }
+      ]
+    },
+    {
+      "id": "g-mercator-peters",
+      "label": "Chapters 03–04 · Mercator & Gall–Peters",
+      "anchor": "#ch-03",
+      "entries": [
+        {
+          "id": "proj-merc",
+          "citation": "PROJ documentation — Mercator (merc) projection reference page.",
+          "href": "https://proj.org/en/stable/operations/projections/merc.html",
+          "note": "Forward/inverse formulas and the standard ±85° truncation used by web maps."
+        },
+        {
+          "id": "proj-cea",
+          "citation": "PROJ documentation — Cylindrical Equal Area (cea) projection reference page.",
+          "href": "https://proj.org/en/stable/operations/projections/cea.html",
+          "note": "Gall–Peters is cea with standard parallels at 45°; our Peters math follows this reference."
+        }
+      ]
+    },
+    {
+      "id": "g-equal-earth",
+      "label": "Chapter 05 · Equal Earth",
+      "anchor": "#ch-05",
+      "entries": [
+        {
+          "id": "savric-2018",
+          "citation": "Šavrič, B., Patterson, T., & Jenny, B. (2019). “The Equal Earth map projection.” International Journal of Geographical Information Science 33(3), 454–465.",
+          "href": "https://doi.org/10.1080/13658816.2018.1504949",
+          "note": "The published coefficients A₁=1.340264, A₂=−0.081106, A₃=0.000893, A₄=0.003796 with M=√3/2 are baked into src/data/equalearth.json; our reference test points match the paper and PROJ."
+        },
+        {
+          "id": "proj-eqearth",
+          "citation": "PROJ documentation — Equal Earth (eqearth) projection reference page.",
+          "href": "https://proj.org/en/stable/operations/projections/eqearth.html",
+          "note": "Source of the MAX_Y constant 1.3173627591574 and the Newton–Raphson inverse our Python panel demonstrates."
+        },
+        {
+          "id": "kerkovits-2021",
+          "citation": "Kerkovits, K. (2021). “Image-Based Angular Distortion Metric for Comparing World Map Projections.” ISPRS International Journal of Geo-Information 11(1):1.",
+          "href": "https://www.mdpi.com/2220-9964/11/1/1",
+          "note": "Published angular RMSE 2.678° for Equal Earth, quoted as a reference anchor in the scorecard."
+        }
+      ]
+    },
+    {
+      "id": "g-authagraph",
+      "label": "Chapter 06 · AuthaGraph",
+      "anchor": "#ch-06",
+      "entries": [
+        {
+          "id": "narukawa-2022",
+          "citation": "Narukawa, H. (2022). “Formulation of AuthaGraph Map Projection and an Evaluation of its Distortion.” Map (Journal of the Japan Cartographers Association) 60(1), 1–16. J-STAGE.",
+          "href": "https://doi.org/10.11212/jjca.60.1_1",
+          "note": "Our implementation uses Narukawa's published 2022 formulation (four cones approximating the original hand-built curved tetrahedron, <4% radial deviation); area is exact at the 96-region level, multi-objective in intent — not infinitesimally equal-area."
+        }
+      ]
+    },
+    {
+      "id": "g-scorecard",
+      "label": "Chapter 08 · The scorecard",
+      "anchor": "#ch-08",
+      "entries": [
+        {
+          "id": "gonzalez-2010",
+          "citation": "González, Á. (2010). “Measurement of Areas on a Sphere Using Fibonacci and Latitude–Longitude Lattices.” Mathematical Geosciences 42, 49–64.",
+          "href": "https://doi.org/10.1007/s11004-009-9257-x",
+          "note": "The 5,001-point Fibonacci sampling scheme behind our measured RMS log-area and angular-distortion scores."
+        }
+      ]
+    },
+    {
+      "id": "g-geometry",
+      "label": "Geometry & the area test",
+      "anchor": "#ch-09",
+      "entries": [
+        {
+          "id": "natural-earth",
+          "citation": "Natural Earth — physical vectors (land, lakes, coastline), public domain. Data is bundled with this site.",
+          "href": "https://www.naturalearthdata.com/about/terms-of-use/",
+          "note": "The main globe and maps use 1:50 million land, lake and coastline data. Legacy demonstrations and region comparisons also use the bundled 1:110 million and curated boundary datasets."
+        },
+        {
+          "id": "nasa-blue-marble",
+          "citation": "NASA Blue Marble Next Generation — July 2004, with topography and bathymetry. 5,400 × 2,700 pixel global composite.",
+          "href": "https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73751/world.topo.bathy.200407.3x5400x2700.jpg",
+          "note": "NASA Earth Observatory. The globe uses this cloud-free composite for land cover, ice and ocean detail; it is not live satellite imagery."
+        }
+      ]
+    },
+    {
+      "id": "g-un",
+      "label": "Chapter 12 · The decision",
+      "anchor": "#ch-12",
+      "entries": [
+        {
+          "id": "un-2026",
+          "citation": "UN General Assembly, September 4, 2026 — non-binding resolution (164 for, 1 against, 6 abstentions) encouraging the use of equal-area projections such as Equal Earth for general-reference world maps. African-led initiative, with Togo in a leading drafting role.",
+          "href": "https://www.un.org/en/un-tells-world-stop-making-africa-look-small",
+          "note": "The resolution encourages; it does not require. Mercator is neither banned nor criticized by name — it remains the correct projection for navigation, the job it was designed for."
+        }
+      ]
+    },
+    {
+      "id": "g-naming",
+      "label": "Naming policy",
+      "anchor": "#ch-14",
+      "entries": [
+        {
+          "id": "ungegn",
+          "citation": "United Nations Group of Experts on Geographical Names (UNGEGN) — standardization of geographical names.",
+          "href": "https://unstats.un.org/unsd/ungegn/",
+          "note": "Names on this site (e.g. “Gulf of Mexico”, “Lake Ontario”) follow the UNGEGN standardization process and are baked into a curated static dataset (src/data/labels.json) at build time."
+        },
+        {
+          "id": "iho-s23",
+          "citation": "International Hydrographic Organization — publication S-23, “Limits of Oceans and Seas”, for marine feature names and extents.",
+          "href": "https://iho.int/",
+          "note": "Ocean naming (the five oceans shown on the closing globe) follows IHO usage."
+        }
+      ]
+    }
+  ]
+}

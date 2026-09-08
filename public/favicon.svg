@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <!-- A circle unrolling into a ruled rectangle; single vermilion stroke -->
+  <g stroke="#C2481F" stroke-width="1.6" stroke-linecap="round" fill="none">
+    <circle cx="9" cy="16" r="6.5"/>
+    <path d="M9 9.5 C 15 9.5, 17 11, 19 11 L 26 11"/>
+    <path d="M15.5 16 L 26 16"/>
+    <path d="M9 22.5 C 15 22.5, 17 21, 19 21 L 26 21"/>
+    <path d="M26 11 L 26 21" stroke-width="1.2"/>
+  </g>
+</svg>

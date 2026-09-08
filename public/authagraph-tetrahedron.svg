@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" fill="none">
+  <!-- AuthaGraph construction diagram (design.md §11): wireframe regular
+       tetrahedron inscribed in a circle, four vertices marked, the front
+       face subdivided toward the 24/96-region pattern. Hairline ink strokes
+       on transparent ground; HTML adds labels. -->
+  <g stroke="#1B1812" stroke-width="1" stroke-linecap="round">
+    <!-- sphere limb -->
+    <circle cx="400" cy="400" r="330" stroke-width="1.1"/>
+
+    <!-- back edges (dashed) to the rear vertex D -->
+    <path d="M400 95 L470 300" stroke-dasharray="3 6" stroke-opacity="0.7"/>
+    <path d="M150 540 L470 300" stroke-dasharray="3 6" stroke-opacity="0.7"/>
+    <path d="M650 540 L470 300" stroke-dasharray="3 6" stroke-opacity="0.7"/>
+
+    <!-- front face edges A-B-C -->
+    <path d="M400 95 L150 540"/>
+    <path d="M400 95 L650 540"/>
+    <path d="M150 540 L650 540"/>
+
+    <!-- first subdivision: medial triangle -->
+    <g stroke-opacity="0.8" stroke-width="0.8">
+      <path d="M275 317.5 L400 540"/>
+      <path d="M275 317.5 L525 317.5"/>
+      <path d="M525 317.5 L400 540"/>
+    </g>
+
+    <!-- second subdivision: corner medials -->
+    <g stroke-opacity="0.55" stroke-width="0.6">
+      <path d="M337.5 206.25 L462.5 206.25"/>
+      <path d="M337.5 206.25 L400 317.5"/>
+      <path d="M462.5 206.25 L400 317.5"/>
+      <path d="M212.5 428.75 L275 540"/>
+      <path d="M212.5 428.75 L337.5 428.75"/>
+      <path d="M337.5 428.75 L275 540"/>
+      <path d="M587.5 428.75 L525 540"/>
+      <path d="M587.5 428.75 L462.5 428.75"/>
+      <path d="M462.5 428.75 L525 540"/>
+    </g>
+
+    <!-- vertices -->
+    <g fill="#1B1812" stroke="none">
+      <circle cx="400" cy="95" r="3.2"/>
+      <circle cx="150" cy="540" r="3.2"/>
+      <circle cx="650" cy="540" r="3.2"/>
+      <circle cx="470" cy="300" r="3.2" fill-opacity="0.7"/>
+    </g>
+  </g>
+</svg>

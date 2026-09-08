@@ -1,0 +1,26 @@
+{
+  "$comment": "Curated editorial label anchors for the MapStage HTML label layer (design.md §7.1, §12). Anchors sit in visually empty interior space, not centroids. kind drives collision priority: ocean > continent > country > water. priority 1 = always try to show; higher numbers cull first when >14 visible. perProjection overrides: 'hide' lists projections where the anchor is not applicable (e.g. clipped regions).",
+  "policy": "This site uses internationally recognized geographical names as standardized through the UN Group of Experts on Geographical Names (UNGEGN) process and, for marine features, the International Hydrographic Organization. Names (e.g. \"Gulf of Mexico\", \"Lake Ontario\") are baked into this curated static dataset at build time — no live map, geocoding, or naming API is consulted at runtime. Geometry is from Natural Earth (public domain).",
+  "labels": [
+    { "id": "pacific-ocean",  "name": "Pacific Ocean",  "lon": -140.0, "lat": -5.0,  "kind": "ocean",     "priority": 1 },
+    { "id": "atlantic-ocean", "name": "Atlantic Ocean", "lon": -30.0,  "lat": 25.0,  "kind": "ocean",     "priority": 1 },
+    { "id": "indian-ocean",   "name": "Indian Ocean",   "lon": 75.0,   "lat": -20.0, "kind": "ocean",     "priority": 1 },
+    { "id": "arctic-ocean",   "name": "Arctic Ocean",   "lon": 0.0,    "lat": 82.0,  "kind": "ocean",     "priority": 2 },
+    { "id": "southern-ocean", "name": "Southern Ocean", "lon": 90.0,   "lat": -62.0, "kind": "ocean",     "priority": 2, "hide": ["mercator"] },
+    { "id": "africa",         "name": "Africa",         "lon": 20.0,   "lat": 5.0,   "kind": "continent", "priority": 1 },
+    { "id": "eurasia",        "name": "Eurasia",        "lon": 60.0,   "lat": 55.0,  "kind": "continent", "priority": 2 },
+    { "id": "north-america",  "name": "North America",  "lon": -100.0, "lat": 45.0,  "kind": "continent", "priority": 1 },
+    { "id": "south-america",  "name": "South America",  "lon": -60.0,  "lat": -15.0, "kind": "continent", "priority": 1 },
+    { "id": "australia",      "name": "Australia",      "lon": 134.0,  "lat": -25.0, "kind": "continent", "priority": 2 },
+    { "id": "antarctica",     "name": "Antarctica",     "lon": 0.0,    "lat": -82.0, "kind": "continent", "priority": 3, "hide": ["mercator"] },
+    { "id": "greenland",      "name": "Greenland",      "lon": -40.0,  "lat": 72.0,  "kind": "country",   "priority": 1 },
+    { "id": "india",          "name": "India",          "lon": 78.0,   "lat": 22.0,  "kind": "country",   "priority": 2 },
+    { "id": "china",          "name": "China",          "lon": 104.0,  "lat": 35.0,  "kind": "country",   "priority": 3 },
+    { "id": "brazil",         "name": "Brazil",         "lon": -52.0,  "lat": -10.0, "kind": "country",   "priority": 2 },
+    { "id": "gulf-of-mexico", "name": "Gulf of Mexico", "lon": -90.0,  "lat": 25.0,  "kind": "water",     "priority": 1 },
+    { "id": "lake-ontario",   "name": "Lake Ontario",   "lon": -77.9,  "lat": 43.7,  "kind": "water",     "priority": 2 },
+    { "id": "mediterranean",  "name": "Mediterranean Sea", "lon": 18.0, "lat": 36.0, "kind": "water",     "priority": 3 },
+    { "id": "sahara",         "name": "Sahara",         "lon": 5.0,    "lat": 22.0,  "kind": "region",    "priority": 3 },
+    { "id": "siberia",        "name": "Siberia",        "lon": 105.0,  "lat": 62.0,  "kind": "region",    "priority": 3 }
+  ]
+}

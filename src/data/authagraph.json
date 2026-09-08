@@ -1,0 +1,49 @@
+{
+  "$comment": "AuthaGraph constants from Narukawa 2022, 'Formulation of AuthaGraph Map Projection and an Evaluation of its Distortion', Map (J. Japan Cartographers Association) 60(1):1-16, DOI 10.11212/jjca.60.1_1 (J-STAGE free PDF). The 2022 paper redefines the original curved tetrahedron as 4 congruent cones (<4% radial deviation, TS20:TS2 ~ 1:1.03923) so closed-form equations exist. Working reference implementation: mapshaper '+proj=narukawa2022' (MPL-2.0).",
+  "name": "AuthaGraph (Narukawa 2022 published formulation)",
+  "author": "Hajime Narukawa",
+  "doi": "10.11212/jjca.60.1_1",
+  "honesty": "Narukawa's 2022 mathematical formulation of the AuthaGraph technique. The commercial map was built by hand in 3D-modeling software; the cone re-definition deviates <4% radially from the original curved tetrahedron. Equal-area only at the level of the 96 regions (triangle NPO at arbitrary P), not infinitesimally — the design is deliberately multi-objective (area, angle, distance balanced).",
+  "tetrahedron": {
+    "comment": "Regular tetrahedron vertices on the sphere; pairwise unit-vector dot products = -1/3 (verified). Chosen so coastlines are uncut in the rectangular frame.",
+    "vertices": [
+      { "id": "V1", "lat": 76.8810628, "lon": 149.4509913, "dms": "76°52′51.82608″ N, 149°27′03.56868″ E", "ocean": "Arctic — East Siberian Sea (near, but not at, the North Pole)" },
+      { "id": "V2", "lat": -27.9527772, "lon": 97.3570035, "dms": "27°57′09.99792″ S, 97°21′25.2126″ E", "ocean": "Indian Ocean" },
+      { "id": "V3", "lat": -6.6370473, "lon": -18.8522325, "dms": "6°38′13.37028″ S, 18°51′08.037″ W", "ocean": "South Atlantic" },
+      { "id": "V4", "lat": -22.9282364, "lon": -133.2827588, "dms": "22°55′41.65104″ S, 133°16′57.93168″ W", "ocean": "South Pacific" }
+    ]
+  },
+  "construction": {
+    "sphericalRegions": 4,
+    "subdivisionRegions": [24, 96],
+    "preProjection": "gnomonic (central) sphere → cone",
+    "postProjection": "orthographic cone → tetrahedron face, with area-ratio correction"
+  },
+  "constants": {
+    "coneHalfAngle": 0.6154797086703873,
+    "coneHalfAngleExpression": "atan(1/sqrt(2)) ~= 35.2644°",
+    "NO1": 0.816496580927726,
+    "NO1_expression": "cos(theta) = sqrt(2/3) (unit sphere)",
+    "rectangleHalfWidthExpression": "2*sqrt(3)",
+    "rectangleHalfHeight": 1.5,
+    "rectangleAspect": "4*sqrt(3) : 3 ~= 2.309 : 1",
+    "frame": { "x": [-3.4641016151377544, 3.4641016151377544], "y": [-1.5, 1.5] }
+  },
+  "forwardEquations": {
+    "comment": "1/24-region local coordinates: colatitude rho from vertex N, relative longitude lambda in (0, pi/3). Mirror/rotate for the other 23 regions.",
+    "theta": "atan((2*sqrt(3)/pi) * (lambda - asin(sin(lambda)/sqrt(3))))",
+    "radialRatio": "r ∝ (sin(rho)/sin(rho + atan(1/sqrt(2)))) * (2 + cos(lambda))",
+    "combined": {
+      "x": "(2/(sqrt(3)*pi)) * (sin(rho)/sin(rho+theta_cone)) * (2 + cos(lambda)) * (lambda - asin(sin(lambda)/sqrt(3)))",
+      "y": "sqrt(2/3) - (1/3) * (sin(rho)/sin(rho+theta_cone)) * (2 + cos(lambda))"
+    },
+    "note": "Combined formulas reconstructed per paper eqs 2.22/2.23 and verified numerically against the mapshaper implementation, which matches the paper up to a uniform scale factor of 3/sqrt(2)."
+  },
+  "publishedDistortion": {
+    "comment": "Paper §3, 312 sample points; Tissot indicatrix derived analytically (eqs 3.7–3.26).",
+    "meanAreaDistortion": 0.38,
+    "meanMaxAngularDistortionRad": 0.77,
+    "meanDistanceDistortion": 0.59,
+    "comparison": "Worse in mean than Lambert equal-area cylindrical (0 / 0.55 rad / 0.57), but distributed to four oceanic tetrahedron vertices instead of concentrating at the poles."
+  }
+}

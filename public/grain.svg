@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- Seamless paper-grain tile (design.md §11). Transparent ground with
+       sparse warm-neutral fibers; composited at 3–5% opacity via
+       body::before in index.css. stitchTiles keeps the 256px tile seamless. -->
+  <filter id="g" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="17"
+      stitchTiles="stitch" result="n"/>
+    <feColorMatrix in="n" type="matrix"
+      values="0 0 0 0 0.42
+              0 0 0 0 0.38
+              0 0 0 0 0.30
+              0 0 0 0.85 0"/>
+  </filter>
+  <rect width="256" height="256" filter="url(#g)"/>
+</svg>
