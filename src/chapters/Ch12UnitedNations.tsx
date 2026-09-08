@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MorphStage } from '@/chapters/finale-stage'
@@ -10,72 +10,27 @@ gsap.registerPlugin(ScrollTrigger)
 /**
  * CHAPTER 12 · THE DECISION — September 4, 2026 (home.md §12). Atlas-dark
  * full-viewport takeover, pinned ~260vh, scroll-scrubbed:
- *   p 0–0.25  the vote: numerals count up with scroll (164 / 1 / 6)
- *   p 0.25–0.35  precision card (non-binding; Mercator is not banned)
+ *   p 0–0.25  the case for equal-area reference maps
+ *   p 0.25–0.35  the tradeoff: area versus local angles
  *   p 0.35–0.75  Mercator → Equal Earth morph; area overlay pulses once
  *   p 0.75–1.0  "A projection cannot avoid making choices…"
- * Reduced motion: stacked layout, numerals static, 400ms crossfade morph.
+ * Reduced motion: stacked layout, static explanation, 400ms crossfade morph.
  */
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
-const VOTE_CAPTION =
-  'UN General Assembly, non-binding resolution. African-led, with Togo in a leading role. It encourages — it does not require — equal-area projections such as Equal Earth for general-reference world maps.'
+const DECISION_CAPTION =
+  'For a general-reference world map, relative area matters: readers should be able to compare the sizes of countries and continents. Equal-area projections such as Equal Earth make those comparisons meaningful.'
 
 const PRECISION_CARD =
-  'Mercator is not banned, not criticized by name, not going anywhere. It is not mathematically defective: it was designed for navigation, and at that job it remains exceptional. The resolution’s question is narrower — Mercator dramatically enlarges high-latitude regions next to equatorial ones, so what should a general map of the world optimize for?'
+  'Every projection serves a purpose. Mercator preserves local angles and draws constant-bearing routes as straight lines, making it useful for navigation. Equal Earth preserves relative areas, making it useful for comparing regions. The choice depends on what the map needs to communicate; neither can preserve everything.'
 
-function VoteNumerals({
-  forRef,
-  againstRef,
-  abstainRef,
-  staticValues,
-}: {
-  forRef?: RefObject<HTMLSpanElement | null>
-  againstRef?: RefObject<HTMLSpanElement | null>
-  abstainRef?: RefObject<HTMLSpanElement | null>
-  staticValues?: boolean
-}) {
-  return (
-    <div className="flex flex-wrap items-end justify-center gap-x-12 gap-y-8 sm:gap-x-16">
-      <div className="flex items-baseline gap-3">
-        <span
-          ref={forRef}
-          className="data-numeral"
-          style={{ fontSize: 'clamp(4rem, 11vw, 9rem)', color: 'var(--atlas-ink)' }}
-        >
-          {staticValues ? '164' : '0'}
-        </span>
-        <span className="font-ui text-kicker uppercase" style={{ color: 'var(--gold)' }}>
-          For
-        </span>
-      </div>
-      <div className="flex items-baseline gap-3">
-        <span
-          ref={againstRef}
-          className="data-numeral"
-          style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', color: 'var(--atlas-ink-2)' }}
-        >
-          {staticValues ? '1' : '0'}
-        </span>
-        <span className="font-ui text-kicker uppercase" style={{ color: 'var(--atlas-ink-2)' }}>
-          Against
-        </span>
-      </div>
-      <div className="flex items-baseline gap-3">
-        <span
-          ref={abstainRef}
-          className="data-numeral"
-          style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', color: 'var(--atlas-ink-2)' }}
-        >
-          {staticValues ? '6' : '0'}
-        </span>
-        <span className="font-ui text-kicker uppercase" style={{ color: 'var(--atlas-ink-2)' }}>
-          Abstentions
-        </span>
-      </div>
-    </div>
-  )
+function ArticleLink() {
+  return <a href="https://news.un.org/en/story/2026/09/1168284" target="_blank" rel="noopener noreferrer"
+    className="pointer-events-auto inline-block border-b pb-1 font-ui text-caption"
+    style={{ color: 'var(--gold)', borderColor: 'var(--gold)' }}>
+    Read the UN News article about the decision ↗
+  </a>
 }
 
 function ChapterHeader() {
@@ -89,7 +44,7 @@ function ChapterHeader() {
         className="display-tight mt-5 font-display text-chapter"
         style={{ color: 'var(--atlas-ink)', fontWeight: 400 }}
       >
-        September 4, 2026.
+        What should a world map preserve?
       </h2>
     </div>
   )
@@ -121,6 +76,7 @@ function Conclusion() {
       >
         But we can choose consciously.
       </p>
+      <div className="mt-8"><ArticleLink /></div>
     </div>
   )
 }
@@ -130,13 +86,10 @@ export default function Ch12UnitedNations() {
   const sectionRef = useRef<HTMLElement>(null)
   const pinRef = useRef<HTMLDivElement>(null)
   const stageHostRef = useRef<HTMLDivElement>(null)
-  const voteRef = useRef<HTMLDivElement>(null)
+  const decisionRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const morphNoteRef = useRef<HTMLParagraphElement>(null)
   const conclusionRef = useRef<HTMLDivElement>(null)
-  const forRef = useRef<HTMLSpanElement>(null)
-  const againstRef = useRef<HTMLSpanElement>(null)
-  const abstainRef = useRef<HTMLSpanElement>(null)
   const stageRef = useRef<MorphStage | null>(null)
   const lastProgress = useRef(0)
   const [stateLabel, setStateLabel] = useState(
@@ -147,14 +100,7 @@ export default function Ch12UnitedNations() {
   /* Scroll-scrubbed application — direct DOM writes, no React re-render. */
   const apply = useCallback((p: number) => {
     lastProgress.current = p
-    const forV = Math.round(164 * clamp01((p - 0.03) / 0.15))
-    const agV = Math.round(clamp01((p - 0.1) / 0.08))
-    const abV = Math.round(6 * clamp01((p - 0.13) / 0.1))
-    if (forRef.current) forRef.current.textContent = String(forV)
-    if (againstRef.current) againstRef.current.textContent = String(agV)
-    if (abstainRef.current) abstainRef.current.textContent = String(abV)
-
-    const voteOp = p < 0.22 ? 1 : 1 - clamp01((p - 0.22) / 0.05)
+    const decisionOp = p < 0.22 ? 1 : 1 - clamp01((p - 0.22) / 0.05)
     const cardOp = clamp01((p - 0.26) / 0.04) * (1 - clamp01((p - 0.34) / 0.04))
     const mapOp = clamp01((p - 0.36) / 0.05)
     const noteOp = clamp01((p - 0.42) / 0.04) * (1 - clamp01((p - 0.72) / 0.04))
@@ -164,7 +110,7 @@ export default function Ch12UnitedNations() {
       el.style.opacity = op.toFixed(3)
       el.style.visibility = op <= 0.001 ? 'hidden' : 'visible'
     }
-    setLayer(voteRef.current, voteOp)
+    setLayer(decisionRef.current, decisionOp)
     setLayer(cardRef.current, cardOp)
     setLayer(conclusionRef.current, conclOp)
     if (morphNoteRef.current) morphNoteRef.current.style.opacity = noteOp.toFixed(3)
@@ -315,10 +261,10 @@ export default function Ch12UnitedNations() {
         <div className="mx-auto flex max-w-container flex-col gap-20 px-[var(--gutter)] py-24">
           <div className="flex flex-col items-center gap-10">
             <ChapterHeader />
-            <VoteNumerals staticValues />
             <p className="max-w-measure text-center font-body text-body-sm" style={{ color: 'var(--atlas-ink-2)' }}>
-              {VOTE_CAPTION}
+              {DECISION_CAPTION}
             </p>
+            <ArticleLink />
           </div>
           <div
             className="mx-auto max-w-measure px-6 py-6"
@@ -366,20 +312,20 @@ export default function Ch12UnitedNations() {
           {stageFailed && stageFallback}
         </div>
 
-        {/* p 0–0.25 — the vote */}
+        {/* p 0–0.25 — the cartographic merits */}
         <div
-          ref={voteRef}
-          data-step="vote"
+          ref={decisionRef}
+          data-step="decision"
           className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-10 px-[var(--gutter)]"
         >
           <ChapterHeader />
-          <VoteNumerals forRef={forRef} againstRef={againstRef} abstainRef={abstainRef} />
           <p
             className="max-w-measure text-center font-body text-body-sm"
             style={{ color: 'var(--atlas-ink-2)' }}
           >
-            {VOTE_CAPTION}
+            {DECISION_CAPTION}
           </p>
+          <ArticleLink />
         </div>
 
         {/* p 0.25–0.35 — precision card */}
@@ -394,7 +340,7 @@ export default function Ch12UnitedNations() {
             style={{ border: '1px solid var(--gold)', background: 'var(--atlas-2)' }}
           >
             <p className="kicker mb-4" style={{ color: 'var(--gold)' }}>
-              WHAT THE RESOLUTION IS — AND IS NOT
+              CHOOSE THE PROPERTY THAT FITS THE PURPOSE
             </p>
             <p className="font-body text-body-sm" style={{ color: 'var(--atlas-ink)' }}>
               {PRECISION_CARD}
