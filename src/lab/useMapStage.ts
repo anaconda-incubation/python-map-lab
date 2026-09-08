@@ -35,6 +35,7 @@ interface AnimHandle {
 
 export interface LabStage {
   containerRef: React.RefObject<HTMLDivElement | null>
+  setMapRing: (points: [number, number][], scale?: number) => void
   ready: boolean
   /** id of the projection shown at morph t = 1 (the "current" map) */
   currentId: string
@@ -251,7 +252,12 @@ export function useMapStage(initialId?: string): LabStage {
     stage.setCameraState({position: [d * Math.sin(o.yaw) * Math.cos(o.pitch), d * Math.sin(o.pitch), d * Math.cos(o.yaw) * Math.cos(o.pitch)], target: [0, 0, 0], fov: 32})
   }, [])
 
+  const setMapRing = useCallback((points: [number, number][], scale = 1) => {
+    stageRef.current?.setMapRing(points, scale)
+  }, [])
+
   return {
+    setMapRing,
     containerRef,
     ready,
     currentId,

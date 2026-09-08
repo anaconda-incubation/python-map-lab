@@ -13,6 +13,7 @@ export interface RunProjectionResult {
   y: Float64Array
   warnings: string[]
   stdout: string
+  mapRing?: [number, number][]
 }
 
 export interface OptimizeResult {

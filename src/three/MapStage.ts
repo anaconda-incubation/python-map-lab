@@ -245,6 +245,7 @@ export class MapStage {
   onFrame: (() => void) | null = null
 
   private renderer: THREE.WebGLRenderer | null = null
+  private mapRing: THREE.Line | null = null
   private scene = new THREE.Scene()
   private camera = new THREE.PerspectiveCamera(32, 1, 0.01, 100)
   private container: HTMLElement | null = null
@@ -347,6 +348,7 @@ export class MapStage {
   }
 
   dispose(): void {
+    this.setMapRing([])
     this.disposed = true
     if (this.rafId !== null) cancelAnimationFrame(this.rafId)
     this.rafId = null
@@ -366,6 +368,26 @@ export class MapStage {
   }
 
   /* ---------- public API ---------- */
+
+  /** Optional Python polyline, in the same normalized plane as the flat map. */
+  setMapRing(points: [number, number][], scale = 1): void {
+    if (this.mapRing) {
+      this.scene.remove(this.mapRing)
+      this.mapRing.geometry.dispose()
+      ;(this.mapRing.material as THREE.Material).dispose()
+      this.mapRing = null
+    }
+    if (points.length > 1) {
+      const geometry = new THREE.BufferGeometry().setFromPoints(
+        points.map(([x, y]) => new THREE.Vector3(x / scale, y / scale, 0.015)),
+      )
+      this.mapRing = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: '#DEFFAA', depthTest: false }))
+      this.mapRing.renderOrder = 100
+      this.scene.add(this.mapRing)
+    }
+    this.invalidate()
+  }
+
 
   /** Set the two morph endpoints (baked lazily on first use). */
   async setMorphTargets(a: ProjectionId | string, b: ProjectionId | string): Promise<void> {

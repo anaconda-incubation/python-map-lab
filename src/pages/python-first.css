@@ -75,7 +75,7 @@
 @media(max-width:600px) { .atlas-nav{padding-inline:16px;gap:12px;} .atlas-nav .atlas-wordmark{display:none;} .atlas-nav-links{gap:12px;font-size:11px;} .atlas-nav .python-nav-link{display:none;} }
 
 .pf-weird .pf-columns > div > .pf-math-note {font:12px/1.6 Inter,sans-serif;}
-.pf-variant-choices code {font-size:clamp(12px,1.5vw,16px);overflow-wrap:anywhere;}
+.pf-variant-choices code {display:block;font-size:clamp(12px,1vw,14px);white-space:nowrap;}
 
 .pf-context-note { display:flex; align-items:baseline; gap:18px; margin-top:24px; padding:14px 18px; border-left:2px solid var(--pf-green); background:#10281a; }
 .pf-context-note>span { flex-shrink:0; font:10px/1.6 Inter,sans-serif; letter-spacing:.1em; text-transform:uppercase; color:var(--pf-green); }

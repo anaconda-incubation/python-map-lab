@@ -35,6 +35,8 @@ export interface PythonPanelProps {
   onEdit?: () => void
   initiallyEditable?: boolean
   runLabel?: string
+  /** For recipes that deliberately mask a small region with NaN. */
+  hideCulledVertexWarnings?: boolean
   /** Initial (and Reset) editor contents — the code that actually runs. */
   code: string
   annotations?: PanelAnnotation[]
@@ -128,6 +130,7 @@ export default function PythonPanel({
   supportCode,
   onResult, onReset, onEdit, onRunStateChange, initiallyEditable = false, runLabel = 'Run Python',
   code,
+  hideCulledVertexWarnings = false,
   annotations = [],
   samples = DEFAULT_SAMPLES,
   onAnnotationHover,
@@ -248,7 +251,7 @@ export default function PythonPanel({
       const rows: string[] =
         samples.rows ?? Array.from({ length: samples.lon.length }, (_, i) => `point ${i + 1}`)
       setStdout(res.stdout)
-      setWarnings(res.warnings)
+      setWarnings(res.warnings.filter(w => !hideCulledVertexWarnings || !/^\d+ non-finite vertices \(culled\)$/.test(w)))
       setTable(
         rows.slice(0, Math.min(res.x.length, 9)).map((label, i) => ({
           label,
@@ -263,7 +266,7 @@ export default function PythonPanel({
       setStatus({ kind: 'idle' })
       toast(msg, { tone: 'error' })
     } finally { onRunStateChange?.(false) }
-  }, [samples, status.kind, toast, onResult, onRunStateChange, supportCode])
+  }, [samples, status.kind, toast, onResult, onRunStateChange, supportCode, hideCulledVertexWarnings])
   useEffect(() => { runRef.current = run })
 
   const reset = useCallback(() => {
