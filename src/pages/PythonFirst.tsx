@@ -127,15 +127,16 @@ export default function PythonFirst() {
             aria-label={globe?'Interactive globe. Drag or use arrow keys to rotate.':`${custom?'Python-generated':lesson.name} projection with geography and coordinate grid`}><div ref={stage.containerRef} className="absolute inset-0"/>{!stage.ready && <span className="pf-loading">Preparing the globe…</span>}{busy && <div className="pf-working" role="status" aria-live="polite"><span className="pf-working-dot" aria-hidden="true"/><span>{workMessage}<small>The detailed map can take a few seconds.</small></span></div>}</div>
           <div className="pf-map-controls"><StageToggle layers={stage.layers} onChange={stage.toggleLayer}/></div>
           <p className="pf-map-status" role="status">{busy?workMessage:globe?'Drag to rotate · Arrow keys work too':dirty?'Code edited. Run Python to update the map.':custom?'Map drawn from your executed Python.':'Reference map loaded. Run the function to draw it with Python.'}</p>
-          <div className="pf-question"><h2>{globe?'One world. Different promises.':lesson.question}</h2><p>{globe?'A globe keeps the Earth’s geometry on a curved surface. Flattening it means choosing what to preserve and what to distort.':lesson.explanation}</p></div>
+
           {error && <p role="alert">{error}</p>}
         </div></div>
-        {globe ? <div className="pf-overview"><p className="pf-section-label">02 / Choose what matters</p><h2>You cannot flatten a sphere without changing it.</h2><p className="pf-overview-intro">Think of peeling an orange. To lay the peel flat, you have to stretch it or cut it. Each map makes a different bargain.</p><div className="pf-tradeoffs">{lessons.map((l,i)=><button key={l.id} onPointerEnter={()=>{if(l.id==='authagraph')warmAuthagraph()}} onFocus={()=>{if(l.id==='authagraph')warmAuthagraph()}} disabled={busy || !stage.ready} onClick={()=>void choose(i)}><span><strong>{l.name}</strong><span aria-hidden="true">↗</span></span><p>{[
+        {globe ? <div className="pf-overview"><p className="pf-section-label">02 / Choose what matters</p><blockquote className="pf-globe-quote">A map is an optimization problem. Ask what you are optimizing for.</blockquote><h2>You cannot flatten a sphere without changing it.</h2><p className="pf-overview-intro">A globe keeps the Earth’s geometry on a curved surface. Think of peeling an orange. To lay the peel flat, you have to stretch it or cut it. Each map makes a different bargain.</p><div className="pf-tradeoffs">{lessons.map((l,i)=><button key={l.id} onPointerEnter={()=>{if(l.id==='authagraph')warmAuthagraph()}} onFocus={()=>{if(l.id==='authagraph')warmAuthagraph()}} disabled={busy || !stage.ready} onClick={()=>void choose(i)}><span><strong>{l.name}</strong><span aria-hidden="true">↗</span></span><p>{[
 'Made for navigation: keeps local angles and makes constant compass bearings straight. Areas near the poles look much too large.',
 'Keeps countries in their true relative sizes. Its rectangular layout stretches shapes, especially near the equator and poles.',
 'Also keeps relative areas, with a rounded outline that balances how shapes look. Angles and distances still change.',
 'Divides the globe into regions and unfolds them into a rectangle, keeping Antarctica whole. Cuts and distortion remain; the formulation here is not exactly equal-area.'
 ][i]}</p><small>Explore the map and its Python →</small></button>)}</div><p className="pf-overview-footnote">The globe is our reference. Choose a flat map to see its mathematics, run its Python, and explore the tradeoffs yourself.</p></div> : <div className="pf-code-column">
+          <div className="pf-question pf-reading-question"><h2>{lesson.question}</h2><p>{lesson.explanation}</p></div>
           <div className="pf-section-label">02 / Read, change, run</div>
           <p className="pf-change">{lesson.change}</p>
           <PythonPanel key={lesson.id} filename={`${lesson.id}.py`} code={lesson.code} samples={lesson.id==='authagraph' && authSamples ? authSamples : GRID} supportCode={lesson.supportCode} annotations={lesson.annotations} initiallyEditable runLabel="Run Python → redraw map" onRunStateChange={running=>{setBusy(running);if(running)setWorkMessage(lesson.id==='authagraph'?'Running AuthaGraph’s Python across the globe…':'Running your Python…')}} onEdit={()=>setDirty(true)} onResult={apply} onReset={()=>{setDirty(false);void choose(index)}}/>
@@ -146,10 +147,11 @@ export default function PythonFirst() {
           {lesson.id==='equalEarth' && <p className="pf-math-note">F(θ) = A₁θ + A₂θ³ + A₃θ⁷ + A₄θ⁹. The Python names its derivative explicitly.</p>}
           <div className="pf-next-actions"><button onClick={downloadNotebook} disabled={dirty}>Download {lastCode?'your':'starter'} notebook ↓</button><a href="#lesson-story-title">Understand the code and its purpose ↓</a></div>
           {dirty && <p className="pf-math-note">Run your edits before downloading to include the executed version.</p>}
+    <section className="pf-story" aria-labelledby="lesson-story-title"><p className="pf-eyebrow">Understand {lesson.name}</p><h2 id="lesson-story-title">What is this code actually doing?</h2><div className="pf-story-grid"><div><h3>The simple explanation</h3><p>{story.simple}</p></div><div><h3>What the mapmaker wanted</h3><p>{story.objective}</p></div><div><h3>A little history</h3><p>{story.history}</p><a href={story.source} target="_blank" rel="noopener noreferrer">{story.sourceLabel} ↗</a></div></div></section>
         </div>}
       </div>
     </section>
-    {!globe && <section className="pf-story" aria-labelledby="lesson-story-title"><p className="pf-eyebrow">Understand {lesson.name}</p><h2 id="lesson-story-title">What is this code actually doing?</h2><div className="pf-story-grid"><div><h3>The simple explanation</h3><p>{story.simple}</p></div><div><h3>What the mapmaker wanted</h3><p>{story.objective}</p></div><div><h3>A little history</h3><p>{story.history}</p><a href={story.source} target="_blank" rel="noopener noreferrer">{story.sourceLabel} ↗</a></div></div></section>}
+
     </div>
     <div id="experiment-panel" role="tabpanel" aria-labelledby="experiment-tab" hidden={!experimenting}><WeirdVariants /></div>
   </div>

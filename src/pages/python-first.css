@@ -135,3 +135,29 @@
 .pf-constant-note p { font:15px/1.7 'Source Serif 4',serif; color:var(--ink-2); margin:12px 0; }
 .pf-constant-note a { display:inline-block; margin:6px 16px 0 0; font:12px/1.6 Inter,sans-serif; text-decoration:underline; }
 @media(max-width:600px) { .pf-mode-tabs strong {font-size:20px;} .pf-mode-tabs button {padding:14px 10px;} }
+
+/* Keep the visual reference in view throughout the right-hand lesson. */
+.pf-code-column .pf-story { padding:32px 0 0; }
+.pf-code-column .pf-story-grid { grid-template-columns:1fr; gap:24px; }
+.pf-code-column .pf-story h2 { font-size:28px; }
+.pf-reading-question { border:0; padding:0 0 26px; }
+.pf-reading-question p { color:var(--ink-2); }
+.pf-experiment-reading { min-width:0; }
+@media(min-width:901px) and (min-height:650px) {
+  .pf-mode-switch { position:sticky; top:var(--nav-h); z-index:30; height:104px; margin-bottom:0; background:var(--bg); }
+  .pf-mode-tabs { height:104px; }
+  .pf-choices { position:sticky; top:calc(var(--nav-h) + 104px); z-index:25; height:100px; background:var(--bg); }
+  .pf-map-sticky { top:calc(var(--nav-h) + 224px); height:calc(100dvh - var(--nav-h) - 244px); display:flex; flex-direction:column; }
+  .pf-map-sticky .pf-canvas { height:auto; flex:1; min-height:0; }
+  .pf-map-header,.pf-map-controls,.pf-map-status { flex-shrink:0; }
+  .pf-map-header { padding:12px 18px; }
+  .pf-map-controls { padding:10px 18px; }
+  .pf-map-status { padding-bottom:12px; }
+  .pf-experiment-map-sticky { position:sticky; top:calc(var(--nav-h) + 124px); }
+  .pf-experiment-map-sticky .pf-weird-map { height:calc(100dvh - var(--nav-h) - 210px); max-height:650px; }
+}
+@media(min-width:901px) and (min-height:650px) {
+  .pf-choices button { padding-block:12px; min-height:0; }
+  #lesson-story-title { scroll-margin-top:calc(var(--nav-h) + 224px); }
+}
+.pf-globe-quote { margin:12px 0 28px; padding-left:20px; border-left:2px solid var(--accent); font:italic 400 clamp(24px,2.3vw,32px)/1.35 Fraunces,serif; }

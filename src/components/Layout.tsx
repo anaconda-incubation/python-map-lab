@@ -9,7 +9,6 @@ import ToastViewport from '@/components/Toast'
 import { SourcesDrawerProvider } from '@/components/Drawer'
 import Drawer from '@/components/Drawer'
 import TopNav from '@/components/TopNav'
-import Footer from '@/components/Footer'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -77,7 +76,6 @@ function ScrollRoot({ children }: { children: ReactNode }) {
       <main id="main" style={{ paddingTop: 'var(--nav-h)' }}>
         {children}
       </main>
-      <Footer />
     </div>
   )
 }

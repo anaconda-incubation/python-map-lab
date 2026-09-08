@@ -210,7 +210,8 @@ export default function Drawer() {
             Close ✕
           </button>
         </div>
-        <ol tabIndex={0} aria-label="Source references" data-lenis-prevent className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain px-6 py-6" style={{scrollbarGutter: 'stable'}}>
+        <div tabIndex={0} role="region" aria-label="Source references" data-lenis-prevent className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6" style={{scrollbarGutter: 'stable'}}>
+        <ol className="flex flex-col gap-6">
           {SOURCES.map((s, i) => (
             <li key={i} className="flex gap-4">
               <span className="footnote-ref" aria-hidden>
@@ -236,6 +237,9 @@ export default function Drawer() {
             </li>
           ))}
         </ol>
+        <section className="mt-8 border-t pt-6" style={{borderColor:'var(--hair)'}}><h2 className="kicker mb-3">Colophon &amp; credits</h2><p className="font-ui text-caption" style={{color:'var(--fg-2)'}}>Type: Fraunces, Source Serif 4, Inter, JetBrains Mono. Mathematics: KaTeX. Built with Three.js · GSAP · Pyodide. Geography: Natural Earth 50m · NASA Blue Marble. AuthaGraph formulas after Narukawa (2022); Equal Earth after Šavrič, Patterson &amp; Jenny (2018).</p></section>
+        <details className="mt-6"><summary className="kicker cursor-pointer">About geographical names</summary><p className="mt-3 font-body text-caption" style={{color:'var(--fg-2)'}}>This site uses internationally recognized geographical names as standardized through the UN Group of Experts on Geographical Names (UNGEGN) process and, for marine features, the International Hydrographic Organization. Names are drawn from a curated static dataset. No live map, geocoding, or naming API is consulted at runtime. Geometry: Natural Earth (public domain).</p></details>
+        </div>
       </div>
     </div>
   )
