@@ -1,7 +1,7 @@
 import type { PanelAnnotation } from '@/chapters/PythonPanel'
 export interface Lesson { id: string; name: string; promise: string; question: string; explanation: string; change: string; tex: string; code: string; annotations: PanelAnnotation[]; chapter: string }
 export const lessons: Lesson[] = [
-  { id:'mercator', name:'Mercator', promise:'Keep local angles', question:'Why does Greenland look so large?', explanation:'Mercator stretches both directions equally at each point. Local angles survive, but area grows rapidly toward the poles.', change:'Watch the y line. A logarithm stretches high latitudes; longitude passes straight through.', tex:String.raw`\begin{aligned}x&=\lambda\\[5pt]y&=\ln\tan\left(\frac\pi4+\frac\varphi2\right)\end{aligned}`, chapter:'ch-03',
+  { id:'mercator', name:'Mercator', promise:'Keep local angles', question:'Why does Greenland look so large?', explanation:'Mercator stretches both directions equally at each point. Local angles survive, but area grows rapidly toward the poles.', change:'Start with x = lon: equal steps in longitude become equal horizontal steps on the map. Then watch how the logarithm in y stretches high latitudes.', tex:String.raw`\begin{aligned}x&=\lambda\\[5pt]y&=\ln\tan\left(\frac\pi4+\frac\varphi2\right)\end{aligned}`, chapter:'ch-03',
     code:`import numpy as np
 
 # Angles enter in radians.
@@ -13,7 +13,7 @@ def project(lon, lat):
     x = lon
     y = np.log(np.tan(np.pi / 4 + phi / 2))
     return x, y`,
-    annotations:[{lines:[4,4],title:'01 · Set a boundary',body:'Try 70 instead of 85, then run. The poles lie at infinity, so this implementation clamps the latitude.'},{lines:[9,10],title:'02 · Follow the transformation',body:'x keeps longitude. The logarithm in y compensates for shrinking parallels on the sphere. The clamped polar bands are outside the conformal region.'}] },
+    annotations:[{lines:[4,4],title:'01 · Set a boundary',body:'Try 70 instead of 85, then run. The poles lie at infinity, so this implementation clamps the latitude.'},{lines:[9,9],title:'02 · Why longitude becomes x',body:'Longitude is an angle; x is a planar coordinate. With a unit-radius sphere and Greenwich at x = 0, Mercator uses the longitude in radians directly: x = lon. Meridians are therefore straight, vertical, and evenly spaced. This does not preserve ground distances: the same longitude interval covers less distance near the poles.'},{lines:[10,10],title:'03 · Why latitude does not become y',body:'The logarithm stretches y to match the horizontal stretch, preserving local angles away from the clamped polar bands. Compare the other lessons: Gall–Peters scales longitude by a constant, while Equal Earth scales it by a factor that depends on latitude.'}] },
   {id:'gallPeters',name:'Gall–Peters',promise:'Keep relative areas',question:'Can we fix area by changing two lines?',explanation:'Horizontal compression is balanced by vertical expansion. Areas stay proportional, while shapes change with latitude.',change:'Compare with Mercator: x gains a cosine factor; y uses sine instead of a logarithm.',tex:String.raw`\begin{aligned}x&=\lambda\cos\varphi_0\\[5pt]y&=\frac{\sin\varphi}{\cos\varphi_0}\\[5pt]\varphi_0&=45^\circ\end{aligned}`,chapter:'ch-04',
     code:`import numpy as np
 
