@@ -191,16 +191,13 @@ export function familyFrame(
   const fn = familyProjectFn(family, params)
   let hw = 0
   let hh = 0
-  for (let i = 0; i <= 180; i++) {
-    const lon = (i / 180) * Math.PI
-    const pe = fn(lon, 0)
-    if (Number.isFinite(pe.x)) hw = Math.max(hw, Math.abs(pe.x))
-    const pp = fn(lon, Math.PI / 2)
-    if (Number.isFinite(pp.x)) hw = Math.max(hw, Math.abs(pp.x))
-  }
-  for (let i = 0; i <= 90; i++) {
-    const p = fn(0, (i / 90) * Math.PI / 2)
-    if (Number.isFinite(p.y)) hh = Math.max(hh, Math.abs(p.y))
+  // A custom outline can bulge at intermediate latitudes, beyond both
+  // its equator and pole. Sample the full boundary when fitting the camera.
+  for (let i = 0; i <= 720; i++) {
+    const lat = -Math.PI / 2 + i * Math.PI / 720
+    const edge = fn(Math.PI, lat)
+    if (Number.isFinite(edge.x)) hw = Math.max(hw, Math.abs(edge.x))
+    if (Number.isFinite(edge.y)) hh = Math.max(hh, Math.abs(edge.y))
   }
   return { halfWidth: hw || 1, halfHeight: hh || 1 }
 }

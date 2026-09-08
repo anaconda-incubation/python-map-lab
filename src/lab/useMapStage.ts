@@ -165,7 +165,8 @@ export function useMapStage(): LabStage {
 
   const bakeAndRegister = useCallback<LabStage['bakeAndRegister']>(async (key, fn, frame) => {
     const baked = await bakeCustomProjection(key, fn, frame, {
-      tissotStepDeg: window.matchMedia('(max-width: 900px)').matches ? 30 : 15,
+      // Match canonical MapStage buffers at every viewport width.
+      tissotStepDeg: 30,
     })
     stageRef.current?.registerCustomProjection(key, baked)
     return baked
@@ -177,6 +178,8 @@ export function useMapStage(): LabStage {
       if (!stage) return
       const from = currentIdRef.current
       if (from === id) {
+        // A Python rerun or optimizer result may replace this registered key.
+        await stage.setMorphTargets(id, id)
         stage.setMorph(1)
         return
       }

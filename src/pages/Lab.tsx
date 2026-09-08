@@ -113,6 +113,7 @@ export default function Lab() {
   /* ---- design mode state ---- */
   const [weights, setWeights] = useState<GoalWeights>(DEFAULT_WEIGHTS)
   const [hotKey, setHotKey] = useState<keyof GoalWeights | null>(null)
+  const candidateTaskRef = useRef<Promise<void> | null>(null)
   const [preset, setPreset] = useState('Balanced')
   const presets: Array<{ name: string; weights: GoalWeights; family: Family; note: string }> = [
     { name: 'Country sizes', family: 'equal_area', weights: { area: 10, shape: 5, distance: 2, direction: 1, compact: 5, extremes: 7 }, note: 'Keep relative areas exact. Find a shape compromise within the equal-area family.' },
@@ -282,9 +283,9 @@ export default function Lab() {
       onProgress: (p) => {
         progressRef.current = p
         const now = performance.now()
-        if (!reducedMotion && now - lastCandidateRef.current > 450) {
+        if (!reducedMotion && !candidateTaskRef.current && now - lastCandidateRef.current > 450) {
           lastCandidateRef.current = now
-          void showCandidate(family, p.params)
+          candidateTaskRef.current = showCandidate(family, p.params).finally(() => { candidateTaskRef.current = null })
         }
       },
     })
@@ -316,6 +317,8 @@ export default function Lab() {
       window.clearInterval(ticker)
     }
 
+    // Finish the last preview before committing the authoritative result.
+    await candidateTaskRef.current
     const elapsedMs = performance.now() - t0
     const fn = familyProjectFn(family, finalRes.params)
     const frame = familyFrame(family, finalRes.params)
@@ -323,8 +326,11 @@ export default function Lab() {
     try {
       await stage.bakeAndRegister(key, fn, frame)
       await stage.morphTo(key, 1400)
-    } catch {
-      /* stage gone (unmounted) */
+    } catch (error) {
+      setSearching(false)
+      setRunError(error instanceof Error ? error.message : 'The projection could not be rendered. Please retry.')
+      toast('The search finished, but its map could not be drawn. Please retry.', { tone: 'error' })
+      return
     }
     userKeyRef.current = key
     userFnRef.current = { fn, frame }
@@ -777,18 +783,17 @@ export default function Lab() {
       </div>
 
       {/* ---------- main grid ---------- */}
-      <div className="mx-auto max-w-container px-[var(--gutter)] lg:grid lg:grid-cols-[420px_minmax(0,1fr)] lg:items-start lg:gap-10">
-        {/* stage column — on top (sticky) on mobile, sticky right on desktop */}
+      <div className="mx-auto max-w-container px-[var(--gutter)] lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start lg:gap-10">
+        {/* stage column — map, controls, and results follow normal document flow */}
         <div className="order-first lg:order-none">
           <div
-            className="max-lg:sticky max-lg:z-10 lg:sticky lg:flex lg:h-[calc(100dvh-var(--nav-h)-53px)] lg:flex-col"
+            className="relative"
             style={{
-              top: 'calc(var(--nav-h) + 53px)',
               background: 'var(--bg)',
             }}
           >
             <div
-              className="relative h-[55dvh] lg:h-auto lg:min-h-0 lg:flex-1"
+              className="relative h-[55dvh] min-h-[360px] max-h-[600px]"
               role="img"
               aria-label={stageAria}
               style={{ border: '1px solid var(--hair)' }}
@@ -864,10 +869,9 @@ export default function Lab() {
                 </div>
               )}
 
-              {/* layer toggles over the stage's lower edge */}
-              <div className="absolute bottom-3 left-3">
-                <StageToggle layers={stage.layers} onChange={(layer) => stage.toggleLayer(layer)} />
-              </div>
+            </div>
+            <div className="px-3 py-3" style={{ border: '1px solid var(--hair)', borderTop: 'none' }}>
+              <StageToggle layers={stage.layers} onChange={(layer) => stage.toggleLayer(layer)} />
             </div>
 
             {/* instrumentation strip */}
@@ -986,6 +990,7 @@ export default function Lab() {
                   Tell the machine what you care about. It searches for the projection.
                 </p>
                 <div><p className="mb-3 font-ui text-caption">Start with a purpose</p><div className="atlas-preset" role="group" aria-label="Projection purpose presets">{presets.map(p => <button key={p.name} disabled={searching} aria-pressed={preset === p.name} onClick={() => { setPreset(p.name); setWeights({ ...p.weights }); setFamily(p.family) }}>{p.name}</button>)}</div><p className="font-ui text-caption" aria-live="polite">{presets.find(p => p.name === preset)?.note} Adjust the sliders, then choose Search.</p></div>
+                <p className="font-ui text-caption" style={{ color: 'var(--fg-2)' }}>Compact outline favors a familiar 2:1 world. Strong distance or extreme-distortion priorities can produce a taller map; compare its shape as well as its scores.</p>
                 <GoalSliders weights={weights} onChange={changeWeight} disabled={searching} />
                 <details className="atlas-optional"><summary>How these priorities become an equation</summary><LossEquation weights={weights} hotKey={hotKey} /></details>
                 <FamilyPicker value={family} onChange={setFamily} disabled={searching} />
@@ -1012,8 +1017,7 @@ export default function Lab() {
                 </button>
                 <p className="font-ui text-caption" style={{ color: 'var(--fg-3)' }}>
                   Nelder–Mead over the family coefficients, loss sampled on an area-uniform
-                  Fibonacci sphere. It will not find a perfect map — there isn’t one. It will find
-                  the best trade you asked for.
+                  Fibonacci sphere. It returns the best candidate found within its search budget.
                 </p>
               </div>
             ) : (

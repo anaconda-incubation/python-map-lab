@@ -189,3 +189,19 @@ describe('codegen', () => {
     expect(frame.halfHeight).toBeGreaterThan(0.5)
   })
 })
+
+describe('custom projection framing', () => {
+  it('fits intermediate-latitude bulges, not just the equator and poles', () => {
+    const params = [.8660254, 1, 0, 0, 0, 0, 1, 2, -2, 0]
+    const fn = familyProjectFn('compromise', params)
+    const frame = familyFrame('compromise', params)
+    const bulge = fn(Math.PI, Math.asin(Math.sin(Math.sqrt(.5)) / params[0]))
+    expect(frame.halfWidth).toBeGreaterThan(4.7)
+    expect(frame.halfWidth).toBeCloseTo(bulge.x, 3)
+    for (let deg = -90; deg <= 90; deg += .25) {
+      const p = fn(Math.PI, deg * Math.PI / 180)
+      expect(Math.abs(p.x)).toBeLessThanOrEqual(frame.halfWidth + 1e-6)
+      expect(Math.abs(p.y)).toBeLessThanOrEqual(frame.halfHeight + 1e-6)
+    }
+  })
+})
