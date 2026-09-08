@@ -58,7 +58,7 @@ export interface LabStage {
 
 const LAST_KEY = 'efmc-lab-last-projection'
 
-export function useMapStage(): LabStage {
+export function useMapStage(initialId?: string): LabStage {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const stageRef = useRef<MapStage | null>(null)
   const animRef = useRef<AnimHandle | null>(null)
@@ -133,7 +133,7 @@ export function useMapStage(): LabStage {
     })()
     // only canonical ids survive a reload (custom bakes are session-only)
     const KNOWN = new Set(['mercator', 'gallPeters', 'equalEarth', 'authagraph', 'mollweide', 'orthographic'])
-    const initial = last && KNOWN.has(last) ? last : 'equalEarth'
+    const initial = initialId ?? (last && KNOWN.has(last) ? last : 'equalEarth')
     ;(async () => {
       await stage.setMorphTargets('globe', initial)
       if (!alive) return
@@ -146,10 +146,10 @@ export function useMapStage(): LabStage {
         angle: false,
       })
       stage.setAutoRotate(true)
-      setReady(true)
       // the globe greets, then morphs to the last-used / default projection
       animateMorph(0, 1, 1600, () => {
         stage.setAutoRotate(false)
+        setReady(true)
       })
       currentIdRef.current = initial
       setCurrentId(initial)

@@ -25,7 +25,7 @@ export default function TopNav() {
     return () => window.removeEventListener('pointerdown', close)
   }, [])
   useEffect(() => {
-    if (location.pathname !== '/') return
+    if (!location.pathname.startsWith('/story')) return
     const observer = new IntersectionObserver(entries => {
       for (const e of entries) if (e.isIntersecting) setCurrent(CHAPTERS.find(([id]) => id === e.target.id)?.[1] ?? 'The opening')
     }, { rootMargin: '-15% 0px -65% 0px' })
@@ -33,14 +33,14 @@ export default function TopNav() {
     return () => observer.disconnect()
   }, [location.pathname])
   return <header className="atlas-nav">
-    <a href="/#ch-00" onClick={() => setOpen(false)} className="atlas-wordmark"><span className="hidden sm:inline">Every flat map is a choice</span><span className="sm:hidden">A world of maps</span></a>
-    <span className="atlas-nav-current">{location.pathname === '/lab' ? 'Projection lab' : current}</span>
+    <a href="/" onClick={() => setOpen(false)} className="atlas-wordmark"><span className="hidden sm:inline">Every flat map is a choice</span><span className="sm:hidden">A world of maps</span></a>
+    <span className="atlas-nav-current">{location.pathname === '/lab' ? 'Projection lab' : location.pathname === '/' ? 'Python field guide' : current}</span>
     <nav aria-label="Site" className="atlas-nav-links">
       <div ref={dropdown} onKeyDown={e => { if (e.key === 'Escape') { setOpen(false); trigger.current?.focus() } }} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false) }}>
-        <button ref={trigger} aria-expanded={open} aria-controls="atlas-chapters" onClick={() => setOpen(v => !v)}>Chapters <span aria-hidden>⌄</span></button>
-        {open && <div id="atlas-chapters" className="atlas-chapter-menu"><p>Choose your own route</p>{CHAPTERS.map(([id, name], i) => <a key={id} href={`/#${id}`} onClick={() => setOpen(false)}><span>{String(i + 1).padStart(2, '0')}</span>{name}</a>)}<button onClick={() => { setOpen(false); openDrawer() }}>Open sources & notes ↗</button></div>}
+        <button ref={trigger} aria-expanded={open} aria-controls="atlas-chapters" onClick={() => setOpen(v => !v)}>Visual essay <span aria-hidden>⌄</span></button>
+        {open && <div id="atlas-chapters" className="atlas-chapter-menu"><p>Choose your own route</p>{CHAPTERS.map(([id, name], i) => <a key={id} href={`/story/#${id}`} onClick={() => setOpen(false)}><span>{String(i + 1).padStart(2, '0')}</span>{name}</a>)}<button onClick={() => { setOpen(false); openDrawer() }}>Open sources & notes ↗</button></div>}
       </div>
-      <a href="/#python-discovery" className="python-nav-link">Python</a>
+      <a href="/" className="python-nav-link">Python</a>
       <Link to="/lab" onClick={() => setOpen(false)}>Lab <span aria-hidden>↗</span></Link>
       <button className="hidden sm:block" onClick={() => openDrawer()}>Sources</button>
       <button aria-pressed={reducedMotion} aria-label={reducedMotion ? 'Reduced motion on; enable full motion' : 'Reduce motion'} onClick={toggle}>{reducedMotion ? 'Motion off' : 'Motion on'}</button>

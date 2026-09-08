@@ -29,6 +29,7 @@ export interface PanelAnnotation {
 export interface PythonPanelProps {
   filename: string
   onResult?: (result: RunProjectionResult, code: string) => Promise<void>
+  onRunStateChange?: (running: boolean) => void
   onReset?: () => void
   onEdit?: () => void
   initiallyEditable?: boolean
@@ -123,7 +124,7 @@ const DEFAULT_SAMPLES = (() => {
 
 export default function PythonPanel({
   filename,
-  onResult, onReset, onEdit, initiallyEditable = false, runLabel = 'Run Python',
+  onResult, onReset, onEdit, onRunStateChange, initiallyEditable = false, runLabel = 'Run Python',
   code,
   annotations = [],
   samples = DEFAULT_SAMPLES,
@@ -235,6 +236,7 @@ export default function PythonPanel({
   const run = useCallback(async () => {
     if (status.kind === 'running') return
     setStatus({ kind: 'running' })
+    onRunStateChange?.(true)
     setError(null)
     const t0 = performance.now()
     try {
@@ -258,8 +260,8 @@ export default function PythonPanel({
       setError(msg)
       setStatus({ kind: 'idle' })
       toast(msg, { tone: 'error' })
-    }
-  }, [samples, status.kind, toast, onResult])
+    } finally { onRunStateChange?.(false) }
+  }, [samples, status.kind, toast, onResult, onRunStateChange])
   useEffect(() => { runRef.current = run })
 
   const reset = useCallback(() => {

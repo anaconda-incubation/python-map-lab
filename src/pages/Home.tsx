@@ -1,3 +1,6 @@
+import { useEffect } from 'react'
+import { useLocation } from 'react-router'
+import { scrollPageTo } from '@/utils/pageScroll'
 import PythonDiscovery from '@/chapters/PythonDiscovery'
 import ProjectionExplorer from '@/chapters/ProjectionExplorer'
 import Ch00Opening from '@/chapters/Ch00Opening'
@@ -21,6 +24,14 @@ import Ch14Colophon from '@/chapters/Ch14Colophon'
  * chapter agents — this page only defines their order.
  */
 export default function Home() {
+  const { hash } = useLocation()
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const target = hash ? document.getElementById(hash.slice(1)) : null
+      scrollPageTo(target ? target.getBoundingClientRect().top + window.scrollY - 56 : 0)
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [hash])
   return (
     <article className="atlas-essay" aria-label="Every Flat Map Is a Choice — an interactive essay">
       <Ch00Opening />
