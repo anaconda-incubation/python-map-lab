@@ -26,6 +26,8 @@ export interface PanelAnnotation {
   body: string
 }
 
+type Samples = { lon: Float64Array; lat: Float64Array; rows?: string[] }
+
 export interface PythonPanelProps {
   supportCode?: string
   filename: string
@@ -41,7 +43,7 @@ export interface PythonPanelProps {
   code: string
   annotations?: PanelAnnotation[]
   /** Sample points the code is evaluated on (radians). */
-  samples?: { lon: Float64Array; lat: Float64Array; rows?: string[] }
+  samples?: Samples | (() => Promise<Samples>)
   /** Hover/focus of an annotation (null on leave) — chapter wires stage pulses. */
   onAnnotationHover?: (ann: PanelAnnotation | null) => void
   className?: string
@@ -246,10 +248,11 @@ export default function PythonPanel({
     const t0 = performance.now()
     try {
       const executedCode = supportCode ? `${supportCode}\n${codeRef.current}` : codeRef.current
-      const res = await pythonClient.runProjection(executedCode, {}, samples.lon, samples.lat)
+      const points = typeof samples === 'function' ? await samples() : samples
+      const res = await pythonClient.runProjection(executedCode, {}, points.lon, points.lat)
       await onResult?.(res, executedCode)
       const rows: string[] =
-        samples.rows ?? Array.from({ length: samples.lon.length }, (_, i) => `point ${i + 1}`)
+        points.rows ?? Array.from({ length: Math.min(points.lon.length, 9) }, (_, i) => `point ${i + 1}`)
       setStdout(res.stdout)
       setWarnings(res.warnings.filter(w => !hideCulledVertexWarnings || !/^\d+ non-finite vertices \(culled\)$/.test(w)))
       setTable(

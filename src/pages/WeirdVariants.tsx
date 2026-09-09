@@ -2,11 +2,13 @@ import MapExpandButton, { useExpandedMap } from '@/components/MapExpandButton'
 import { useState } from 'react'
 import PythonPanel from '@/chapters/PythonPanel'
 import { useMapStage } from '@/lab/useMapStage'
-import { buildLabGrid, gridProjection } from '@/lab/gridfn'
+import {
+  getProjectionSamples,
+  projectionFromSamples,
+} from './projectionSamples'
 import type { RunProjectionResult } from '@/projection/worker-client'
-import { variants } from './experimentRecipes'
+import { variants, experimentCode } from './experimentRecipes'
 
-const grid = buildLabGrid()
 export default function WeirdVariants() {
   const { expanded, columnsRef, toggleExpanded } = useExpandedMap()
   const { containerRef, bakeAndRegister, morphTo, setMapRing } =
@@ -18,14 +20,13 @@ export default function WeirdVariants() {
       'Choose a recipe, predict the result, then run it.',
     )
   const variant = variants[index]
-  const code =
-    variant.code ??
-    `import numpy as np\n\ndef project(lon, lat):\n    phi = np.clip(lat, -1.48, 1.48)\n    ${variant.line}\n    y = ${variant.flipY ? '-' : ''}np.log(np.tan(np.pi / 4 + phi / 2))\n    return x, y`
+  const code = experimentCode(variant)
   async function apply(result: RunProjectionResult, source: string) {
-    const p = gridProjection(grid, result.x, result.y)
+    const samples = await getProjectionSamples()
+    const p = projectionFromSamples(samples, result)
     if (
       p.invalidCount &&
-      (!variant.allowGaps || p.invalidCount > grid.lon.length * 0.05)
+      (!variant.allowGaps || p.invalidCount > samples.lon.length * 0.05)
     ) {
       setStatus(
         'This run could not be drawn. The map still shows the last successful result.',
@@ -34,7 +35,7 @@ export default function WeirdVariants() {
         ? ' np.log(lat) is undefined for negative latitudes and goes to negative infinity at the equator. Try the “Try a logarithm” recipe: np.log1p(np.abs(lat)) stays finite in both hemispheres, but defines a different map.'
         : ' Check logarithms of zero or negative numbers, division by zero, and square roots of negative numbers. Very large outputs may also be outside the renderer’s limits.'
       throw new Error(
-        `Cannot draw this run: ${p.invalidCount.toLocaleString()} of ${grid.lon.length.toLocaleString()} sampled locations have no drawable coordinates.${logarithmHint} Your code has been kept.`,
+        `Cannot draw this run: ${p.invalidCount.toLocaleString()} of ${samples.lon.length.toLocaleString()} sampled locations have no drawable coordinates.${logarithmHint} Your code has been kept.`,
       )
     }
     const key = `weird-${version % 2}`
@@ -143,7 +144,7 @@ export default function WeirdVariants() {
             key={index}
             filename="what_if.py"
             code={code}
-            samples={grid}
+            samples={getProjectionSamples}
             initiallyEditable
             onRunStateChange={setBusy}
             onResult={apply}

@@ -6,7 +6,6 @@ import PythonPanel from '@/chapters/PythonPanel'
 import EquationBlock from '@/components/EquationBlock'
 import StageToggle from '@/components/StageToggle'
 import { useMapStage } from '@/lab/useMapStage'
-import { buildLabGrid, gridProjection } from '@/lab/gridfn'
 import {
   pythonClient,
   type RunProjectionResult,
@@ -16,9 +15,11 @@ import { lessonNotebook } from './lessonNotebook'
 import './python-first.css'
 import { EqualEarthNote, LessonStory } from './LessonReading'
 import WeirdVariants from './WeirdVariants'
-import { getAuthagraphSamples } from './authagraphSamples'
+import {
+  getProjectionSamples,
+  projectionFromSamples,
+} from './projectionSamples'
 import { bakeProjection } from '@/projection/bake'
-const GRID = buildLabGrid()
 
 export default function PythonFirst() {
   const { expanded, columnsRef, toggleExpanded } = useExpandedMap()
@@ -37,9 +38,6 @@ export default function PythonFirst() {
     return () => cancelAnimationFrame(frame)
   }, [location.hash])
   const [index, setIndex] = useState(-1)
-  const [authSamples, setAuthSamples] = useState<Awaited<
-    ReturnType<typeof getAuthagraphSamples>
-  > | null>(null)
   const [busy, setBusy] = useState(false)
   const [workMessage, setWorkMessage] = useState('Preparing your projection…')
   const [dirty, setDirty] = useState(false)
@@ -70,7 +68,7 @@ export default function PythonFirst() {
   function warmAuthagraph() {
     // Both preparations are cached and shared with the eventual selection.
     void Promise.all([
-      getAuthagraphSamples(),
+      getProjectionSamples(),
       bakeProjection('authagraph', { tissotStepDeg: 30 }),
     ]).catch(() => {})
   }
@@ -85,11 +83,7 @@ export default function PythonFirst() {
         : 'Transforming your projection…',
     )
     try {
-      const [samples] = await Promise.all([
-        id === 'authagraph' ? getAuthagraphSamples() : Promise.resolve(null),
-        stage.morphTo(id, 1200),
-      ])
-      if (samples) setAuthSamples(samples)
+      await stage.morphTo(id, 1200)
       setIndex(i)
       setDirty(false)
       setCustom(false)
@@ -116,29 +110,10 @@ export default function PythonFirst() {
     setError('')
     setWorkMessage('Python finished. Preparing the map geometry…')
     try {
-      let halfWidth = 0,
-        halfHeight = 0
-      if (lesson.id === 'authagraph')
-        for (let i = 0; i < result.x.length; i++) {
-          halfWidth = Math.max(halfWidth, Math.abs(result.x[i]))
-          halfHeight = Math.max(halfHeight, Math.abs(result.y[i]))
-        }
-      const projection =
-        lesson.id === 'authagraph' && authSamples
-          ? {
-              invalidCount: result.x.some(
-                (x, i) => !Number.isFinite(x) || !Number.isFinite(result.y[i]),
-              )
-                ? 1
-                : 0,
-              frame: { halfWidth, halfHeight },
-              fn: (lon: number, lat: number) => {
-                const i = authSamples.indices.get(`${lon},${lat}`)
-                if (i === undefined) throw new Error('Missing renderer sample')
-                return { x: result.x[i], y: result.y[i] }
-              },
-            }
-          : gridProjection(GRID, result.x, result.y)
+      const projection = projectionFromSamples(
+        await getProjectionSamples(),
+        result,
+      )
       if (projection.invalidCount)
         throw new Error(
           'Some coordinates are not finite. Check the formula before drawing the whole world.',
@@ -480,11 +455,7 @@ export default function PythonFirst() {
                   key={lesson.id}
                   filename={`${lesson.id}.py`}
                   code={lesson.code}
-                  samples={
-                    lesson.id === 'authagraph' && authSamples
-                      ? authSamples
-                      : GRID
-                  }
+                  samples={getProjectionSamples}
                   supportCode={lesson.supportCode}
                   annotations={lesson.annotations}
                   initiallyEditable
@@ -533,7 +504,7 @@ export default function PythonFirst() {
                       ? 'Reference equations for the selected lesson. Your edited code may define a different projection.'
                       : lesson.id === 'authagraph'
                         ? 'Facet-local angles λf and φf produce radius r and angle θ. The helpers then rotate and place each region in the rectangle.'
-                        : 'λ is longitude; φ is latitude. The function maps these angles to planar coordinates x and y.'
+                        : 'λ is longitude relative to the central meridian; φ is latitude. The function maps these angles to planar coordinates x and y.'
                   }
                 />
                 {lesson.id === 'equalEarth' && (

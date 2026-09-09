@@ -2,12 +2,14 @@ import numpy as np
 
 # Change these degrees to put your own place in the middle.
 center_lat = 41.8781  # Chicago; north is positive
-center_lon = -87.6298  # east is positive
+# Central meridian: east positive, west negative.
+# Try 0 (Greenwich), -74 (New York), 140 (Tokyo), or 73 (Mumbai).
+central_meridian = -87.6298  # Chicago; approximate city longitude
 
 def project(lon, lat):
     if not -90 <= center_lat <= 90:
         raise ValueError("Center latitude must be between -90 and 90 degrees.")
-    phi0, lam0 = np.radians([center_lat, center_lon])
+    phi0, lam0 = np.radians([center_lat, central_meridian])
     delta = lon - lam0
     east = np.cos(lat) * np.sin(delta)
     north = (np.cos(phi0) * np.sin(lat)

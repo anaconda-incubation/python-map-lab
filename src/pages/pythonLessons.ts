@@ -30,10 +30,16 @@ export const lessons: Lesson[] = [
     chapter: 'ch-03',
     code: `import numpy as np
 
+# Meridians in degrees: east is positive, west is negative.
+# Try 0 (Greenwich, UK), -74 (New York),
+# 140 (Tokyo), or 73 (Mumbai). City values are approximate.
+central_meridian = 0
+
 # Angles enter in radians.
 clip_degrees = 85
 
 def project(lon, lat):
+    lon = (lon - np.radians(central_meridian) + np.pi) % (2*np.pi) - np.pi
     phi = np.clip(lat, -np.radians(clip_degrees),
                   np.radians(clip_degrees))
     x = lon
@@ -41,17 +47,22 @@ def project(lon, lat):
     return x, y`,
     annotations: [
       {
-        lines: [4, 4],
+        lines: [6, 12],
+        title: 'Center the map',
+        body: 'Change central_meridian in degrees, then run. Subtracting it turns the world; wrapping longitude moves the map cut to the opposite meridian. The equations below use longitude relative to this center.',
+      },
+      {
+        lines: [9, 9],
         title: '01 · Set a boundary',
         body: 'Try 70 instead of 85, then run. The poles lie at infinity, so this implementation clamps the latitude.',
       },
       {
-        lines: [9, 9],
+        lines: [15, 15],
         title: '02 · Why longitude becomes x',
-        body: 'Longitude is an angle; x is a planar coordinate. With a unit-radius sphere and Greenwich at x = 0, Mercator uses the longitude in radians directly: x = lon. Meridians are therefore straight, vertical, and evenly spaced. This does not preserve ground distances: the same longitude interval covers less distance near the poles.',
+        body: 'Longitude is an angle; x is a planar coordinate. With a unit-radius sphere and the selected central meridian at x = 0, Mercator uses the longitude in radians directly: x = lon. Meridians are therefore straight, vertical, and evenly spaced. This does not preserve ground distances: the same longitude interval covers less distance near the poles.',
       },
       {
-        lines: [10, 10],
+        lines: [16, 16],
         title: '03 · Why latitude does not become y',
         body: 'The logarithm stretches y to match the horizontal stretch, preserving local angles away from the clamped polar bands. Compare the other lessons: Gall–Peters scales longitude by a constant, while Equal Earth scales it by a factor that depends on latitude.',
       },
@@ -72,22 +83,33 @@ def project(lon, lat):
     chapter: 'ch-04',
     code: `import numpy as np
 
+# Meridians in degrees: east is positive, west is negative.
+# Try 0 (Greenwich, UK), -74 (New York),
+# 140 (Tokyo), or 73 (Mumbai). City values are approximate.
+central_meridian = 0
+
 # Gall–Peters uses 45°. Try 0° or 30°.
 standard_parallel = 45
 
 def project(lon, lat):
+    lon = (lon - np.radians(central_meridian) + np.pi) % (2*np.pi) - np.pi
     p = np.radians(standard_parallel)
     x = lon * np.cos(p)
     y = np.sin(lat) / np.cos(p)
     return x, y`,
     annotations: [
       {
-        lines: [4, 4],
+        lines: [6, 12],
+        title: 'Center the map',
+        body: 'Change central_meridian in degrees, then run. Subtracting it turns the world; wrapping longitude moves the map cut to the opposite meridian. The equations below use longitude relative to this center.',
+      },
+      {
+        lines: [9, 9],
         title: '01 · Make a prediction',
         body: 'Try 30°. Will the world become wider or taller? This changes the cylindrical equal-area projection; only 45° is Gall–Peters.',
       },
       {
-        lines: [8, 9],
+        lines: [14, 15],
         title: '02 · Notice the cancellation',
         body: 'The cosine factor multiplies x and divides y. Changing the standard parallel keeps the area-preserving construction.',
       },
@@ -108,7 +130,13 @@ def project(lon, lat):
     chapter: 'ch-05',
     code: `import numpy as np
 
+# Meridians in degrees: east is positive, west is negative.
+# Try 0 (Greenwich, UK), -74 (New York),
+# 140 (Tokyo), or 73 (Mumbai). City values are approximate.
+central_meridian = 0
+
 def project(lon, lat):
+    lon = (lon - np.radians(central_meridian) + np.pi) % (2*np.pi) - np.pi
     A1, A2 = 1.340264, -0.081106
     A3, A4 = 0.000893, 0.003796
     M = np.sqrt(3) / 2
@@ -120,12 +148,17 @@ def project(lon, lat):
     return x, y`,
     annotations: [
       {
-        lines: [4, 8],
-        title: '01 · Shape the outline',
-        body: 'A1–A4 are the designers’ published polynomial coefficients, fitted to their chosen parallel spacing (see the explanation below). F is the polynomial on line 8. Try a small change to A1, such as 1.4, then run to see an Equal Earth-style variant.',
+        lines: [6, 9],
+        title: 'Center the map',
+        body: 'Change central_meridian in degrees, then run. Subtracting it turns the world; wrapping longitude moves the map cut to the opposite meridian. The equations below use longitude relative to this center.',
       },
       {
-        lines: [9, 11],
+        lines: [10, 14],
+        title: '01 · Shape the outline',
+        body: 'A1–A4 are the designers’ published polynomial coefficients, fitted to their chosen parallel spacing (see the explanation below). F is the polynomial on line 14. Try a small change to A1, such as 1.4, then run to see an Equal Earth-style variant.',
+      },
+      {
+        lines: [15, 17],
         title: '02 · Pair the function with its derivative',
         body: 'Every coefficient appears in both F and its derivative. The matching horizontal compensation preserves area while the derivative remains nonzero.',
       },
