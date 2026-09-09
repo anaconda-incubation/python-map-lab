@@ -1,77 +1,43 @@
-# Every Flat Map Is a Choice
+# Python Map Lab
 
-An interactive map-projection essay built with React, TypeScript, Three.js, GSAP and Pyodide.
+An interactive field guide to map projections: explore a globe, read and edit NumPy, and draw the result directly in the browser. The interface uses Anaconda’s dark palette.
 
-## Development
+## Run
 
 ```sh
 npm ci
 npm run dev
 ```
 
-`npm run build` creates `dist/`; `npm run preview` serves that production build. `npm test` runs the projection and geometry tests, and `npm run lint` checks source. Dependencies are pinned in the lockfile using the official npm registry.
+Production preview:
 
-## Visual experience
+```sh
+npm run build
+npm run preview -- --host 127.0.0.1 --port 4176 --strictPort
+```
 
-The opening pairs a midnight atlas palette with a textured rotating globe. A single controllable sequence settles rotation, introduces the grid, unfolds the geographic surface and resolves to Equal Earth. Visitors can scroll, play, replay, return to the globe or use the keyboard-accessible range control. The global motion preference follows the system unless overridden in the navigation.
+## Structure
 
-Paper-toned reading sections follow an early linked globe/map experiment. Fifteen curated places across all seven continents can be tracked through Mercator, Equal Earth and Gall–Peters, with endpoint local-area measurements and an optional prediction exercise. The full morph studio retains all projections. Mathematics and Python examples are open by default and remain collapsible; the lab has four purpose presets.
+- `src/pages/PythonFirst.tsx` coordinates the globe, projection lessons, and workspace tabs.
+- `pythonLessons.ts`, `lessonStories.ts`, and `LessonReading.tsx` hold the lesson content. `experimentRecipes.ts` supplies the six experiments; `src/python/centered.py` is the editable azimuthal equidistant example.
+- `src/chapters/PythonPanel.tsx` owns the CodeMirror editor and Python execution controls. `src/workers/pyodide.worker.ts` runs NumPy off the main thread.
+- `src/lab/useMapStage.ts` connects React to the shared Three.js renderer. `src/projection` contains projection mathematics, geometry, distortion measurements, and cooperative baking.
+- `src/pages/lessonNotebook.ts` creates self-contained GeoPandas notebooks with embedded Natural Earth geography. Executed nteract examples are in `notebook-checks/`.
+- `src/index.css` provides global typography, colors, and shared components. `src/pages/python-first.css` styles the field guide and responsive sticky layout.
 
-## Geography and imagery
+The retained `src/lab` numerical utilities support regression tests. The old essay and full lab screens are no longer routed; `/story/*` and `/lab/*` redirect to the field guide. Their historical source remains in Git and the original worktrees.
 
-- `public/textures/earth-blue-marble.jpg`: NASA Blue Marble Next Generation, July 2004, 5,400 × 2,700 pixels, topography and bathymetry. [Original composite](https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73751/world.topo.bathy.200407.3x5400x2700.jpg). Approximately 2.2 MB compressed. This is a cloud-free historical composite, not live imagery. Credits are included in the opening and Sources.
-- `public/geo/ne_50m_*.geojson`: Natural Earth 1:50 million land, lakes and coastline, public domain, from the [Natural Earth vector repository](https://github.com/nvkelso/natural-earth-vector/tree/master/geojson). Used by the main projection engine. The dataset scale does not mean 50-metre resolution.
-- Retained 1:110 million and curated region data support other demonstrations and numerical comparisons.
-- `public/mercator-1569.svg` is explicitly labeled as a modern illustrative reconstruction.
+## Checks
 
-The vector globe renders while the texture loads, and remains usable if loading fails. The ocean uses the same geographic morph as the land; the photographic treatment fades into a quieter flat-map palette. Longitude conventions, marker positions and labels share the rendered coordinate system. Stages suspend rendering outside the viewport and retain the existing lazy allocation/disposal lifecycle.
+```sh
+npm test
+npm run lint
+npm run build
+node scripts/compare-baseline.mjs ../python-first
+```
 
-## Verification and remaining tuning
+The comparison script checks lesson content, experiment recipes, full notebook exports, and the retained renderer/Python runtime against the original worktree. See `CLEANUP_COMPARISON.md` for the cleanup review and browser checks.
 
-The redesign adds geometry tests for east/west orientation, inverse coordinates, finite surface buffers, land/ocean depth and staggered interpolation. Browser checks cover desktop/mobile composition, linked selection, replay/manual endpoints, reduced motion and lab presets.
+## Assets
 
-The globe currently uses a single 5.4K texture and 50m vectors. Optional 8K/10m upgrades, KTX2 compression, cloud/normal maps and a shared renderer across narrative chapters remain separate enhancements. No device-wide frame-rate guarantee is made. AuthaGraph's existing staged construction is a vertex interpolation, not a physical hinge simulation; its seam behavior needs separate treatment from smooth projections.
-
-## Scroll responsiveness update
-
-Projection baking (including custom projections and the ocean surface), AuthaGraph construction, and its tiling preparation now yield to browser input in roughly 4 ms work slices. Concurrent requests for the same canonical projection share their pending result. Map labels no longer read element widths in the frame loop, and document-size refreshes are debounced. The essay uses scene-local colors and a gradient handoff into the first paper section instead of recoloring thousands of descendants at a boundary.
-
-The detailed 50m AuthaGraph regression test checks byte-identical geometry and verifies other tasks run before preparation completes. One local Node run measured a 3,945 ms synchronous block versus a 5.7 ms maximum timer gap during cooperative preparation (940 task opportunities). This isolates CPU preparation; it does not measure GPU upload, shader compilation or browser frame rate. Run `npx vitest run src/projection/__tests__/cooperative-bake.test.ts --silent=false --reporter=verbose` to repeat it.
-
-## Python experience comparison
-
-This branch (`python-experience`) is an isolated Git worktree beside the original `app` checkout. Compare the original production preview at http://127.0.0.1:4173/ with this edition at http://127.0.0.1:4174/. Build here, then run `npm run preview -- --host 127.0.0.1 --port 4174 --strictPort`.
-
-The early “A formula you can touch” lesson joins an equation, editable NumPy, and a live map. Actual worker output on a 1° global grid feeds the shared cooperative projection bake; successful runs morph from the previous result. Visitors can reset, inspect coordinates, download their last successful source, or continue in the full Python lab. Chapter mathematics and runnable code now start expanded. Runtime startup is lazy and shared; every Run executes afresh rather than returning cached results.
-
-Python and custom-map preparation run on demand, not during scroll. The new map retains the lazy stage lifecycle and the baseline scroll optimizations. Anchor navigation now uses the smooth-scroll controller.
-
-## AuthaGraph motion correction
-
-The construction now holds the sphere while subdivision appears, then blends continuously through cone → net → rectangle. The former shader skipped the sphere/cone interpolation at stage 1. Geometry weights now reach all five advertised endpoints exactly, and camera position/FOV interpolate across the same continuous stage coordinate instead of rounding to discrete camera targets. A short scroll scrub absorbs wheel steps; stage navigation uses the same Lenis controller as scrolling.
-
-All five captions remain mounted in one shared grid cell and crossfade without changing their position or container height. The longer construction note follows the animation. Drag and keyboard orbit remain available on the solid stages. Geometry is prepared once per stage mount and retained in GPU buffers during playback; scroll updates only change weights, camera targets and caption opacity. Regression coverage checks endpoints, continuity around every geometry/camera boundary, normalized weights and caption crossfades.
-
-## Responsive reading and lab review
-
-Reading columns now allow flex/grid children to shrink, so equations cannot push prose or pull quotes behind adjacent maps. Long derivations are split into aligned steps. Equation cards use container-relative type, wrap glossary entries, and expose a keyboard-focusable horizontal scroller with a visible hint only when a formula still needs it. The scorecard uses selectable projection cards with three primary metrics, expandable descriptive properties and explicit overlay controls instead of an internally scrolling eight-column table.
-
-The lab uses the same Tissot sampling density for canonical and custom buffers, serializes candidate previews before committing the final result, refreshes replaced custom keys, and reports final rendering failures. Camera framing samples intermediate latitudes to include bulging outlines. The wider canvas has layer controls below it. Tall maps can still be legitimate optimizer outcomes; the UI explains the outline tradeoff rather than altering a projection to make it look better.
-
-Run `LAB_REVIEW_OUT=public/lab-visual-review.html npx vitest run src/lab/__tests__/visual-matrix.test.ts` to regenerate the visual matrix. It covers four presets plus each of six goals alone in both families, checks finite coordinates and framing, and renders actual generated coordinates with Natural Earth 110m outlines. The matrix uses the JavaScript optimizer mirror; browser review additionally exercised four browser preset searches and a successful Python/SciPy search after fixing conversion of JavaScript weights to a Python dictionary. Open `/lab-visual-review.html` in the preview after building.
-
-## Python-first edition
-
-This branch is a separate entry-point experiment. `/` is a three-lesson Python field guide: Mercator, Gall–Peters, and Equal Earth. Each lesson pairs the animated map with editable NumPy, line annotations, and typeset reference equations. Run executes the function in Pyodide on the shared geographic grid, then bakes and morphs its actual output. Notebook downloads contain the last successful code and a Matplotlib coordinate-grid example (not the site's coastline assets).
-
-The full existing essay lives at `/story/`, with chapter deep links preserved. `/lab` remains the advanced optimizer and Python lab. The original worktrees and previews are untouched. Run this edition with `npm run preview -- --host 127.0.0.1 --port 4175 --strictPort` after building. Deployment needs SPA fallback to `index.html` for `/story/` and `/lab`; assets use the origin root.
-
-Validation: 103 existing tests, production build, and lint pass. Browser review ran all three starter functions and an edited Equal Earth coefficient through Python to the map, and checked the reference/edited status labels. The starter equations are intentionally identified as references after code edits; they are not automatically derived from arbitrary Python.
-
-### Expanded lessons and experiments
-
-The Python-first entry now includes AuthaGraph, a four-step editable wrapper over a complete, expandable NumPy port of the existing Narukawa 2022 implementation. The helper is MPL-2.0, with attribution in `src/python/authagraph_lesson.py`. It preserves the implementation distinction from the original hand-built commercial map. Renderer query points are collected once and evaluated directly in Python so rectangle cuts are never interpolated through a regular grid. The frame is recomputed from each run.
-
-Each projection has a simple explanation, design objective, history, and source link. The separate experimental map offers `lon + lat`, `lon * lat`, and a sinusoidal offset, with real editable Python and an explanation of their consequences. The header includes Anaconda attribution and the runtime links to NumPy.
-
-Validation: the NumPy AuthaGraph result matched 143 canonical TypeScript coordinates at 1e-8 tolerance in a live browser run. Regenerate the in-editor verification code with `AUTHAGRAPH_REVIEW_OUT=/tmp/authagraph-verify.py npx vitest run src/pages/__tests__/authagraphLesson.test.ts`; paste it into the AuthaGraph editor (helpers are supplied by the lesson). Live visual review also exercised the addition and multiplication variants. The production build and lint pass; the suite now has 104 tests.
+Maps use Natural Earth public-domain geography: 1:50 million vectors for the renderer and embedded 1:110 million land geometry for exported notebooks. The photographic globe uses NASA Blue Marble. The app’s Sources drawer contains projection references, credits, and the naming policy.
