@@ -402,14 +402,20 @@
 }
 .pf-variant-choices {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 22px;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin: 18px -4px 0;
+  padding: 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
 }
 .pf-variant-choices button {
+  flex: 0 0 auto;
   border: 1px solid var(--hair);
-  padding: 12px 18px;
+  padding: 12px;
   text-align: left;
+  white-space: nowrap;
 }
 .pf-variant-choices button[aria-pressed='true'] {
   background: #083b1d;
@@ -476,7 +482,7 @@
 }
 .pf-variant-choices code {
   display: block;
-  font-size: clamp(12px, 1vw, 14px);
+  font-size: 12px;
   white-space: nowrap;
 }
 
