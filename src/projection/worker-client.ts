@@ -1,8 +1,8 @@
 /**
  * Main-thread typed client for the Pyodide worker (design.md §8).
  * Lazy spawn, warmup on demand, 10s timeout with automatic hard restart
- * (terminate + respawn) and a toast-friendly error, result cache keyed by
- * code hash. Python never runs per animation frame.
+ * (terminate + respawn) and a toast-friendly error. Each Run executes afresh;
+ * Python never runs per animation frame.
  */
 import * as Comlink from 'comlink'
 import type { PyodideApi } from '../workers/pyodide.worker'
@@ -13,6 +13,7 @@ export interface RunProjectionResult {
   y: Float64Array
   warnings: string[]
   stdout: string
+  mapRing?: [number, number][]
 }
 
 export interface OptimizeResult {
@@ -36,17 +37,11 @@ export interface DistortionStats {
 
 const TIMEOUT_MS = 10_000
 
-function hashCode(s: string): string {
-  let h = 5381
-  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0
-  return (h >>> 0).toString(36)
-}
 
 class PyodideClient {
   private worker: Worker | null = null
   private proxy: Comlink.Remote<PyodideApi> | null = null
   private warming: Promise<void> | null = null
-  private cache = new Map<string, RunProjectionResult>()
   onStatus: ((status: 'idle' | 'starting' | 'ready' | 'restarting' | 'error') => void) | null = null
 
   private spawn(): Comlink.Remote<PyodideApi> {
@@ -119,16 +114,12 @@ class PyodideClient {
     lon: Float64Array,
     lat: Float64Array,
   ): Promise<RunProjectionResult> {
-    const key = hashCode(code + JSON.stringify(params) + String(lon.length))
-    const cached = this.cache.get(key)
-    if (cached) return cached
     await this.warmup()
     const result = await this.withTimeout(async () => {
       const api = await this.api()
       // copies, because the worker result transfers its buffers
       return api.runProjection(code, params, lon, lat)
     })
-    this.cache.set(key, result)
     return result
   }
 

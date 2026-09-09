@@ -9,7 +9,6 @@ import ToastViewport from '@/components/Toast'
 import { SourcesDrawerProvider } from '@/components/Drawer'
 import Drawer from '@/components/Drawer'
 import TopNav from '@/components/TopNav'
-import Footer from '@/components/Footer'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -39,6 +38,7 @@ function ScrollRoot({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (reducedMotion) return
     const lenis = new Lenis({ lerp: 0.09, anchors: { offset: -72 } })
+
     registerPageScroller(lenis)
     lenis.on('scroll', ScrollTrigger.update)
     let refreshTimer: ReturnType<typeof setTimeout> | undefined
@@ -76,7 +76,9 @@ function ScrollRoot({ children }: { children: ReactNode }) {
       <main id="main" style={{ paddingTop: 'var(--nav-h)' }}>
         {children}
       </main>
-      <Footer />
+      <footer className="py-5 text-center font-ui text-[10px]" style={{ color: 'var(--ink-3)' }}>
+        © 2026 Anaconda Inc. All rights reserved.
+      </footer>
     </div>
   )
 }

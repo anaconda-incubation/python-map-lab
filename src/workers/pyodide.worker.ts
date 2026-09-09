@@ -83,6 +83,7 @@ export interface RunProjectionResult {
   y: Float64Array
   warnings: string[]
   stdout: string
+  mapRing?: [number, number][]
 }
 
 const RUN_WRAPPER = `\
@@ -124,7 +125,12 @@ def __efc_run_user(code, params, lon, lat):
                 % int(blow.sum()))
             x = np.where(blow, np.nan, x)
             y = np.where(blow, np.nan, y)
-    return x, y, warnings, buf.getvalue()
+    ring = np.asarray(ns.get("map_ring", []), dtype=float)
+    if ring.size and "ring_km" in ns and not 0 < float(ns["ring_km"]) <= 19000:
+        raise ValueError("Ring distance must be greater than 0 and at most 19,000 km.")
+    if ring.size and (ring.ndim != 2 or ring.shape[1] != 2 or len(ring) > 2048 or not np.isfinite(ring).all()):
+        raise ValueError("map_ring must contain at most 2048 finite [x, y] points")
+    return x, y, warnings, buf.getvalue(), ring.tolist()
 `
 
 async function runProjection(
@@ -143,12 +149,12 @@ async function runProjection(
     `__efc_result = __efc_run_user(__efc_code, __efc_params, __efc_lon, __efc_lat)`,
   )
   const proxy = p.globals.get('__efc_result') as {
-    toJs: (o?: unknown) => [Float64Array, Float64Array, string[], string]
+    toJs: (o?: unknown) => [Float64Array, Float64Array, string[], string, [number, number][]]
     destroy: () => void
   }
-  const [x, y, warnings, stdout] = proxy.toJs({ create_proxies: false })
+  const [x, y, warnings, stdout, mapRing] = proxy.toJs({ create_proxies: false })
   proxy.destroy()
-  return Comlink.transfer({ x, y, warnings, stdout }, [x.buffer, y.buffer])
+  return Comlink.transfer({ x, y, warnings, stdout, mapRing }, [x.buffer, y.buffer])
 }
 
 async function optimizeProjection(

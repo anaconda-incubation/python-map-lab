@@ -23,7 +23,9 @@ interface SourcesDrawerContextValue {
   closeDrawer: () => void
 }
 
-const SourcesDrawerContext = createContext<SourcesDrawerContextValue | null>(null)
+const SourcesDrawerContext = createContext<SourcesDrawerContextValue | null>(
+  null,
+)
 
 export function SourcesDrawerProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -34,7 +36,9 @@ export function SourcesDrawerProvider({ children }: { children: ReactNode }) {
     [open, openDrawer, closeDrawer],
   )
   return (
-    <SourcesDrawerContext.Provider value={value}>{children}</SourcesDrawerContext.Provider>
+    <SourcesDrawerContext.Provider value={value}>
+      {children}
+    </SourcesDrawerContext.Provider>
   )
 }
 
@@ -42,7 +46,10 @@ export function SourcesDrawerProvider({ children }: { children: ReactNode }) {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useSourcesDrawer(): SourcesDrawerContextValue {
   const ctx = useContext(SourcesDrawerContext)
-  if (!ctx) throw new Error('useSourcesDrawer must be used inside <SourcesDrawerProvider>')
+  if (!ctx)
+    throw new Error(
+      'useSourcesDrawer must be used inside <SourcesDrawerProvider>',
+    )
   return ctx
 }
 
@@ -93,7 +100,8 @@ const SOURCES: SourceEntry[] = [
   },
   {
     chapter: 'Reference',
-    citation: 'PROJ coordinate transformation software — documentation and reference implementations.',
+    citation:
+      'PROJ coordinate transformation software — documentation and reference implementations.',
     href: 'https://proj.org/',
   },
   {
@@ -104,14 +112,15 @@ const SOURCES: SourceEntry[] = [
   },
   {
     chapter: 'Geometry',
-    citation: 'Natural Earth vector data (110m land, lakes, coastline) — public domain.',
+    citation:
+      'Natural Earth vector data (110m land, lakes, coastline) — public domain.',
     href: 'https://www.naturalearthdata.com/about/terms-of-use/',
   },
   {
     chapter: '12 · The decision',
     citation:
-      'UN General Assembly, September 4, 2026: non-binding resolution (164–1, 6 abstentions; African-led, Togo drafting) encouraging equal-area projections such as Equal Earth for general world maps. Editorial premise of this essay; contextual reporting: AllAfrica on the African Union “Correct The Map” campaign (Aug 2025).',
-    href: 'https://allafrica.com/stories/202508180103.html',
+      'African Union Commission, September 4, 2026: statement welcoming the UN General Assembly resolution championed by Togo and encouraging maps that more accurately represent land areas.',
+    href: 'https://www.au.int/en/pressreleases/20260904/communique-auc-chairperson-adoption-correct-map-resolution',
   },
 ]
 
@@ -139,9 +148,9 @@ export default function Drawer() {
       }
       if (e.key !== 'Tab' || !panel) return
       // Focus trap
-      const items = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-        (el) => el.offsetParent !== null,
-      )
+      const items = Array.from(
+        panel.querySelectorAll<HTMLElement>(FOCUSABLE),
+      ).filter((el) => el.offsetParent !== null)
       if (items.length === 0) return
       const firstEl = items[0]
       const lastEl = items[items.length - 1]
@@ -154,19 +163,22 @@ export default function Drawer() {
       }
     }
     document.addEventListener('keydown', onKeyDown)
+    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.removeEventListener('keydown', onKeyDown)
-      document.body.style.overflow = ''
+      document.body.style.overflow = previousOverflow
       lastFocused.current?.focus?.()
     }
   }, [open, closeDrawer])
 
   return (
     <div
-      className="fixed inset-0 z-drawer"
+      className="fixed inset-0 z-[120]"
+      data-lenis-prevent
       style={{ pointerEvents: open ? 'auto' : 'none' }}
       aria-hidden={!open}
+      inert={!open}
     >
       {/* scrim */}
       <div
@@ -183,7 +195,7 @@ export default function Drawer() {
         role="dialog"
         aria-modal="true"
         aria-label="Sources and notes"
-        className="absolute right-0 top-0 flex h-full w-full flex-col overflow-y-auto transition-transform duration-ui ease-atlas"
+        className="absolute right-0 top-0 flex h-full w-full flex-col overflow-hidden transition-transform duration-ui ease-atlas"
         style={{
           maxWidth: '480px',
           background: 'var(--bg)',
@@ -194,45 +206,96 @@ export default function Drawer() {
         }}
       >
         <div
-          className="sticky top-0 flex items-center justify-between px-6 py-4"
-          style={{ background: 'var(--bg)', borderBottom: '1px solid var(--hair)' }}
+          className="flex shrink-0 items-center justify-between gap-4 px-6 py-4"
+          style={{
+            background: 'var(--bg)',
+            borderBottom: '1px solid var(--hair)',
+          }}
         >
           <p className="kicker">SOURCES &amp; NOTES</p>
           <button
             type="button"
             onClick={closeDrawer}
-            className="font-ui text-caption uppercase tracking-[0.14em] transition-colors duration-micro ease-atlas"
+            aria-label="Close sources and notes"
+            className="min-h-11 px-3 font-ui text-caption uppercase tracking-[0.14em] transition-colors duration-micro ease-atlas"
             style={{ color: 'var(--fg-2)' }}
           >
             Close ✕
           </button>
         </div>
-        <ol className="flex flex-col gap-6 px-6 py-6">
-          {SOURCES.map((s, i) => (
-            <li key={i} className="flex gap-4">
-              <span className="footnote-ref" aria-hidden>
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <div>
-                <p className="font-ui text-label uppercase" style={{ color: 'var(--gold)' }}>
-                  {s.chapter}
-                </p>
-                <p className="mt-1 font-body text-body-sm" style={{ color: 'var(--fg-2)' }}>
-                  {s.citation}
-                </p>
-                <a
-                  href={s.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-1 inline-block font-ui text-caption underline underline-offset-2"
-                  style={{ color: 'var(--fg)' }}
-                >
-                  {s.href.replace(/^https?:\/\//, '')}
-                </a>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label="Source references"
+          data-lenis-prevent
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6"
+          style={{ scrollbarGutter: 'stable' }}
+        >
+          <ol className="flex flex-col gap-6">
+            {SOURCES.map((s, i) => (
+              <li key={i} className="flex gap-4">
+                <span className="footnote-ref" aria-hidden>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div className="min-w-0 break-words">
+                  <p
+                    className="font-ui text-label uppercase"
+                    style={{ color: 'var(--gold)' }}
+                  >
+                    {s.chapter}
+                  </p>
+                  <p
+                    className="mt-1 font-body text-body-sm"
+                    style={{ color: 'var(--fg-2)' }}
+                  >
+                    {s.citation}
+                  </p>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 inline-block font-ui text-caption underline underline-offset-2"
+                    style={{ color: 'var(--fg)' }}
+                  >
+                    {s.href.replace(/^https?:\/\//, '')}
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <section
+            className="mt-8 border-t pt-6"
+            style={{ borderColor: 'var(--hair)' }}
+          >
+            <h2 className="kicker mb-3">Colophon &amp; credits</h2>
+            <p
+              className="font-ui text-caption"
+              style={{ color: 'var(--fg-2)' }}
+            >
+              Type: Fraunces, Source Serif 4, Inter, JetBrains Mono.
+              Mathematics: KaTeX. Built with Three.js · GSAP · Pyodide.
+              Geography: Natural Earth 50m · NASA Blue Marble. AuthaGraph
+              formulas after Narukawa (2022); Equal Earth after Šavrič,
+              Patterson &amp; Jenny (2018).
+            </p>
+          </section>
+          <details className="mt-6">
+            <summary className="kicker cursor-pointer">
+              About geographical names
+            </summary>
+            <p
+              className="mt-3 font-body text-caption"
+              style={{ color: 'var(--fg-2)' }}
+            >
+              This site uses internationally recognized geographical names as
+              standardized through the UN Group of Experts on Geographical Names
+              (UNGEGN) process and, for marine features, the International
+              Hydrographic Organization. Names are drawn from a curated static
+              dataset. No live map, geocoding, or naming API is consulted at
+              runtime. Geometry: Natural Earth (public domain).
+            </p>
+          </details>
+        </div>
       </div>
     </div>
   )

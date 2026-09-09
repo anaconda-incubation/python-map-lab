@@ -1,53 +1,48 @@
-# Every Flat Map Is a Choice
+# Python Map Lab
 
-An interactive map-projection essay built with React, TypeScript, Three.js, GSAP and Pyodide.
+An interactive field guide to map projections. Explore a globe, edit NumPy, and draw the result directly in the browser.
 
 ## Development
+
+Use Node.js 22.12 or later (Node 22 is pinned in `.nvmrc`).
 
 ```sh
 npm ci
 npm run dev
 ```
 
-`npm run build` creates `dist/`; `npm run preview` serves that production build. `npm test` runs the projection and geometry tests, and `npm run lint` checks source. Dependencies are pinned in the lockfile using the official npm registry.
+## Production
 
-## Visual experience
+```sh
+npm run check
+npm run preview -- --host 127.0.0.1 --port 4175 --strictPort
+```
 
-The opening pairs a midnight atlas palette with a textured rotating globe. A single controllable sequence settles rotation, introduces the grid, unfolds the geographic surface and resolves to Equal Earth. Visitors can scroll, play, replay, return to the globe or use the keyboard-accessible range control. The global motion preference follows the system unless overridden in the navigation.
+Deploy the generated `dist/` directory to a static HTTPS host at the domain root. Configure a fallback to `index.html` for browser routes; asset requests should still return a real 404 when missing. No backend, API keys, or build-time secrets are required. The preview command is for local verification, not a production server.
 
-Paper-toned reading sections follow an early linked globe/map experiment. Fifteen curated places across all seven continents can be tracked through Mercator, Equal Earth and Gall–Peters, with endpoint local-area measurements and an optional prediction exercise. The full morph studio retains all projections. Mathematics and Python examples are expandable; the lab has four purpose presets.
+Python runs in a Web Worker using the pinned Pyodide distribution from `cdn.jsdelivr.net`. The first Python run requires network access to load Python and NumPy; later requests can use the browser cache. Fonts, geography, and globe textures are served with the site. Allow module workers and Pyodide/WebAssembly when configuring hosting security headers. Cache hashed `assets/` files long-term and revalidate `index.html` on deployment.
 
-## Geography and imagery
+GitHub Actions runs lint, all unit tests, and a production build on pushes and pull requests. `main` is the publishing branch. A remote repository and hosting destination can be connected separately; neither is required for local builds.
 
-- `public/textures/earth-blue-marble.jpg`: NASA Blue Marble Next Generation, July 2004, 5,400 × 2,700 pixels, topography and bathymetry. [Original composite](https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73751/world.topo.bathy.200407.3x5400x2700.jpg). Approximately 2.2 MB compressed. This is a cloud-free historical composite, not live imagery. Credits are included in the opening and Sources.
-- `public/geo/ne_50m_*.geojson`: Natural Earth 1:50 million land, lakes and coastline, public domain, from the [Natural Earth vector repository](https://github.com/nvkelso/natural-earth-vector/tree/master/geojson). Used by the main projection engine. The dataset scale does not mean 50-metre resolution.
-- Retained 1:110 million and curated region data support other demonstrations and numerical comparisons.
-- `public/mercator-1569.svg` is explicitly labeled as a modern illustrative reconstruction.
+## Structure
 
-The vector globe renders while the texture loads, and remains usable if loading fails. The ocean uses the same geographic morph as the land; the photographic treatment fades into a quieter flat-map palette. Longitude conventions, marker positions and labels share the rendered coordinate system. Stages suspend rendering outside the viewport and retain the existing lazy allocation/disposal lifecycle.
+- `src/pages/PythonFirst.tsx`: lesson navigation, editable projections, and map state.
+- `pythonLessons.ts`, `lessonStories.ts`, `LessonReading.tsx`: teaching content.
+- `experimentRecipes.ts` and `src/python/centered.py`: the six experiments.
+- `src/python/authagraph_lesson.py`: AuthaGraph helpers, including explicit point centering.
+- `src/chapters/PythonPanel.tsx`: CodeMirror and Python execution controls.
+- `src/workers/pyodide.worker.ts`: isolated Python execution; the client restarts timed-out runs.
+- `src/three` and `src/projection`: rendering, projection mathematics, geometry, and distortion.
+- `src/pages/lessonNotebook.ts`: self-contained GeoPandas notebook downloads with embedded geography.
+- `notebook-checks/`: saved nteract validation notebooks. Local runtime lock files are ignored.
+- `review/`: historical comparisons, numerical rendering checks, and publishing review notes. These are not shipped in `dist/`.
 
-## Verification and remaining tuning
+The historical cleanup comparison script requires an explicit old checkout path and is not part of the production checks. Old routes redirect to the field guide.
 
-The redesign adds geometry tests for east/west orientation, inverse coordinates, finite surface buffers, land/ocean depth and staggered interpolation. Browser checks cover desktop/mobile composition, linked selection, replay/manual endpoints, reduced motion and lab presets.
+## Teaching controls
 
-The globe currently uses a single 5.4K texture and 50m vectors. Optional 8K/10m upgrades, KTX2 compression, cloud/normal maps and a shared renderer across narrative chapters remain separate enhancements. No device-wide frame-rate guarantee is made. AuthaGraph's existing staged construction is a vertex interpolation, not a physical hinge simulation; its seam behavior needs separate treatment from smooth projections.
+Mercator, Gall–Peters, and Equal Earth use a `central_meridian` in degrees, positive east and negative west. AuthaGraph instead uses `center_lat` and `center_lon` to place a selected point at the rectangle's center. Centering changes its cuts, not its distortion properties. The azimuthal equidistant experiment preserves great-circle distances from its center and supports an optional ring up to 19,000 km.
 
-## Scroll responsiveness update
+## Assets and attribution
 
-Projection baking (including custom projections and the ocean surface), AuthaGraph construction, and its tiling preparation now yield to browser input in roughly 4 ms work slices. Concurrent requests for the same canonical projection share their pending result. Map labels no longer read element widths in the frame loop, and document-size refreshes are debounced. The essay uses scene-local colors and a gradient handoff into the first paper section instead of recoloring thousands of descendants at a boundary.
-
-The detailed 50m AuthaGraph regression test checks byte-identical geometry and verifies other tasks run before preparation completes. One local Node run measured a 3,945 ms synchronous block versus a 5.7 ms maximum timer gap during cooperative preparation (940 task opportunities). This isolates CPU preparation; it does not measure GPU upload, shader compilation or browser frame rate. Run `npx vitest run src/projection/__tests__/cooperative-bake.test.ts --silent=false --reporter=verbose` to repeat it.
-
-## AuthaGraph motion correction
-
-The construction now holds the sphere while subdivision appears, then blends continuously through cone → net → rectangle. The former shader skipped the sphere/cone interpolation at stage 1. Geometry weights now reach all five advertised endpoints exactly, and camera position/FOV interpolate across the same continuous stage coordinate instead of rounding to discrete camera targets. A short scroll scrub absorbs wheel steps; stage navigation uses the same Lenis controller as scrolling.
-
-All five captions remain mounted in one shared grid cell and crossfade without changing their position or container height. The longer construction note follows the animation. Drag and keyboard orbit remain available on the solid stages. Geometry is prepared once per stage mount and retained in GPU buffers during playback; scroll updates only change weights, camera targets and caption opacity. Regression coverage checks endpoints, continuity around every geometry/camera boundary, normalized weights and caption crossfades.
-
-## Responsive reading and lab review
-
-Reading columns now allow flex/grid children to shrink, so equations cannot push prose or pull quotes behind adjacent maps. Long derivations are split into aligned steps. Equation cards use container-relative type, wrap glossary entries, and expose a keyboard-focusable horizontal scroller with a visible hint only when a formula still needs it. The scorecard uses selectable projection cards with three primary metrics, expandable descriptive properties and explicit overlay controls instead of an internally scrolling eight-column table.
-
-The lab uses the same Tissot sampling density for canonical and custom buffers, serializes candidate previews before committing the final result, refreshes replaced custom keys, and reports final rendering failures. Camera framing samples intermediate latitudes to include bulging outlines. The wider canvas has layer controls below it. Tall maps can still be legitimate optimizer outcomes; the UI explains the outline tradeoff rather than altering a projection to make it look better.
-
-Run `LAB_REVIEW_OUT=public/lab-visual-review.html npx vitest run src/lab/__tests__/visual-matrix.test.ts` to regenerate the visual matrix. It covers four presets plus each of six goals alone in both families, checks finite coordinates and framing, and renders actual generated coordinates with Natural Earth 110m outlines. The matrix uses the JavaScript optimizer mirror; browser review additionally exercised four browser preset searches and a successful Python/SciPy search after fixing conversion of JavaScript weights to a Python dictionary. Open `/lab-visual-review.html` in the preview after building.
+Natural Earth public-domain geography supplies the renderer (1:50 million) and exported notebooks (1:110 million). The photographic globe uses NASA Blue Marble. The Sources drawer lists references and credits. AuthaGraph's adapted helper implementations retain their MPL-2.0 notices. Branding and typography retain their respective owners' rights.
