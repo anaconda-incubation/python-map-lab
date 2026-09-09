@@ -52,6 +52,9 @@
 .pf-intro h1 { font-size:clamp(26px,2.75vw,40px); white-space:nowrap; letter-spacing:-.045em; }
 .pf-runtime a { text-decoration:underline; text-underline-offset:3px; }
 .pf-anaconda { font:12px Inter,sans-serif; color:var(--fg); white-space:nowrap; }
+.atlas-nav { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); }
+.atlas-nav .atlas-wordmark { min-width:0; }
+.atlas-nav .atlas-nav-links { justify-self:end; }
 .pf-anaconda { display:flex; align-items:center; gap:8px; flex-shrink:0; min-height:40px; }
 .pf-anaconda-by { font:700 19px/1 Inter,sans-serif; color:#fff; letter-spacing:-.02em; }
 .pf-anaconda img { display:block; width:140px; height:auto; }
