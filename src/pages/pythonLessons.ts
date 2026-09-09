@@ -18,7 +18,7 @@ export const lessons: Lesson[] = [
   {
     id: 'mercator',
     tradeoff:
-      'Made for navigation: keeps local angles and makes constant compass bearings straight. Areas near the poles look much too large.',
+      'Created by Gerardus Mercator in 1569 for maritime navigation. Keeps local angles and makes constant compass bearings straight, but areas near the poles look much too large.',
     name: 'Mercator',
     promise: 'Keep local angles',
     question: 'Why does Greenland look so large?',
@@ -71,7 +71,7 @@ def project(lon, lat):
   {
     id: 'gallPeters',
     tradeoff:
-      'Keeps countries in their true relative sizes. Its rectangular layout stretches shapes, especially near the equator and poles.',
+      'Described by James Gall in 1855 and popularized by Arno Peters in 1973. Keeps countries in their true relative sizes, but its rectangular layout stretches shapes, especially near the equator and poles.',
     name: 'Gall–Peters',
     promise: 'Keep relative areas',
     question: 'Can we fix area by changing two lines?',
@@ -118,7 +118,7 @@ def project(lon, lat):
   {
     id: 'equalEarth',
     tradeoff:
-      'Also keeps relative areas, with a rounded outline that balances how shapes look. Angles and distances still change.',
+      'Introduced in 2018 by Bojan Šavrič, Tom Patterson, and Bernhard Jenny. Keeps relative areas, with a rounded outline that balances how shapes look. Angles and distances still change.',
     name: 'Equal Earth',
     promise: 'Area, with a curved outline',
     question: 'What does a little more Python buy us?',
@@ -167,7 +167,7 @@ def project(lon, lat):
   {
     id: 'authagraph',
     tradeoff:
-      'Divides the globe into regions and unfolds them into a rectangle, keeping Antarctica whole. Cuts and distortion remain; the formulation here is not exactly equal-area.',
+      'Created by Hajime Narukawa. Divides the globe into regions and unfolds them into a rectangle, keeping Antarctica whole. Cuts and distortion remain; the formulation here is not exactly equal-area.',
     name: 'AuthaGraph',
     promise: 'Unfold the sphere',
     question: 'What if we flatten a solid instead?',
