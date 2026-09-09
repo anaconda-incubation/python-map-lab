@@ -148,7 +148,9 @@ def project(lon, lat):
     code: `import numpy as np
 
 # The helper implementations are shown below.
-# Try changing central_meridian to 20.
+# Meridians in degrees: east is positive, west is negative.
+# Try 0 (Greenwich, UK), -74 (New York),
+# 140 (Tokyo), or 73 (Mumbai). City values are approximate.
 central_meridian = 0
 
 def project(lon, lat):
@@ -159,12 +161,12 @@ def project(lon, lat):
     return unfold_rectangle(x, y, face)`,
     annotations: [
       {
-        lines: [5, 8],
+        lines: [7, 10],
         title: '01 · Turn the world',
         body: 'Changing the central meridian rotates geography relative to the tetrahedron. It changes which places lie near the cuts.',
       },
       {
-        lines: [9, 12],
+        lines: [11, 14],
         title: '02 · Follow each point',
         body: 'Orient the sphere, choose a face, flatten it, and place it in the rectangle. Open the helper code to see every calculation.',
       },
