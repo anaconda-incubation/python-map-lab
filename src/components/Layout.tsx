@@ -76,6 +76,9 @@ function ScrollRoot({ children }: { children: ReactNode }) {
       <main id="main" style={{ paddingTop: 'var(--nav-h)' }}>
         {children}
       </main>
+      <footer className="py-5 text-center font-ui text-[10px]" style={{ color: 'var(--ink-3)' }}>
+        © 2026 Anaconda Inc. All rights reserved.
+      </footer>
     </div>
   )
 }
