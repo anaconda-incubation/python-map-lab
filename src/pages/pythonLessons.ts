@@ -181,9 +181,9 @@ def project(lon, lat):
     code: `import numpy as np
 
 # The helper implementations are shown below.
-# Meridians in degrees: east is positive, west is negative.
+# Longitude rotation: east positive, west negative.
 # Try 0 (Greenwich, UK), -74 (New York),
-# 140 (Tokyo), or 73 (Mumbai). City values are approximate.
+# 140 (Tokyo), or 73 (Mumbai). This does not center the city.
 central_meridian = 0
 
 def project(lon, lat):
@@ -196,7 +196,7 @@ def project(lon, lat):
       {
         lines: [7, 10],
         title: '01 · Turn the world',
-        body: 'Changing the central meridian rotates geography relative to the tetrahedron. It changes which places lie near the cuts.',
+        body: 'Here, central_meridian is a rotation offset from AuthaGraph’s built-in orientation, not the longitude at the rectangle’s center. Positive values turn the frame east, moving geography west relative to it. The approximate city longitudes do not center those cities; they change which places lie near the cuts.',
       },
       {
         lines: [11, 14],
