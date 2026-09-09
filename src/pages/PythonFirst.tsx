@@ -8,6 +8,7 @@ import { useMapStage } from '@/lab/useMapStage'
 import { buildLabGrid, gridProjection } from '@/lab/gridfn'
 import { pythonClient, type RunProjectionResult } from '@/projection/worker-client'
 import { lessons } from './pythonLessons'
+import { lessonNotebook } from './lessonNotebook'
 import './python-first.css'
 import { lessonStories } from './lessonStories'
 import WeirdVariants from './WeirdVariants'
@@ -91,15 +92,15 @@ export default function PythonFirst() {
       setCustom(true); setDirty(false); setLastCode(code)
     } finally {setBusy(false)}
   }
-  function downloadNotebook() {
+  async function downloadNotebook() {
+    try {
     const code = lastCode ?? (lesson.supportCode ? `${lesson.supportCode}\n${lesson.code}` : lesson.code)
-    const notebook = {nbformat:4,nbformat_minor:5,metadata:{kernelspec:{display_name:'Python 3',language:'python',name:'python3'}},cells:[
-      {cell_type:'markdown',metadata:{},source:[`# ${lesson.name}: a world from a function\n\n${lesson.explanation}\n\nRun the cells from top to bottom (Run All). The first cell installs NumPy and Matplotlib if needed, using this notebook’s Python environment. An internet connection is required the first time packages are installed.`]},
-      {cell_type:'code',execution_count:null,metadata:{},outputs:[],source:["# Run this cell first. Install only missing dependencies.\nimport importlib.util\nimport sys\n\nmissing = [name for name in (\"numpy\", \"matplotlib\")\n           if importlib.util.find_spec(name) is None]\nif missing:\n    if sys.platform == \"emscripten\":\n        import pyodide_js\n        for package in missing:\n            await pyodide_js.loadPackage(package)\n    else:\n        import subprocess\n        subprocess.check_call([sys.executable, \"-m\", \"pip\", \"install\", *missing])\n\nimport numpy as np\nimport matplotlib.pyplot as plt\nprint(\"NumPy and Matplotlib are ready.\")"]},
-      {cell_type:'code',execution_count:null,metadata:{},outputs:[],source:[code]},
-      {cell_type:'code',execution_count:null,metadata:{},outputs:[],source:[`import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(10, 6))\nfor latitude in range(-80, 81, 20):\n    lon = np.linspace(-np.pi, np.pi, 361)\n    x, y = project(lon, np.full_like(lon, np.radians(latitude)))\n    ax.plot(x, y, color="teal", linewidth=0.6)\nfor longitude in range(-180, 181, 20):\n    lat = np.linspace(np.radians(-85), np.radians(85), 341)\n    x, y = project(np.full_like(lat, np.radians(longitude)), lat)\n    ax.plot(x, y, color="teal", linewidth=0.6)\nax.set_aspect("equal")\nax.set_title("Your projection: coordinate grid")\nplt.show()`]}]}
+    const response = await fetch('/geo/ne_110m_land.geojson')
+    if (!response.ok) throw new Error('Could not load notebook geography. Please try again.')
+    const notebook = lessonNotebook(lesson, code, await response.json())
     const url = URL.createObjectURL(new Blob([JSON.stringify(notebook,null,2)],{type:'application/x-ipynb+json'}))
     const a=document.createElement('a');a.href=url;a.download=`${lesson.id}-lesson.ipynb`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)
+    } catch (err) { setError(err instanceof Error ? err.message : 'Notebook download failed. Please try again.') }
   }
   return <div className="python-first">
     <section className="pf-intro">
