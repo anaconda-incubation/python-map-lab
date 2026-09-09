@@ -1,3 +1,4 @@
+import MapExpandButton, { useExpandedMap } from '@/components/MapExpandButton'
 import { useState } from 'react'
 import PythonPanel from '@/chapters/PythonPanel'
 import { useMapStage } from '@/lab/useMapStage'
@@ -7,6 +8,7 @@ import { variants } from './experimentRecipes'
 
 const grid = buildLabGrid()
 export default function WeirdVariants() {
+  const { expanded, columnsRef, toggleExpanded } = useExpandedMap()
   const { containerRef, bakeAndRegister, morphTo, setMapRing } =
     useMapStage('mercator')
   const [index, setIndex] = useState(1),
@@ -92,9 +94,18 @@ export default function WeirdVariants() {
           </button>
         ))}
       </div>
-      <div className="pf-columns">
+      <div
+        id="experiment-map-layout"
+        ref={columnsRef}
+        className={`pf-columns ${expanded ? 'pf-expanded' : ''}`}
+      >
         <div className="pf-experiment-map-column">
           <div className="pf-experiment-map-sticky">
+            <MapExpandButton
+              expanded={expanded}
+              onClick={toggleExpanded}
+              controls="experiment-map-layout"
+            />
             <div
               className="pf-weird-map"
               role="img"

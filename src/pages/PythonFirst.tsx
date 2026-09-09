@@ -1,3 +1,4 @@
+import MapExpandButton, { useExpandedMap } from '@/components/MapExpandButton'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { scrollPageTo } from '@/utils/pageScroll'
@@ -20,6 +21,7 @@ import { bakeProjection } from '@/projection/bake'
 const GRID = buildLabGrid()
 
 export default function PythonFirst() {
+  const { expanded, columnsRef, toggleExpanded } = useExpandedMap()
   const location = useLocation()
   const navigate = useNavigate()
   const experimenting = location.hash === '#experiments'
@@ -320,9 +322,18 @@ export default function PythonFirst() {
               </button>
             ))}
           </div>
-          <div className="pf-columns">
+          <div
+            id="lesson-map-layout"
+            ref={columnsRef}
+            className={`pf-columns ${expanded ? 'pf-expanded' : ''}`}
+          >
             <div className="pf-map-column">
               <div className="pf-map-sticky">
+                <MapExpandButton
+                  expanded={expanded}
+                  onClick={toggleExpanded}
+                  controls="lesson-map-layout"
+                />
                 <div className="pf-map-header">
                   <span>01 / Observe the world</span>
                   <span>

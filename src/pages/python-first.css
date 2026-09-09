@@ -857,3 +857,77 @@
     serif;
   color: var(--ink-2);
 }
+
+/* Expanded maps stay in the document, with the existing editor below. */
+.pf-experiment-map-sticky {
+  position: relative;
+}
+.pf-map-header {
+  padding-right: 58px;
+}
+.pf-expand-map {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--hair);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.pf-expand-map:hover {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+.pf-columns.pf-expanded {
+  grid-template-columns: minmax(0, 1fr);
+}
+.pf-expanded .pf-map-sticky,
+.pf-expanded .pf-experiment-map-sticky {
+  position: relative;
+  top: auto;
+}
+.pf-expanded .pf-map-sticky {
+  display: flex;
+  flex-direction: column;
+  height: 70dvh;
+  min-height: 360px;
+}
+.pf-expanded .pf-map-sticky .pf-canvas {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+.pf-expanded .pf-experiment-map-sticky .pf-weird-map {
+  height: 65dvh;
+  max-height: none;
+}
+.pf-expanded .pf-code-column,
+.pf-expanded .pf-overview,
+.pf-expanded .pf-experiment-reading {
+  width: 100%;
+  max-width: 900px;
+  margin-inline: auto;
+}
+@media (min-width: 901px) and (min-height: 650px) {
+  .pf-experiment-map-sticky {
+    position: sticky;
+  }
+  html[data-motion='full'] .pf-map-sticky {
+    transition: height 240ms ease;
+  }
+  html[data-motion='full'] .pf-weird-map {
+    transition: height 240ms ease;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pf-map-sticky,
+  .pf-weird-map {
+    transition: none !important;
+  }
+}
