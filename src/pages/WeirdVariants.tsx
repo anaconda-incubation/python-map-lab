@@ -31,8 +31,8 @@ def project(lon, lat):
 # Optional distance ring: uncomment these lines and run again.
 # Distances are great-circle distances on a sphere of radius 6371 km.
 # ring_km = 3000
-# if not 0 < ring_km < 6371 * np.radians(178):
-#     raise ValueError("Choose a positive distance within the visible map.")
+# if not 0 < ring_km <= 19000:
+#     raise ValueError("Ring distance must be greater than 0 and at most 19,000 km.")
 # angle = np.linspace(0, 2 * np.pi, 361)
 # radius = ring_km / 6371
 # map_ring = np.column_stack((radius * np.sin(angle), radius * np.cos(angle)))
