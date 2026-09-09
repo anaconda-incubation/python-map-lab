@@ -167,27 +167,27 @@ def project(lon, lat):
   {
     id: 'authagraph',
     tradeoff:
-      'Created by Hajime Narukawa. Divides the globe into regions and unfolds them into a rectangle, keeping Antarctica whole. Cuts and distortion remain; the formulation here is not exactly equal-area.',
+      'Created by Hajime Narukawa. Divides the globe into regions and unfolds them into a rectangle. The original orientation keeps Antarctica whole; choosing a new center moves the cuts. The formulation here is not exactly equal-area.',
     name: 'AuthaGraph',
     promise: 'Unfold the sphere',
     question: 'What if we flatten a solid instead?',
     explanation:
-      'Route each point to a tetrahedral region, flatten the regions, then arrange them into a rectangle. The aim is to spread distortion across the whole world, including Antarctica.',
+      'Choose a place to put at the center of the rectangle. Rotate the globe, route each point to a tetrahedral region, then flatten and arrange the regions. The aim is to spread distortion across the whole world, including Antarctica.',
     change:
-      'Read the four steps first. Each helper is real NumPy, available below the editor. This implements Narukawa’s 2022 mathematical formulation with the public Imago rectangle arrangement.',
+      'Set both center_lat and center_lon in degrees. That place lands at the map’s center, with north pointing up locally. This changes the orientation and cuts, not the projection’s distortion tradeoffs. The NumPy helpers below implement Narukawa’s 2022 formulation with the public Imago rectangle arrangement.',
     chapter: 'ch-06',
     supportCode: authagraphSupport,
     tex: String.raw`\begin{aligned}a&=\lambda_f-\arcsin(\sin\lambda_f/\sqrt3)\\\theta&=\arctan(2\sqrt3\,a/\pi)\\r&=\frac{\sqrt3(2+\cos\lambda_f)}{(2+\sqrt2\tan\varphi_f)\cos\theta}\end{aligned}`,
     code: `import numpy as np
 
-# The helper implementations are shown below.
-# Longitude rotation: east positive, west negative.
-# Try 0 (Greenwich, UK), -74 (New York),
-# 140 (Tokyo), or 73 (Mumbai). This does not center the city.
-central_meridian = 0
+# Center a place: latitude north +, south -; longitude east +, west -.
+# Approximate (latitude, longitude) pairs:
+# Greenwich (51.5, 0), New York (40.7, -74),
+# Tokyo (35.7, 139.7), Mumbai (19.1, 72.9).
+center_lat, center_lon = 35.7, 139.7  # Tokyo
 
 def project(lon, lat):
-    lon = (lon - np.radians(central_meridian) + np.pi) % (2*np.pi) - np.pi
+    lon, lat = center_on(lon, lat, center_lat, center_lon)
     lon, lat = orient_to_tetrahedron(lon, lat)
     lon, lat, face = choose_face(lon, lat)
     x, y = flatten_face(lon, lat, face)
@@ -195,8 +195,8 @@ def project(lon, lat):
     annotations: [
       {
         lines: [7, 10],
-        title: '01 · Turn the world',
-        body: 'Here, central_meridian is a rotation offset from AuthaGraph’s built-in orientation, not the longitude at the rectangle’s center. Positive values turn the frame east, moving geography west relative to it. The approximate city longitudes do not center those cities; they change which places lie near the cuts.',
+        title: '01 · Center a place',
+        body: 'Change both coordinates together. center_on rotates the sphere so that this location projects to x = 0, y = 0, the rectangle’s center. Local north points up there. Unlike a central meridian, which centers a longitude line on other maps, this selects one point. Distances from that point are not preserved; use the Center on a place experiment for that.',
       },
       {
         lines: [11, 14],

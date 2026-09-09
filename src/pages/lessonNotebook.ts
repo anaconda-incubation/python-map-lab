@@ -27,7 +27,7 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 print("NumPy, GeoPandas and Matplotlib are ready.")`),
-      markdown('formula-note','## The projection\n\nChange the function below, then rerun the map. Inputs are longitude and latitude in radians; outputs are planar coordinates for a unit-radius sphere.'),
+      markdown('formula-note','## The projection\n\nChange the function below, then rerun the map. Inputs are longitude and latitude in radians; outputs are planar coordinates for a unit-radius sphere.' + (lesson.id === 'authagraph' ? `\n\n${lesson.change}\n\n${lesson.annotations[0].body}` : '')),
       cell('projection',code),
       markdown('data-note','## Real geography\n\nNatural Earth 1:110m land polygons, embedded in this file (public domain). GeoPandas holds the geographic features in longitude/latitude coordinates. The custom Python function projects their coastlines directly; it is not a standard GeoPandas CRS conversion.\n\n[About Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/)'),
       cell('geography',`import json

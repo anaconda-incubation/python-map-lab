@@ -40,9 +40,9 @@ export const lessonStories: Record<
   },
   authagraph: {
     simple:
-      'Imagine marking places on a ball, moving those marks onto a four-sided solid, then opening the solid into a flat sheet. The code finds the region for each place, flattens that region, and moves the pieces into a rectangle. Cuts are part of that construction.',
+      'Imagine marking places on a ball. First rotate it so your chosen latitude and longitude will land in the middle of the finished map. Then move the marks onto a four-sided solid and open it into a flat sheet. The code finds the region for each place, flattens it, and arranges the pieces into a rectangle. Changing the center also moves the cuts.',
     objective:
-      'Spread distortion across the world and keep Antarctica visible as a whole. It balances several kinds of distortion. Unlike Gall–Peters and Equal Earth, this formulation does not preserve area exactly at every tiny point.',
+      'Spread distortion across the world. The original orientation keeps Antarctica whole; a custom center can move a cut through it or another continent. Centering a place does not preserve distances from it. Unlike Gall–Peters and Equal Earth, this formulation does not preserve area exactly at every tiny point.',
     history:
       'Hajime Narukawa developed AuthaGraph through a geometric construction. His 2022 paper gives a mathematical formulation using cones and a tetrahedron. That is the formulation here, with a public rectangle arrangement, rather than the original hand-built commercial artwork.',
     source: 'https://doi.org/10.11212/jjca.60.1_1',

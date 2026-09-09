@@ -17,6 +17,33 @@ def _wrap(angle):
                     np.where(angle < -np.pi, angle + 2*np.pi, angle))
 
 
+def center_on(lon, lat, center_lat, center_lon):
+    """Rotate a chosen place to the rectangle center, with local north up."""
+    if not np.isfinite(center_lat) or not -90 <= center_lat <= 90:
+        raise ValueError("Center latitude must be between -90 and 90 degrees.")
+    if not np.isfinite(center_lon):
+        raise ValueError("Center longitude must be finite.")
+
+    def basis(longitude, latitude):
+        center = _vector(longitude, latitude)
+        east = np.array([-np.sin(longitude), np.cos(longitude), 0.0])
+        north = np.cross(center, east)
+        return np.column_stack((east, north, center))
+
+    # Inverse of unfold_rectangle at x = y = 0 for the fixed Imago layout.
+    # This anchor belongs to the layout, not to the user's chosen city.
+    anchor = basis(*np.radians([-164.98316248910135, 32.08994303932354]))
+    # Bearing at that anchor whose projected direction is straight up.
+    bearing = np.radians(11.853089103808436)
+    east, north, center = anchor.T
+    target = np.column_stack((east*np.cos(bearing) - north*np.sin(bearing),
+                              east*np.sin(bearing) + north*np.cos(bearing), center))
+    source = basis(*np.radians([center_lon % 360, center_lat]))
+    points = target @ source.T @ _vector(lon, lat)
+    return (np.arctan2(points[1], points[0]),
+            np.arcsin(np.clip(points[2], -1, 1)))
+
+
 def orient_to_tetrahedron(lon, lat):
     north = _vector(*np.radians([149.4509913, 76.8810628]))
     south = _vector(*np.radians([-18.8522325, -6.6370473]))
