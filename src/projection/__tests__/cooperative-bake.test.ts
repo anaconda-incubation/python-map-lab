@@ -31,4 +31,6 @@ it('lets input tasks run while preparing detailed AuthaGraph, with identical geo
     expect(Buffer.from(actual[key]!.buffer).equals(Buffer.from(reference[key]!.buffer))).toBe(true)
   }
   console.info(`50m AuthaGraph: synchronous block ${synchronousMs.toFixed(1)}ms; cooperative maximum task gap ${largestGap.toFixed(1)}ms; ${tasks} input opportunities`)
-}, 15000)
+// Full 50m geometry is baked twice; allow slower shared CI runners to finish.
+// Correctness and yielding are asserted above, independently of wall time.
+}, 60000)
