@@ -22,7 +22,7 @@ Deploy the generated `dist/` directory to a static HTTPS host at the domain root
 
 Python runs in a Web Worker using the pinned Pyodide distribution from `cdn.jsdelivr.net`. The first Python run requires network access to load Python and NumPy; later requests can use the browser cache. Fonts, geography, and globe textures are served with the site. Allow module workers and Pyodide/WebAssembly when configuring hosting security headers. Cache hashed `assets/` files long-term and revalidate `index.html` on deployment.
 
-GitHub Actions runs lint, all unit tests, and a production build on pushes and pull requests. `main` is the publishing branch. A remote repository and hosting destination can be connected separately; neither is required for local builds.
+GitHub Actions runs lint, all unit tests, and a production build on pushes and pull requests. `main` is the publishing branch in [anaconda-incubation/python-map-lab](https://github.com/anaconda-incubation/python-map-lab). See [DEPLOYMENT.md](DEPLOYMENT.md) for Cloudflare Pages setup and automatic deployments.
 
 ## Structure
 
