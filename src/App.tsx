@@ -10,6 +10,7 @@ export default function App() {
           <Route path="/" element={<PythonFirst />} />
           <Route path="/story/*" element={<Navigate to="/" replace />} />
           <Route path="/lab/*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
     </BrowserRouter>

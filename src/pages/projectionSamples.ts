@@ -38,9 +38,21 @@ export function projectionFromSamples(
   samples: Awaited<ReturnType<typeof getProjectionSamples>>,
   result: RunProjectionResult,
 ) {
+  if (
+    result.x.length !== samples.lon.length ||
+    result.y.length !== samples.lon.length
+  ) {
+    throw new Error(
+      'Python must return one x and y coordinate for every sampled location.',
+    )
+  }
   let halfWidth = 0,
     halfHeight = 0,
     invalidCount = 0
+  let minX = Infinity,
+    maxX = -Infinity,
+    minY = Infinity,
+    maxY = -Infinity
   for (let i = 0; i < result.x.length; i++) {
     const x = result.x[i],
       y = result.y[i]
@@ -50,9 +62,14 @@ export function projectionFromSamples(
     }
     halfWidth = Math.max(halfWidth, Math.abs(x))
     halfHeight = Math.max(halfHeight, Math.abs(y))
+    minX = Math.min(minX, x)
+    maxX = Math.max(maxX, x)
+    minY = Math.min(minY, y)
+    maxY = Math.max(maxY, y)
   }
   return {
     invalidCount,
+    hasArea: maxX > minX && maxY > minY,
     frame: { halfWidth, halfHeight },
     fn: (lon: number, lat: number) => {
       const i = samples.indices.get(`${lon},${lat}`)

@@ -24,6 +24,11 @@ export default function WeirdVariants() {
   async function apply(result: RunProjectionResult, source: string) {
     const samples = await getProjectionSamples()
     const p = projectionFromSamples(samples, result)
+    if (!p.hasArea) {
+      throw new Error(
+        'This function collapses the map to a line or point. Change it so both x and y span an area, then run again.',
+      )
+    }
     if (
       p.invalidCount &&
       (!variant.allowGaps || p.invalidCount > samples.lon.length * 0.05)

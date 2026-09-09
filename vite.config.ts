@@ -1,12 +1,11 @@
-import path from "path"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
-import { inspectAttr } from 'plugin-inspect-react-code'
+import path from 'path'
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
-  plugins: [inspectAttr(), react()],
+  plugins: [react()],
   server: {
     port: 3000,
   },
@@ -23,7 +22,8 @@ export default defineConfig({
         manualChunks(id: string) {
           if (!id.includes('node_modules')) return
           if (id.includes('/three/')) return 'vendor-three'
-          if (id.includes('/@codemirror/') || id.includes('/@lezer/')) return 'vendor-codemirror'
+          if (id.includes('/@codemirror/') || id.includes('/@lezer/'))
+            return 'vendor-codemirror'
           if (id.includes('/katex/')) return 'vendor-katex'
         },
       },
@@ -31,7 +31,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),
     },
   },
-});
+})

@@ -1,11 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { EditorView, keymap, lineNumbers, Decoration, type DecorationSet } from '@codemirror/view'
-import { Compartment, EditorState, StateEffect, StateField } from '@codemirror/state'
+import {
+  EditorView,
+  keymap,
+  lineNumbers,
+  Decoration,
+  type DecorationSet,
+} from '@codemirror/view'
+import {
+  Compartment,
+  EditorState,
+  StateEffect,
+  StateField,
+} from '@codemirror/state'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { python } from '@codemirror/lang-python'
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { tags } from '@lezer/highlight'
-import { pythonClient, type RunProjectionResult } from '@/projection/worker-client'
+import {
+  pythonClient,
+  type RunProjectionResult,
+} from '@/projection/worker-client'
 import { useToast } from '@/hooks/useToast'
 
 /**
@@ -49,7 +63,11 @@ export interface PythonPanelProps {
   className?: string
 }
 
-type Status = { kind: 'idle' } | { kind: 'starting' } | { kind: 'running' } | { kind: 'done'; ms: number }
+type Status =
+  | { kind: 'idle' }
+  | { kind: 'starting' }
+  | { kind: 'running' }
+  | { kind: 'done'; ms: number }
 
 /* ---------- CodeMirror theme (palette-matched, design.md §8) ---------- */
 
@@ -70,7 +88,9 @@ const panelTheme = EditorView.theme({
     border: 'none',
     paddingRight: '8px',
   },
-  '.cm-activeLine': { backgroundColor: 'color-mix(in srgb, var(--ink) 4%, transparent)' },
+  '.cm-activeLine': {
+    backgroundColor: 'color-mix(in srgb, var(--ink) 4%, transparent)',
+  },
   '&.cm-focused': { outline: 'none' },
   '.cm-scroller': { overflowX: 'auto' },
 })
@@ -80,7 +100,10 @@ const panelHighlight = HighlightStyle.define([
   { tag: [tags.string, tags.docString], color: 'var(--seaweed)' },
   { tag: tags.number, color: 'var(--ochre)' },
   { tag: tags.comment, color: 'var(--ink-3)', fontStyle: 'italic' },
-  { tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: 'var(--indigo)' },
+  {
+    tag: [tags.function(tags.variableName), tags.function(tags.propertyName)],
+    color: 'var(--indigo)',
+  },
   { tag: [tags.operator], color: 'var(--ink-2)' },
   { tag: [tags.variableName], color: 'var(--ink)' },
   { tag: [tags.propertyName], color: 'var(--indigo)' },
@@ -89,10 +112,14 @@ const panelHighlight = HighlightStyle.define([
 
 /* ---------- line-highlight decorations ---------- */
 
-const setLineHighlight = StateEffect.define<{ from: number; to: number } | null>()
+const setLineHighlight = StateEffect.define<{
+  from: number
+  to: number
+} | null>()
 const highlightLineDeco = Decoration.line({
   attributes: {
-    style: 'background: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: inset 2px 0 0 var(--accent)',
+    style:
+      'background: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: inset 2px 0 0 var(--accent)',
   },
 })
 const highlightField = StateField.define<DecorationSet>({
@@ -130,7 +157,12 @@ const DEFAULT_SAMPLES = (() => {
 export default function PythonPanel({
   filename,
   supportCode,
-  onResult, onReset, onEdit, onRunStateChange, initiallyEditable = false, runLabel = 'Run Python',
+  onResult,
+  onReset,
+  onEdit,
+  onRunStateChange,
+  initiallyEditable = false,
+  runLabel = 'Run Python',
   code,
   hideCulledVertexWarnings = false,
   annotations = [],
@@ -141,15 +173,22 @@ export default function PythonPanel({
   const rootRef = useRef<HTMLDivElement | null>(null)
   const editorHostRef = useRef<HTMLDivElement | null>(null)
   const runRef = useRef<() => void>(() => {})
+  const runningRef = useRef(false)
   const viewRef = useRef<EditorView | null>(null)
   const codeRef = useRef(code)
   const editCallback = useRef(onEdit)
-  useEffect(() => { editCallback.current = onEdit }, [onEdit])
+  useEffect(() => {
+    editCallback.current = onEdit
+  }, [onEdit])
   const readOnlyCompartment = useRef(new Compartment())
   const [editable, setEditable] = useState(initiallyEditable)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const [stdout, setStdout] = useState<string | null>(null)
-  const [table, setTable] = useState<Array<{ label: string; x: number; y: number }> | null>(null)
+  const [table, setTable] = useState<Array<{
+    label: string
+    x: number
+    y: number
+  }> | null>(null)
   const [warnings, setWarnings] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
@@ -177,7 +216,9 @@ export default function PythonPanel({
       state: EditorState.create({
         doc: codeRef.current,
         extensions: [
-          EditorView.contentAttributes.of({ 'aria-label': 'Python source code' }),
+          EditorView.contentAttributes.of({
+            'aria-label': 'Python source code',
+          }),
           lineNumbers(),
           history(),
           python(),
@@ -190,7 +231,10 @@ export default function PythonPanel({
             EditorView.editable.of(false),
           ]),
           EditorView.updateListener.of((u) => {
-            if (u.docChanged) { codeRef.current = u.state.doc.toString(); editCallback.current?.() }
+            if (u.docChanged) {
+              codeRef.current = u.state.doc.toString()
+              editCallback.current?.()
+            }
           }),
         ],
       }),
@@ -224,12 +268,17 @@ export default function PythonPanel({
         setStatus({ kind: 'starting' })
         pythonClient
           .warmup()
-          .then(() => setStatus((s) => (s.kind === 'starting' ? { kind: 'idle' } : s)))
+          .then(() =>
+            setStatus((s) => (s.kind === 'starting' ? { kind: 'idle' } : s)),
+          )
           .catch(() => {
             setStatus({ kind: 'idle' })
-            toast('Python runtime failed to start — check your connection and retry.', {
-              tone: 'error',
-            })
+            toast(
+              'Python runtime failed to start — check your connection and retry.',
+              {
+                tone: 'error',
+              },
+            )
           })
         io.disconnect()
       },
@@ -241,20 +290,38 @@ export default function PythonPanel({
 
   /* ---- run / reset ---- */
   const run = useCallback(async () => {
-    if (status.kind === 'running') return
+    if (runningRef.current) return
+    runningRef.current = true
     setStatus({ kind: 'running' })
     onRunStateChange?.(true)
     setError(null)
     const t0 = performance.now()
     try {
-      const executedCode = supportCode ? `${supportCode}\n${codeRef.current}` : codeRef.current
+      const executedCode = supportCode
+        ? `${supportCode}\n${codeRef.current}`
+        : codeRef.current
       const points = typeof samples === 'function' ? await samples() : samples
-      const res = await pythonClient.runProjection(executedCode, {}, points.lon, points.lat)
+      const res = await pythonClient.runProjection(
+        executedCode,
+        {},
+        points.lon,
+        points.lat,
+      )
       await onResult?.(res, executedCode)
       const rows: string[] =
-        points.rows ?? Array.from({ length: Math.min(points.lon.length, 9) }, (_, i) => `point ${i + 1}`)
+        points.rows ??
+        Array.from(
+          { length: Math.min(points.lon.length, 9) },
+          (_, i) => `point ${i + 1}`,
+        )
       setStdout(res.stdout)
-      setWarnings(res.warnings.filter(w => !hideCulledVertexWarnings || !/^\d+ non-finite vertices \(culled\)$/.test(w)))
+      setWarnings(
+        res.warnings.filter(
+          (w) =>
+            !hideCulledVertexWarnings ||
+            !/^\d+ non-finite vertices \(culled\)$/.test(w),
+        ),
+      )
       setTable(
         rows.slice(0, Math.min(res.x.length, 9)).map((label, i) => ({
           label,
@@ -262,15 +329,30 @@ export default function PythonPanel({
           y: res.y[i],
         })),
       )
-      setStatus({ kind: 'done', ms: Math.max(1, Math.round(performance.now() - t0)) })
+      setStatus({
+        kind: 'done',
+        ms: Math.max(1, Math.round(performance.now() - t0)),
+      })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       setError(msg)
       setStatus({ kind: 'idle' })
       toast(msg, { tone: 'error' })
-    } finally { onRunStateChange?.(false) }
-  }, [samples, status.kind, toast, onResult, onRunStateChange, supportCode, hideCulledVertexWarnings])
-  useEffect(() => { runRef.current = run })
+    } finally {
+      runningRef.current = false
+      onRunStateChange?.(false)
+    }
+  }, [
+    samples,
+    toast,
+    onResult,
+    onRunStateChange,
+    supportCode,
+    hideCulledVertexWarnings,
+  ])
+  useEffect(() => {
+    runRef.current = run
+  })
 
   const reset = useCallback(() => {
     const view = viewRef.current
@@ -290,7 +372,9 @@ export default function PythonPanel({
   const highlight = useCallback(
     (ann: PanelAnnotation | null) => {
       viewRef.current?.dispatch({
-        effects: setLineHighlight.of(ann ? { from: ann.lines[0], to: ann.lines[1] } : null),
+        effects: setLineHighlight.of(
+          ann ? { from: ann.lines[0], to: ann.lines[1] } : null,
+        ),
       })
       onAnnotationHover?.(ann)
     },
@@ -307,7 +391,12 @@ export default function PythonPanel({
           : `done in ${status.ms} ms`
 
   return (
-    <div ref={rootRef} aria-label={`Runnable Python: ${filename}`} className={`code-well ${className ?? ''}`} style={{ background: 'var(--bg-2)' }}>
+    <div
+      ref={rootRef}
+      aria-label={`Runnable Python: ${filename}`}
+      className={`code-well ${className ?? ''}`}
+      style={{ background: 'var(--bg-2)' }}
+    >
       {/* header row: filename tab + status chip + buttons */}
       <div
         className="flex flex-wrap items-center gap-2 border-b px-4 py-2.5"
@@ -315,7 +404,11 @@ export default function PythonPanel({
       >
         <span
           className="rounded-t-sm border border-b-0 px-3 py-1 font-mono text-caption"
-          style={{ borderColor: 'var(--hair)', background: 'var(--bg-3)', color: 'var(--fg)' }}
+          style={{
+            borderColor: 'var(--hair)',
+            background: 'var(--bg-3)',
+            color: 'var(--fg)',
+          }}
         >
           {filename}
         </span>
@@ -324,13 +417,18 @@ export default function PythonPanel({
           className="ml-1 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-ui text-label uppercase"
           style={{
             borderColor: 'var(--hair)',
-            color: status.kind === 'running' || status.kind === 'starting' ? 'var(--accent)' : 'var(--fg-3)',
+            color:
+              status.kind === 'running' || status.kind === 'starting'
+                ? 'var(--accent)'
+                : 'var(--fg-3)',
           }}
         >
           <span
             aria-hidden
             className={`inline-block h-1.5 w-1.5 rounded-full ${
-              status.kind === 'running' || status.kind === 'starting' ? 'animate-pulse' : ''
+              status.kind === 'running' || status.kind === 'starting'
+                ? 'animate-pulse'
+                : ''
             }`}
             style={{
               background:
@@ -358,7 +456,11 @@ export default function PythonPanel({
             onClick={reset}
             disabled={status.kind === 'running'}
             className="rounded-sm border px-3.5 py-1.5 font-ui text-label uppercase transition-colors duration-micro ease-atlas"
-            style={{ borderColor: 'var(--hair)', color: 'var(--fg-2)', background: 'transparent' }}
+            style={{
+              borderColor: 'var(--hair)',
+              color: 'var(--fg-2)',
+              background: 'transparent',
+            }}
           >
             Reset
           </button>
@@ -380,7 +482,10 @@ export default function PythonPanel({
 
       {/* first-use notice */}
       {status.kind === 'starting' && (
-        <p className="border-b px-4 py-2 font-ui text-caption" style={{ borderColor: 'var(--hair)', color: 'var(--fg-2)' }}>
+        <p
+          className="border-b px-4 py-2 font-ui text-caption"
+          style={{ borderColor: 'var(--hair)', color: 'var(--fg-2)' }}
+        >
           Starting Python runtime (one-time, ~6 MB)…
         </p>
       )}
@@ -390,48 +495,79 @@ export default function PythonPanel({
 
       {/* output */}
       {(stdout !== null || table || error) && (
-        <div className="border-t px-4 py-3" style={{ borderColor: 'var(--hair)' }}>
+        <div
+          className="border-t px-4 py-3"
+          style={{ borderColor: 'var(--hair)' }}
+        >
           {error && (
-            <pre className="whitespace-pre-wrap font-mono text-caption" style={{ color: 'var(--accent)' }}>
+            <pre
+              className="whitespace-pre-wrap font-mono text-caption"
+              style={{ color: 'var(--accent)' }}
+            >
               {error}
             </pre>
           )}
           {warnings.map((w) => (
-            <p key={w} className="font-ui text-caption" style={{ color: 'var(--ochre)' }}>
+            <p
+              key={w}
+              className="font-ui text-caption"
+              style={{ color: 'var(--ochre)' }}
+            >
               warning: {w}
             </p>
           ))}
           {stdout !== null && stdout.trim() !== '' && (
-            <pre className="whitespace-pre-wrap font-mono text-caption" style={{ color: 'var(--fg)' }}>
+            <pre
+              className="whitespace-pre-wrap font-mono text-caption"
+              style={{ color: 'var(--fg)' }}
+            >
               {stdout}
             </pre>
           )}
           {table && (
-            <details className="python-coordinates"><summary>Inspect sample coordinates (first {table.length})</summary><table className="mt-2 w-full font-mono text-caption" style={{ color: 'var(--fg-2)' }}>
-              <thead>
-                <tr className="text-left font-ui text-label uppercase" style={{ color: 'var(--fg-3)' }}>
-                  <th className="py-1 pr-4 font-medium">point</th>
-                  <th className="py-1 pr-4 font-medium">x</th>
-                  <th className="py-1 font-medium">y</th>
-                </tr>
-              </thead>
-              <tbody>
-                {table.map((r) => (
-                  <tr key={r.label}>
-                    <td className="py-0.5 pr-4">{r.label}</td>
-                    <td className="py-0.5 pr-4">{Number.isFinite(r.x) ? r.x.toFixed(4) : '—'}</td>
-                    <td className="py-0.5">{Number.isFinite(r.y) ? r.y.toFixed(4) : '—'}</td>
+            <details className="python-coordinates">
+              <summary>
+                Inspect sample coordinates (first {table.length})
+              </summary>
+              <table
+                className="mt-2 w-full font-mono text-caption"
+                style={{ color: 'var(--fg-2)' }}
+              >
+                <thead>
+                  <tr
+                    className="text-left font-ui text-label uppercase"
+                    style={{ color: 'var(--fg-3)' }}
+                  >
+                    <th className="py-1 pr-4 font-medium">point</th>
+                    <th className="py-1 pr-4 font-medium">x</th>
+                    <th className="py-1 font-medium">y</th>
                   </tr>
-                ))}
-              </tbody>
-            </table></details>
+                </thead>
+                <tbody>
+                  {table.map((r) => (
+                    <tr key={r.label}>
+                      <td className="py-0.5 pr-4">{r.label}</td>
+                      <td className="py-0.5 pr-4">
+                        {Number.isFinite(r.x) ? r.x.toFixed(4) : '—'}
+                      </td>
+                      <td className="py-0.5">
+                        {Number.isFinite(r.y) ? r.y.toFixed(4) : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
           )}
         </div>
       )}
 
       {/* line-by-line annotations (equation ↔ code ↔ geometry link, §8) */}
       {annotations.length > 0 && (
-        <ol className="border-t px-4 py-3" style={{ borderColor: 'var(--hair)' }}>
+        <ol
+          className="border-t px-4 py-3"
+          style={{ borderColor: 'var(--hair)' }}
+        >
           {annotations.map((ann) => (
             <li key={ann.title} className="py-1.5">
               <button
@@ -443,12 +579,18 @@ export default function PythonPanel({
                 onFocus={() => highlight(ann)}
                 onBlur={() => highlight(null)}
               >
-                <span className="font-mono text-caption" style={{ color: 'var(--accent)' }}>
+                <span
+                  className="font-mono text-caption"
+                  style={{ color: 'var(--accent)' }}
+                >
                   {ann.lines[0] === ann.lines[1]
                     ? `line ${ann.lines[0]}`
                     : `lines ${ann.lines[0]}–${ann.lines[1]}`}
                 </span>
-                <span className="font-ui text-caption font-semibold"> — {ann.title}. </span>
+                <span className="font-ui text-caption font-semibold">
+                  {' '}
+                  — {ann.title}.{' '}
+                </span>
                 <span className="font-body text-caption">{ann.body}</span>
               </button>
             </li>

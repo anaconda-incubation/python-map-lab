@@ -118,7 +118,7 @@ export default function PythonFirst() {
         throw new Error(
           'Some coordinates are not finite. Check the formula before drawing the whole world.',
         )
-      if (projection.frame.halfWidth <= 0 || projection.frame.halfHeight <= 0)
+      if (!projection.hasArea)
         throw new Error('The map needs nonzero width and height.')
       const key = `lesson-run-${++serial.current % 2}`
       await stage.bakeAndRegister(key, projection.fn, projection.frame)
@@ -203,11 +203,11 @@ export default function PythonFirst() {
             maps, so countries and continents appear in their true relative
             sizes.{' '}
             <a
-              href="https://news.un.org/en/story/2026/09/1168284"
+              href="https://www.au.int/en/pressreleases/20260904/communique-auc-chairperson-adoption-correct-map-resolution"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Read the UN News article ↗
+              Read the African Union statement ↗
             </a>
           </p>
         </aside>

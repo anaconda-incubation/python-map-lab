@@ -1,43 +1,48 @@
 # Python Map Lab
 
-An interactive field guide to map projections: explore a globe, read and edit NumPy, and draw the result directly in the browser. The interface uses Anaconda’s dark palette.
+An interactive field guide to map projections. Explore a globe, edit NumPy, and draw the result directly in the browser.
 
-## Run
+## Development
+
+Use Node.js 22.12 or later (Node 22 is pinned in `.nvmrc`).
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Production preview:
+## Production
 
 ```sh
-npm run build
-npm run preview -- --host 127.0.0.1 --port 4176 --strictPort
+npm run check
+npm run preview -- --host 127.0.0.1 --port 4175 --strictPort
 ```
+
+Deploy the generated `dist/` directory to a static HTTPS host at the domain root. Configure a fallback to `index.html` for browser routes; asset requests should still return a real 404 when missing. No backend, API keys, or build-time secrets are required. The preview command is for local verification, not a production server.
+
+Python runs in a Web Worker using the pinned Pyodide distribution from `cdn.jsdelivr.net`. The first Python run requires network access to load Python and NumPy; later requests can use the browser cache. Fonts, geography, and globe textures are served with the site. Allow module workers and Pyodide/WebAssembly when configuring hosting security headers. Cache hashed `assets/` files long-term and revalidate `index.html` on deployment.
+
+GitHub Actions runs lint, all unit tests, and a production build on pushes and pull requests. `main` is the publishing branch. A remote repository and hosting destination can be connected separately; neither is required for local builds.
 
 ## Structure
 
-- `src/pages/PythonFirst.tsx` coordinates the globe, projection lessons, and workspace tabs.
-- `pythonLessons.ts`, `lessonStories.ts`, and `LessonReading.tsx` hold the lesson content. `experimentRecipes.ts` supplies the six experiments; `src/python/centered.py` is the editable azimuthal equidistant example.
-- `src/chapters/PythonPanel.tsx` owns the CodeMirror editor and Python execution controls. `src/workers/pyodide.worker.ts` runs NumPy off the main thread.
-- `src/lab/useMapStage.ts` connects React to the shared Three.js renderer. `src/projection` contains projection mathematics, geometry, distortion measurements, and cooperative baking.
-- `src/pages/lessonNotebook.ts` creates self-contained GeoPandas notebooks with embedded Natural Earth geography. Executed nteract examples are in `notebook-checks/`.
-- `src/index.css` provides global typography, colors, and shared components. `src/pages/python-first.css` styles the field guide and responsive sticky layout.
+- `src/pages/PythonFirst.tsx`: lesson navigation, editable projections, and map state.
+- `pythonLessons.ts`, `lessonStories.ts`, `LessonReading.tsx`: teaching content.
+- `experimentRecipes.ts` and `src/python/centered.py`: the six experiments.
+- `src/python/authagraph_lesson.py`: AuthaGraph helpers, including explicit point centering.
+- `src/chapters/PythonPanel.tsx`: CodeMirror and Python execution controls.
+- `src/workers/pyodide.worker.ts`: isolated Python execution; the client restarts timed-out runs.
+- `src/three` and `src/projection`: rendering, projection mathematics, geometry, and distortion.
+- `src/pages/lessonNotebook.ts`: self-contained GeoPandas notebook downloads with embedded geography.
+- `notebook-checks/`: saved nteract validation notebooks. Local runtime lock files are ignored.
+- `review/`: historical comparisons, numerical rendering checks, and publishing review notes. These are not shipped in `dist/`.
 
-The retained `src/lab` numerical utilities support regression tests. The old essay and full lab screens are no longer routed; `/story/*` and `/lab/*` redirect to the field guide. Their historical source remains in Git and the original worktrees.
+The historical cleanup comparison script requires an explicit old checkout path and is not part of the production checks. Old routes redirect to the field guide.
 
-## Checks
+## Teaching controls
 
-```sh
-npm test
-npm run lint
-npm run build
-node scripts/compare-baseline.mjs ../python-first
-```
+Mercator, Gall–Peters, and Equal Earth use a `central_meridian` in degrees, positive east and negative west. AuthaGraph instead uses `center_lat` and `center_lon` to place a selected point at the rectangle's center. Centering changes its cuts, not its distortion properties. The azimuthal equidistant experiment preserves great-circle distances from its center and supports an optional ring up to 19,000 km.
 
-The comparison script checks lesson content, experiment recipes, full notebook exports, and the retained renderer/Python runtime against the original worktree. See `CLEANUP_COMPARISON.md` for the cleanup review and browser checks.
+## Assets and attribution
 
-## Assets
-
-Maps use Natural Earth public-domain geography: 1:50 million vectors for the renderer and embedded 1:110 million land geometry for exported notebooks. The photographic globe uses NASA Blue Marble. The app’s Sources drawer contains projection references, credits, and the naming policy.
+Natural Earth public-domain geography supplies the renderer (1:50 million) and exported notebooks (1:110 million). The photographic globe uses NASA Blue Marble. The Sources drawer lists references and credits. AuthaGraph's adapted helper implementations retain their MPL-2.0 notices. Branding and typography retain their respective owners' rights.
