@@ -52,9 +52,10 @@
 .pf-intro h1 { font-size:clamp(26px,2.75vw,40px); white-space:nowrap; letter-spacing:-.045em; }
 .pf-runtime a { text-decoration:underline; text-underline-offset:3px; }
 .pf-anaconda { font:12px Inter,sans-serif; color:var(--fg); white-space:nowrap; }
-.pf-anaconda { display:flex; align-items:center; flex-shrink:0; min-height:40px; }
+.pf-anaconda { display:flex; align-items:center; gap:8px; flex-shrink:0; min-height:40px; }
+.pf-anaconda-by { font:700 19px/1 Inter,sans-serif; color:#fff; letter-spacing:-.02em; }
 .pf-anaconda img { display:block; width:140px; height:auto; }
-@media(max-width:600px) { .pf-anaconda img { width:100px; } }
+@media(max-width:600px) { .pf-anaconda img { width:100px; } .pf-anaconda-by { font-size:14px; } .pf-anaconda { gap:6px; } }
 .pf-choices { grid-template-columns:repeat(4,minmax(0,1fr)); }
 .pf-story,.pf-weird { max-width:1440px; margin:auto; padding:64px clamp(20px,4vw,64px) 0; }
 .pf-story h2,.pf-weird h2 { font:400 clamp(28px,3vw,40px)/1.2 Fraunces,serif; margin:12px 0 28px; }
