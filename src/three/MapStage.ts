@@ -45,6 +45,11 @@ const GLOBE_CAM: CameraKeyframe = { position: [0, 0.3, 5.3], target: [0, 0, 0], 
 const FLAT_FOV = 12
 const TISSOT_RADIUS = 0.09
 
+export function globeCameraDistance(width: number, height: number): number {
+  const padding = width <= 600 ? 1.05 : 1.18
+  return padding / Math.sin((16 * Math.PI) / 180) / Math.min(1, width / Math.max(1, height))
+}
+
 /* ---------------- shaders ---------------- */
 
 const MORPH_CHUNK = /* glsl */ `
@@ -253,6 +258,7 @@ export class MapStage {
 
   private theme: StageTheme
   private isMobile = false
+  private fitWidth = false
   private morphT = 0
   private morphTargetReq = 0
   private targetA: MorphTarget | null = null
@@ -471,6 +477,14 @@ export class MapStage {
     this.invalidate()
   }
 
+  setFitWidth(on: boolean): void {
+    this.fitWidth = on
+    for (const target of [this.targetA, this.targetB]) {
+      if (target && !target.isGlobe) target.cam = this.flatCamera(target.baked)
+    }
+    if (this.targetA && this.targetB) this.setMorph(this.morphT)
+  }
+
   resetCamera(): void {
     const target = this.targetB ?? this.targetA
     if (!target) return
@@ -482,7 +496,7 @@ export class MapStage {
     this.setCameraState(camera, { immediate: true })
   }
 
-  /** Recompute the destination camera so the map fits with 8% padding. */
+  /** Recompute the destination camera for the current canvas size. */
   fitToProjection(id: ProjectionId | string): void {
     const baked = getBaked(id) ?? this.custom.get(id)?.baked
     if (!baked) return
@@ -640,10 +654,10 @@ export class MapStage {
   }
 
   private globeCamera(): CameraKeyframe {
-    const aspect = this.container
-      ? this.container.clientWidth / Math.max(1, this.container.clientHeight)
-      : 1
-    const distance = 1.18 / Math.sin((16 * Math.PI) / 180) / Math.min(1, aspect)
+    const distance = globeCameraDistance(
+      this.container?.clientWidth ?? 800,
+      this.container?.clientHeight ?? 800,
+    )
     return { position: [0, 0.25, distance], target: [0, 0, 0], fov: 32 }
   }
 
@@ -666,7 +680,11 @@ export class MapStage {
     const halfH = (baked.bounds.maxY - baked.bounds.minY) / 2
     const vFit = halfH / Math.tan(((FLAT_FOV / 2) * Math.PI) / 180)
     const hFit = halfW / (Math.tan(((FLAT_FOV / 2) * Math.PI) / 180) * aspect)
-    const d = Math.max(vFit, hFit) * 1.08 + 1
+    // Compact Mercator can crop polar extremes; expanded maps always fit fully.
+    const compact = (this.container?.clientWidth ?? 800) <= 600
+    const cropPoles = this.fitWidth && window.matchMedia('(max-width: 600px)').matches
+    const fit = compact && cropPoles ? hFit : Math.max(vFit, hFit)
+    const d = fit * (compact ? 1.035 : 1.08) + (compact ? 0 : 1)
     const cx = (baked.bounds.minX + baked.bounds.maxX) / 2
     const cy = (baked.bounds.minY + baked.bounds.maxY) / 2
     return { position: [cx, cy, d], target: [cx, cy, 0], fov: FLAT_FOV }

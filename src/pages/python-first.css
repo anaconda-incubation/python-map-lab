@@ -57,7 +57,7 @@
 }
 .projection-picker select {
   border-color: transparent;
-  background: transparent;
+  background: var(--bg);
   font-size: 15px;
   min-width: 190px;
 }
@@ -927,6 +927,30 @@
   }
   .expanded .mobile-first-action {
     display: none;
+  }
+}
+.map-crop-note {
+  display: none;
+}
+@media (max-width: 600px) {
+  .map-crop-note {
+    display: block;
+    margin-top: 4px;
+    color: var(--fg-3);
+  }
+  .workspace-grid:not(.expanded) .map-section {
+    width: calc(100% + 24px);
+    margin-inline: -12px;
+    border-inline: 0;
+    border-radius: 0;
+  }
+}
+@media (max-width: 600px) and (min-height: 501px) {
+  .workspace-grid:not(.expanded) .map-canvas {
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--map-aspect, 1);
+    min-height: 180px;
   }
 }
 @media (max-height: 500px) and (max-width: 1000px) {

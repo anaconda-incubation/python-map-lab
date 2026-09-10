@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { MapStage } from '@/three/MapStage'
+import { MapStage, globeCameraDistance } from '@/three/MapStage'
 import type { MapQuality } from '@/projection/assets'
 import type { BakedProjection } from '@/projection/types'
 import type { StageLayerState } from './StageToggle'
@@ -23,6 +23,7 @@ type Props = {
   layers: StageLayerState
   labels: boolean
   exploring: boolean
+  fitWidth: boolean
   reducedMotion: boolean
   retry: number
   onReady: (ready: boolean) => void
@@ -130,6 +131,7 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(props, ref) {
         )
       }
       stage.mount(container)
+      stage.setFitWidth(callbacks.current.fitWidth)
       stage.setLayers(callbacks.current.layers)
       stage.setLabels(callbacks.current.labels)
       const initial = callbacks.current.preset
@@ -189,6 +191,9 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(props, ref) {
     engine.current?.setLayers(props.layers)
   }, [props.layers])
   useEffect(() => {
+    engine.current?.setFitWidth(props.fitWidth)
+  }, [props.fitWidth])
+  useEffect(() => {
     engine.current?.setLabels(props.labels)
   }, [props.labels])
 
@@ -198,8 +203,7 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(props, ref) {
     o.yaw += yaw
     o.pitch = Math.max(-1.3, Math.min(1.3, o.pitch + pitch))
     o.zoom = Math.max(0.8, Math.min(1.6, o.zoom * zoom))
-    const aspect = host.current.clientWidth / Math.max(1, host.current.clientHeight)
-    const distance = 1.12 / Math.sin((16 * Math.PI) / 180) / Math.min(1, aspect) / o.zoom
+    const distance = globeCameraDistance(host.current.clientWidth, host.current.clientHeight) / o.zoom
     engine.current?.setCameraState({
       position: [
         distance * Math.sin(o.yaw) * Math.cos(o.pitch),

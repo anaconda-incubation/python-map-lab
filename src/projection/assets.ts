@@ -1,4 +1,5 @@
 import manifestData from './generated-manifest.json'
+import frameRatios from './generated-frames.json'
 import { unpack } from './packed'
 import type { BakedProjection } from './types'
 import type { MasterGeometry, GraticuleData } from './geometry'
@@ -75,4 +76,7 @@ export function loadPreset(id: string, quality: MapQuality) {
 }
 export function previewUrl(id: string) {
   return mapManifest.qualities.overview?.presets[id]?.preview
+}
+export function previewAspectRatio(id: string) {
+  return (frameRatios as Record<string, number>)[id] ?? 1
 }

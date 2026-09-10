@@ -14,6 +14,8 @@ Light, Dark, and System appearance work across the page, map, labels, editor, an
 
 ## Measured layout comparison
 
+These measurements describe the initial redesign commit `5afee2d`. The subsequent phone-width refinement is recorded below.
+
 CSS pixels, beginning of the first canvas in the initial Globe view. Both layouts were inspected at the same viewport sizes. These are desktop browser responsive viewports, not physical devices.
 
 | Viewport | Original canvas top | Candidate canvas top | Original canvas | Candidate canvas |
@@ -95,6 +97,16 @@ The diagnostic `cumulativeLayoutShift` is a simple sum of observed shifts, not t
 Important defects caught in this pass: an inverted 110m Antarctica closure; lake triangles crossing projection cuts; a narrow-screen Layers panel outside the viewport; cancellation losing an existing distance ring; a late target winning after selecting back to the already displayed map; opening the editor before the map's first visible frame; and stale output text beneath a later failed run. These were corrected and the relevant browser paths rerun.
 
 ## Remaining device and release checks
+
+### Phone-width and dropdown refinement
+
+Following the visual review, phone maps at viewport widths up to 600px now extend to the page edges. Portrait pane heights follow the projection's baked proportions, with a modest minimum for very small screens. At 476×1173, AuthaGraph is 476×206 and Mercator is 476×317, compared with the previous fixed 400px height. At 390×844, Mercator is 390×260. The camera uses a smaller gutter, and compact Mercator uses a 3:2 frame and fits the width, allowing polar edges to crop instead of forcing a square viewport. A visible note explains this; Expand restores the full projection. The globe and other projections retain their complete outlines, and globe exploration shares the same initial framing as Reset. Successful custom runs update the pane from their actual bounds.
+
+Native dropdown options now set both their foreground and background colors explicitly. After Light → Dark, the inspected option colors changed from dark text on `#f7f8f3` to light text on `#0c1410`. Native popup pixels are not included in the browser screenshot API, so this verifies the applied styles and selection behavior rather than certifying every platform's native menu rendering.
+
+Mercator, Equal Earth, Globe, expansion/return, narrow phone widths, landscape, and desktop were checked again. The full check suite still passes: 126 tests, lint, TypeScript, and production build. Projection formulas and notebook content did not change.
+
+### Device and release limitations
 
 The available browser interface supports responsive viewports, DOM/AX inspection, screenshots, keyboard/mouse interaction, and local app diagnostics. It does not provide physical iPhone Safari or Android Chrome, real touch/software-keyboard behavior, mobile GPU memory pressure, or network/CPU throttling. Those checks need representative devices before a broad launch. A full screen-reader session and field Web Vitals collection also remain unmeasured.
 

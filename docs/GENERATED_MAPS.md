@@ -24,3 +24,7 @@ The reader view loads a precomputed map from the **same Python source** shown in
 ## Scope
 
 `main` and the public site are unchanged by this worktree. Heap remains disabled pending the approved production ID and Transcend configuration. The hosting process remains a static Cloudflare Pages build: `npm ci`, `npm run build`, output `dist`, no deploy command required for the connected Pages project.
+
+## Responsive map frames
+
+The normal build also runs `scripts/map-frames.mjs`. It reads the already-generated map bounds and writes the small `generated-frames.json` layout index. This keeps the initial phone pane proportional before downloading interactive geometry; it does not rerun Python or change projection assets. Custom Python results supply their own bounds after execution. Compact Mercator deliberately uses a wider, cropped viewport, with the full extent available through Expand.

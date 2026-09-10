@@ -1,11 +1,19 @@
-import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { track } from '@/analytics/events'
 import { useAppearance } from '@/hooks/useAppearance'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import type { MapViewHandle } from '@/components/MapView'
 import StageToggle, { type StageLayerState } from '@/components/StageToggle'
-import { previewUrl, type MapQuality } from '@/projection/assets'
+import { previewAspectRatio, previewUrl, type MapQuality } from '@/projection/assets'
 import type { RunProjectionResult } from '@/projection/worker-client'
 import { measure, diagnostics } from '@/utils/diagnostics'
 import { lessons } from './pythonLessons'
@@ -81,9 +89,12 @@ export default function PythonFirst() {
     [retry, setRetry] = useState(0)
   const [running, setRunning] = useState(false),
     [runMessage, setRunMessage] = useState('')
-  const [executed, setExecuted] = useState<{ key: string; code: string; quality: string } | null>(
-    null,
-  )
+  const [executed, setExecuted] = useState<{
+    key: string
+    code: string
+    quality: string
+    aspectRatio: number
+  } | null>(null)
   const [pendingSelection, setPendingSelection] = useState<Selection | null>(null)
   const [shareMessage, setShareMessage] = useState(''),
     [diagnosticReport, setDiagnosticReport] = useState('')
@@ -108,6 +119,14 @@ export default function PythonFirst() {
     editorOpen = editorId === selection.id && !globe
   const custom =
     executed?.key === location.key && executed.code === code && executed.quality === quality
+  const resultAspect =
+    executed?.key === location.key && executed.quality === quality
+      ? executed.aspectRatio
+      : previewAspectRatio(preset)
+  const paneAspect =
+    selection.id === 'mercator'
+      ? Math.max(1.5, resultAspect)
+      : Math.max(1, Math.min(3, resultAspect))
   const dirty = code !== baseCode && !custom
   const options =
     selection.mode === 'learn'
@@ -262,7 +281,8 @@ export default function PythonFirst() {
       signal,
     )
     signal.throwIfAborted()
-    setExecuted({ key, code: source, quality })
+    const { minX, maxX, minY, maxY } = baked.bounds
+    setExecuted({ key, code: source, quality, aspectRatio: (maxX - minX) / (maxY - minY) })
     setRunMessage(
       projected.invalidCount
         ? 'Your Python result. The small cap opposite the center is omitted.'
@@ -452,7 +472,10 @@ export default function PythonFirst() {
               {expanded ? '↙' : '↗'}
             </button>
           </div>
-          <div className={'map-canvas ' + (globe ? 'globe-map' : 'flat-map')}>
+          <div
+            className={'map-canvas ' + (globe ? 'globe-map' : 'flat-map')}
+            style={{ '--map-aspect': paneAspect } as CSSProperties}
+          >
             <img
               className={'map-preview' + (mapReady && !mapError ? ' preview-hidden' : '')}
               src={previewUrl(preset)}
@@ -476,6 +499,7 @@ export default function PythonFirst() {
                   layers={layers}
                   labels={labels}
                   exploring={exploring}
+                  fitWidth={selection.id === 'mercator' && !expanded}
                   reducedMotion={reducedMotion}
                   retry={retry}
                   onReady={setMapReady}
@@ -583,6 +607,11 @@ export default function PythonFirst() {
                   ? 'Drag or use arrow keys to turn. + / − zoom. Done returns to reading.'
                   : 'Our reference: a curved world, before we flatten it.'
                 : status}
+            {selection.id === 'mercator' && !expanded && (
+              <span className="map-crop-note">
+                Polar edges may be cropped · Expand for the full map
+              </span>
+            )}
           </p>
           {exploring && (
             <div className="globe-help">
