@@ -1,3 +1,4 @@
+import { track } from '@/analytics/events'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   EditorView,
@@ -45,6 +46,7 @@ type Samples = { lon: Float64Array; lat: Float64Array; rows?: string[] }
 export interface PythonPanelProps {
   supportCode?: string
   filename: string
+  analyticsNotebook?: string
   onResult?: (result: RunProjectionResult, code: string) => Promise<void>
   onRunStateChange?: (running: boolean) => void
   onReset?: () => void
@@ -156,6 +158,7 @@ const DEFAULT_SAMPLES = (() => {
 
 export default function PythonPanel({
   filename,
+  analyticsNotebook,
   supportCode,
   onResult,
   onReset,
@@ -292,6 +295,7 @@ export default function PythonPanel({
   const run = useCallback(async () => {
     if (runningRef.current) return
     runningRef.current = true
+    if (analyticsNotebook) track('Python Run', { notebook: analyticsNotebook })
     setStatus({ kind: 'running' })
     onRunStateChange?.(true)
     setError(null)
@@ -329,11 +333,21 @@ export default function PythonPanel({
           y: res.y[i],
         })),
       )
+      if (analyticsNotebook)
+        track('Python Run Completed', {
+          notebook: analyticsNotebook,
+          outcome: 'success',
+        })
       setStatus({
         kind: 'done',
         ms: Math.max(1, Math.round(performance.now() - t0)),
       })
     } catch (err) {
+      if (analyticsNotebook)
+        track('Python Run Completed', {
+          notebook: analyticsNotebook,
+          outcome: 'error',
+        })
       const msg = err instanceof Error ? err.message : String(err)
       setError(msg)
       setStatus({ kind: 'idle' })
@@ -343,6 +357,7 @@ export default function PythonPanel({
       onRunStateChange?.(false)
     }
   }, [
+    analyticsNotebook,
     samples,
     toast,
     onResult,
@@ -393,6 +408,8 @@ export default function PythonPanel({
   return (
     <div
       ref={rootRef}
+      data-heap-redact-text
+      data-heap-redact-attributes="title,aria-label"
       aria-label={`Runnable Python: ${filename}`}
       className={`code-well ${className ?? ''}`}
       style={{ background: 'var(--bg-2)' }}

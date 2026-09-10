@@ -50,3 +50,7 @@ Original project code is licensed under the [BSD 3-Clause License](LICENSE), cop
 ## Assets and attribution
 
 Natural Earth public-domain geography supplies the renderer (1:50 million) and exported notebooks (1:110 million). The photographic globe uses NASA Blue Marble. The Sources drawer lists references and credits. AuthaGraph's adapted helper implementations retain their MPL-2.0 notices. Branding and typography retain their respective owners' rights.
+
+## Analytics
+
+Named Heap events are prepared but disabled pending the approved Heap and Transcend installation. See [analytics setup and verification](ANALYTICS.md).

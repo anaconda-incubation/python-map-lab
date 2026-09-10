@@ -1,3 +1,4 @@
+import { track } from '@/analytics/events'
 import MapExpandButton, { useExpandedMap } from '@/components/MapExpandButton'
 import { useState } from 'react'
 import PythonPanel from '@/chapters/PythonPanel'
@@ -91,6 +92,7 @@ export default function WeirdVariants() {
             disabled={busy}
             aria-pressed={i === index}
             onClick={() => {
+              track('Experiment Selected', { experiment: v.name })
               setIndex(i)
               setStatus('Recipe loaded. Run it to update the map.')
             }}
@@ -148,6 +150,7 @@ export default function WeirdVariants() {
             hideCulledVertexWarnings={variant.allowGaps}
             key={index}
             filename="what_if.py"
+            analyticsNotebook={variant.name}
             code={code}
             samples={getProjectionSamples}
             initiallyEditable

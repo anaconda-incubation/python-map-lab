@@ -1,3 +1,4 @@
+import { track } from '@/analytics/events'
 import MapExpandButton, { useExpandedMap } from '@/components/MapExpandButton'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
@@ -27,6 +28,7 @@ export default function PythonFirst() {
   const navigate = useNavigate()
   const experimenting = location.hash === '#experiments'
   function selectMode(experiments: boolean) {
+    track('Mode Selected', { mode: experiments ? 'experiments' : 'learn' })
     void navigate(experiments ? '/#experiments' : '/#learn', { replace: true })
   }
   useEffect(() => {
@@ -75,6 +77,7 @@ export default function PythonFirst() {
   async function choose(i: number) {
     if (busy || !stage.ready) return
     const id = i === -1 ? 'globe' : lessons[i].id
+    track('Projection Selected', { projection: id })
     setBusy(true)
     setError('')
     setWorkMessage(
@@ -151,6 +154,7 @@ export default function PythonFirst() {
       a.href = url
       a.download = `${lesson.id}-lesson.ipynb`
       a.click()
+      track('Notebook Download', { notebook: lesson.id })
       setTimeout(() => URL.revokeObjectURL(url), 1000)
     } catch (err) {
       setError(
@@ -454,6 +458,7 @@ export default function PythonFirst() {
                 <PythonPanel
                   key={lesson.id}
                   filename={`${lesson.id}.py`}
+                  analyticsNotebook={lesson.id}
                   code={lesson.code}
                   samples={getProjectionSamples}
                   supportCode={lesson.supportCode}

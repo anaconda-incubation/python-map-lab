@@ -1,3 +1,4 @@
+import { track } from '@/analytics/events'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { scrollPageTo } from '@/utils/pageScroll'
@@ -53,7 +54,10 @@ export default function MapExpandButton({
     <button
       className="pf-expand-map"
       type="button"
-      onClick={onClick}
+      onClick={() => {
+        track('Map Expanded', { view: controls, expanded: !expanded })
+        onClick()
+      }}
       aria-label={label}
       title={label}
       aria-expanded={expanded}
