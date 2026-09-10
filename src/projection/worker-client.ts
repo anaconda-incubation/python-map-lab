@@ -37,11 +37,11 @@ export interface DistortionStats {
 
 const TIMEOUT_MS = 10_000
 
-
 class PyodideClient {
   private worker: Worker | null = null
   private proxy: Comlink.Remote<PyodideApi> | null = null
   private warming: Promise<void> | null = null
+  private pending = new Set<(error: Error) => void>()
   onStatus: ((status: 'idle' | 'starting' | 'ready' | 'restarting' | 'error') => void) | null = null
 
   private spawn(): Comlink.Remote<PyodideApi> {
@@ -57,28 +57,39 @@ class PyodideClient {
   }
 
   /** Boot the runtime (numpy included). Safe to call early to prewarm. */
-  warmup(): Promise<void> {
+  warmup(signal?: AbortSignal): Promise<void> {
     if (!this.warming) {
       this.onStatus?.('starting')
-      this.warming = this.withTimeout(async () => {
+      const warming = this.withTimeout(async () => {
         const api = await this.api()
         await api.warmup()
         this.onStatus?.('ready')
       }, 60_000).catch((err) => {
-        this.warming = null
+        if (this.warming === warming) this.warming = null
         this.onStatus?.('error')
         throw err
       })
+      this.warming = warming
     }
-    return this.warming
+    return signal ? this.withTimeout(() => this.warming!, 65_000, signal) : this.warming
   }
 
-  private async withTimeout<T>(fn: () => Promise<T>, ms = TIMEOUT_MS): Promise<T> {
+  private async withTimeout<T>(
+    fn: () => Promise<T>,
+    ms = TIMEOUT_MS,
+    signal?: AbortSignal,
+  ): Promise<T> {
+    signal?.throwIfAborted()
     let timer: ReturnType<typeof setTimeout> | null = null
+    let rejectJob: (error: Error) => void = () => {}
+    const abort = () => this.hardRestart(new DOMException('Stopped', 'AbortError'))
     try {
       return await Promise.race([
         fn(),
         new Promise<never>((_, reject) => {
+          rejectJob = reject
+          this.pending.add(reject)
+          signal?.addEventListener('abort', abort, { once: true })
           timer = setTimeout(() => reject(new Error('__timeout__')), ms)
         }),
       ])
@@ -90,16 +101,20 @@ class PyodideClient {
       throw err
     } finally {
       if (timer) clearTimeout(timer)
+      this.pending.delete(rejectJob)
+      signal?.removeEventListener('abort', abort)
     }
   }
 
   /** Hard restart: terminate the worker; next call respawns lazily. */
-  hardRestart(): void {
+  hardRestart(error = new DOMException('Python restarted', 'AbortError')): void {
     this.onStatus?.('restarting')
     this.worker?.terminate()
     this.worker = null
     this.proxy = null
     this.warming = null
+    for (const reject of this.pending) reject(error)
+    this.pending.clear()
   }
 
   /** Soft restart inside the worker (clears user namespace). */
@@ -113,13 +128,18 @@ class PyodideClient {
     params: Record<string, number>,
     lon: Float64Array,
     lat: Float64Array,
+    signal?: AbortSignal,
   ): Promise<RunProjectionResult> {
-    await this.warmup()
-    const result = await this.withTimeout(async () => {
-      const api = await this.api()
-      // copies, because the worker result transfers its buffers
-      return api.runProjection(code, params, lon, lat)
-    })
+    await this.warmup(signal)
+    const result = await this.withTimeout(
+      async () => {
+        const api = await this.api()
+        // copies, because the worker result transfers its buffers
+        return api.runProjection(code, params, lon, lat)
+      },
+      TIMEOUT_MS,
+      signal,
+    )
     return result
   }
 
@@ -131,11 +151,7 @@ class PyodideClient {
     await this.warmup()
     return this.withTimeout(async () => {
       const api = await this.api()
-      return (await api.optimizeProjection(
-        family,
-        weights,
-        opts,
-      )) as unknown as OptimizeResult
+      return (await api.optimizeProjection(family, weights, opts)) as unknown as OptimizeResult
     }, 120_000) // optimizer legitimately takes longer than 10s
   }
 
@@ -195,7 +211,7 @@ export function familyFrame(
   // A custom outline can bulge at intermediate latitudes, beyond both
   // its equator and pole. Sample the full boundary when fitting the camera.
   for (let i = 0; i <= 720; i++) {
-    const lat = -Math.PI / 2 + i * Math.PI / 720
+    const lat = -Math.PI / 2 + (i * Math.PI) / 720
     const edge = fn(Math.PI, lat)
     if (Number.isFinite(edge.x)) hw = Math.max(hw, Math.abs(edge.x))
     if (Number.isFinite(edge.y)) hh = Math.max(hh, Math.abs(edge.y))

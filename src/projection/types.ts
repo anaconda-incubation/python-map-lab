@@ -96,6 +96,8 @@ export interface BakedProjection {
 }
 
 export interface BakeOptions {
+  signal?: AbortSignal
+  quality?: 'overview' | 'detail'
   /** max geodesic segment length (deg) when densifying geography */
   densifyDeg?: number
   /** Tissot node spacing (deg); halved density on mobile */

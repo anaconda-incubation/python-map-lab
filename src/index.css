@@ -1,298 +1,308 @@
-/* EVERY FLAT MAP IS A CHOICE — global stylesheet (design.md §3–§6) */
-
-/* Fonts — self-hosted @fontsource, latin subsets */
-@import '@fontsource-variable/fraunces/full.css';
-@import '@fontsource-variable/fraunces/full-italic.css';
 @import '@fontsource/source-serif-4/latin-400.css';
 @import '@fontsource/source-serif-4/latin-400-italic.css';
 @import '@fontsource/source-serif-4/latin-600.css';
-@import '@fontsource/source-serif-4/latin-600-italic.css';
 @import '@fontsource/inter/latin-400.css';
 @import '@fontsource/inter/latin-500.css';
 @import '@fontsource/inter/latin-600.css';
-@import '@fontsource/inter/latin-700.css';
-@import '@fontsource/jetbrains-mono/latin-400.css';
-@import '@fontsource/jetbrains-mono/latin-700.css';
-
-/* KaTeX math typography */
-@import 'katex/dist/katex.min.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* ── Paper theme fixed tokens (design.md §3) ───────────────── */
-    --paper: #f5f1e8;
-    --paper-2: #ede7d9;
-    --paper-3: #e4dcc9;
-    --ink: #1b1812;
-    --ink-2: #5c5545;
-    --ink-3: #8b8271;
-    --hairline: #d8d0bd;
-    --accent: #c2481f;
-    --ochre: #a9822e;
-    --seaweed: #3e6e5e;
-    --indigo: #3d4e8c;
-    --gold: #8a7b4f;
-
-    /* ── Atlas theme fixed tokens ─────────────────────────────── */
-    --atlas: #0e1216;
-    --atlas-2: #151c23;
-    --atlas-ink: #ede6d6;
-    --atlas-ink-2: #9c9482;
-    --atlas-hair: #2a333d;
-
-    /* ── Cartographic rendering colors (Three.js consumes these) ─ */
-    --ocean-paper: #17324e;
-    --ocean-atlas: #16222e;
-    --ocean-glow-paper: #1e3f60;
-    --ocean-glow-atlas: #1c2b3a;
-    --land-paper: #e6dcc3;
-    --land-atlas: #d9cfb4;
-    --land-stroke-paper: #3a3428;
-    --land-stroke-atlas: rgba(239, 231, 210, 0.55);
-    --graticule-paper: rgba(27, 24, 18, 0.14);
-    --graticule-atlas: rgba(237, 230, 214, 0.12);
-    --tissot: #c2481f;
-
-    /* ── Distortion data color scales (§3) ────────────────────── */
-    /* Area (log2 diverging): compressed → true → 2× → 4× → 8×+ */
-    --area-scale-compressed: #2c6e9b;
-    --area-scale-true: #f5f1e8;
-    --area-scale-2x: #d9a03b;
-    --area-scale-4x: #c2481f;
-    --area-scale-8x: #7e2412;
-    /* Angular (sequential): 0° → 15° → 30° → 45°+ */
-    --angle-scale-0: #f5f1e8;
-    --angle-scale-15: #c9b37e;
-    --angle-scale-30: #c2481f;
-    --angle-scale-45: #5e1e0e;
-
-    /* ── Motion language (§6) ─────────────────────────────────── */
-    --ease-atlas: cubic-bezier(0.22, 1, 0.36, 1);
-    --ease-morph: cubic-bezier(0.65, 0, 0.35, 1);
-    --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
-    --dur-micro: 200ms;
-    --dur-ui: 380ms;
-    --dur-reveal: 800ms;
-    --dur-morph: 1800ms;
-    --dur-cinematic: 4000ms;
-
-    /* ── Layout (§5) ──────────────────────────────────────────── */
-    --measure: 640px;
-    --container-max: 1520px;
-    --gutter: clamp(20px, 4vw, 64px);
-    --nav-h: 56px;
-  }
-
-  /* ── Theme crossfade mechanism (§3): flip data-theme on <html> ─ */
-  :root,
-  :root[data-theme='paper'] {
-    --bg: var(--paper);
-    --bg-2: var(--paper-2);
-    --bg-3: var(--paper-3);
-    --fg: var(--ink);
-    --fg-2: var(--ink-2);
-    --fg-3: var(--ink-3);
-    --hair: var(--hairline);
-    --grain-opacity: 0.05;
-    --grain-blend: multiply;
     color-scheme: light;
+    --paper: #f7f8f3;
+    --bg: #f7f8f3;
+    --bg-2: #eff2eb;
+    --bg-3: #e8ede4;
+    --fg: #17291d;
+    --fg-2: #49584b;
+    --fg-3: #58685a;
+    --ink: var(--fg);
+    --ink-2: var(--fg-2);
+    --ink-3: var(--fg-3);
+    --hair: #d3ddcf;
+    --accent: #087638;
+    --on-accent: #fff;
+    --seaweed: #38692d;
+    --indigo: #4b4197;
+    --ochre: #895700;
+    --gold: #52672f;
+    --map-bg: #edf2e9;
+    --soft-accent: #e1edda;
+    --nav-h: 56px;
+    --gutter: clamp(16px, 3vw, 48px);
+    --font-ui: Inter, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --danger: #a03524;
+    --ease-atlas: cubic-bezier(0.22, 1, 0.36, 1);
+    --measure: 660px;
   }
-
   :root[data-theme='atlas'] {
-    --bg: var(--atlas);
-    --bg-2: var(--atlas-2);
-    --bg-3: var(--atlas-2);
-    --fg: var(--atlas-ink);
-    --fg-2: var(--atlas-ink-2);
-    --fg-3: var(--atlas-ink-2);
-    --hair: var(--atlas-hair);
-    --grain-opacity: 0.035;
-    --grain-blend: screen;
     color-scheme: dark;
+    --bg: #0c1410;
+    --bg-2: #142019;
+    --bg-3: #1c2c20;
+    --fg: #eef4e8;
+    --fg-2: #c4d0c1;
+    --fg-3: #9fb09e;
+    --hair: #344936;
+    --accent: #78df85;
+    --on-accent: #102517;
+    --seaweed: #cde5a9;
+    --indigo: #c3bcff;
+    --ochre: #f1ce71;
+    --gold: #c7d99b;
+    --map-bg: #0b100d;
+    --soft-accent: #1f3522;
+    --danger: #ffb4a3;
   }
-
   html {
-    scroll-behavior: auto; /* Lenis owns scrolling */
+    scroll-behavior: auto;
+    scroll-padding-top: 76px;
   }
-
   body {
-    @apply bg-bg font-body text-fg antialiased;
-    font-size: 19px;
-    line-height: 1.66;
-    /* Theme crossfade — never a hard cut */
-    transition:
-      background-color 600ms var(--ease-atlas),
-      color 600ms var(--ease-atlas);
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font:
+      17px/1.65 'Source Serif 4',
+      Georgia,
+      serif;
+    -webkit-font-smoothing: antialiased;
   }
-
-  /* Paper grain overlay — subtle, sits above background, below content */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background-image: url('/grain.svg');
-    background-repeat: repeat;
-    background-size: 256px 256px;
-    opacity: var(--grain-opacity);
-    mix-blend-mode: var(--grain-blend);
-    transition: opacity 600ms var(--ease-atlas);
+  * {
+    box-sizing: border-box;
   }
-
-  ::selection {
-    background: var(--accent);
-    color: var(--paper);
+  button,
+  select,
+  summary {
+    -webkit-tap-highlight-color: transparent;
   }
-
+  button,
+  select {
+    font-family: Inter, system-ui, sans-serif;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: default;
+    opacity: 0.45;
+  }
+  button,
+  select,
+  summary {
+    touch-action: manipulation;
+  }
+  a {
+    text-underline-offset: 3px;
+  }
   :focus-visible {
     outline: 2px solid var(--accent);
-    outline-offset: 2px;
+    outline-offset: 4px;
   }
-
-  @media (max-width: 899px) {
-    body {
-      font-size: 17px;
-      line-height: 1.62;
-    }
+  ::selection {
+    background: var(--accent);
+    color: var(--on-accent);
   }
-
+  h1,
+  h2,
+  h3,
+  p {
+    margin: 0;
+  }
+  h1,
+  h2,
+  h3 {
+    font-weight: 400;
+    line-height: 1.2;
+  }
+  img {
+    max-width: 100%;
+  }
+  select {
+    max-width: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--hair);
+    border-radius: 6px;
+    min-height: 44px;
+    padding: 8px 32px 8px 12px;
+    font-size: 14px;
+  }
+  pre,
+  code {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+  kbd {
+    font:
+      12px/1.8 Inter,
+      sans-serif;
+    padding: 2px 5px;
+    border: 1px solid var(--hair);
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  main {
+    padding-top: var(--nav-h);
+  }
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
   }
-}
-
-@layer components {
-  .kicker {
-    @apply font-ui font-semibold uppercase text-fg-3;
-    font-size: 11.5px;
-    letter-spacing: 0.22em;
-  }
-
-  /* ── Fraunces display defaults ──────────────────────────────── */
-
-  /* ── Map labels (HTML layer over the stage) ─────────────────── */
-  .map-label {
-    @apply font-ui font-medium uppercase text-fg-3;
-    font-size: 10.5px;
-    letter-spacing: 0.14em;
-    text-shadow: 0 0 6px var(--bg);
-    pointer-events: none;
-    user-select: none;
-  }
-  .footnote-ref {
-    @apply font-ui font-semibold;
-    color: var(--gold);
-    vertical-align: super;
-    font-size: 0.62em;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-  }
-
-  /* ── Code wells ─────────────────────────────────────────────── */
-  .code-well {
-    background: var(--bg-2);
-    border: 1px solid var(--hair);
-    font-feature-settings:
-      'liga' 0,
-      'calt' 0; /* ligatures off */
+  :root[data-motion='reduced'] * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
-:root {
-  --atlas: #101c23;
-  --atlas-2: #172a32;
-  --atlas-ink: #f2eddf;
-  --atlas-ink-2: #b7c0bd;
-  --atlas-hair: #34454a;
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 16px;
+  z-index: 300;
+  transform: translateY(-200%);
+  padding: 8px 16px;
+  background: var(--bg);
+  color: var(--fg);
 }
-button:disabled {
-  cursor: default;
-  opacity: 0.5;
+.skip-link:focus {
+  transform: none;
 }
 .atlas-nav {
-  height: 56px;
+  height: var(--nav-h);
   position: fixed;
   inset: 0 0 auto;
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
   padding: 0 var(--gutter);
-  background: color-mix(in srgb, var(--bg) 96%, transparent);
+  background: var(--bg);
   border-bottom: 1px solid var(--hair);
-  backdrop-filter: blur(12px);
   font:
-    11px/1.3 Inter,
+    12px/1.4 Inter,
     sans-serif;
 }
 .atlas-wordmark {
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.wordmark-symbol {
+  font:
+    28px/1 Georgia,
+    serif;
+  color: var(--accent);
+}
+.pf-anaconda {
+  display: flex;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  font:
+    500 12px/1 Inter,
+    sans-serif;
+}
+.pf-anaconda img {
+  width: 118px;
+  height: auto;
+  flex-shrink: 0;
+}
+:root:not([data-theme='atlas']) .pf-anaconda img {
+  filter: brightness(0);
 }
 .atlas-nav-links {
   display: flex;
-  gap: 22px;
+  gap: 24px;
   align-items: center;
 }
-.atlas-nav-links > div > button,
-.atlas-nav-links > a,
-.atlas-nav-links > button {
+.atlas-nav-links button,
+.site-settings summary {
   min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
-.atlas-nav-links > button.hidden {
-  display: none;
+.site-settings {
+  position: relative;
 }
-@media (min-width: 640px) {
-  .atlas-nav-links > button.hidden {
-    display: flex;
-  }
+.site-settings summary > span:first-child {
+  font-size: 22px;
 }
-@media (max-width: 640px) {
-  .atlas-nav {
-    gap: 12px;
-  }
-  .atlas-wordmark {
-    font-size: 9px;
-    letter-spacing: 0.06em;
-  }
-  .atlas-nav-links {
-    gap: 13px;
-    font-size: 10px;
-  }
+.settings-panel {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  width: 242px;
+  padding: 20px;
+  background: var(--bg);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px #0002;
+  display: grid;
+  gap: 12px;
 }
-
-:root {
-  --on-accent: #f5f1e8;
+.settings-panel > button {
+  text-align: left;
+  border-top: 1px solid var(--hair);
 }
-:root[data-theme='atlas'] {
-  --on-accent: #101c23;
+.site-footer {
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 28px var(--gutter);
+  border-top: 1px solid var(--hair);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--fg-3);
+  font:
+    11px/1.6 Inter,
+    sans-serif;
 }
-:root[data-motion='reduced'] *,
-:root[data-motion='reduced'] *::before,
-:root[data-motion='reduced'] *::after {
-  animation-duration: 0.01ms !important;
-  transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
+.site-footer small {
+  font-size: 10px;
 }
-
-/* Keep long equations and code locally scrollable without widening the page. */
-html {
-  overflow-x: clip;
+.kicker,
+.eyebrow {
+  font:
+    500 10px/1.5 Inter,
+    sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--fg-3);
+}
+.footnote-ref {
+  color: var(--accent);
+  font:
+    12px/1.5 Inter,
+    sans-serif;
+}
+.code-well {
+  background: var(--bg-2);
+  border: 1px solid var(--hair);
+  border-radius: 9px;
+  min-width: 0;
 }
 .cm-editor {
   min-width: 0;
@@ -300,122 +310,66 @@ html {
 }
 .cm-scroller {
   overflow-x: auto !important;
-}
-.katex-display {
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-/* Scene colors are local: a boundary only rethemes the small navigation shell. */
-#ch-12 {
-  --bg: #101c23;
-  --bg-2: #172a32;
-  --bg-3: #172a32;
-  --fg: #f2eddf;
-  --fg-2: #b7c0bd;
-  --fg-3: #b7c0bd;
-  --hair: #34454a;
-  --accent: #e0a675;
-  --seaweed: #93b69d;
-  --gold: #cbbd94;
-  --on-accent: #101c23;
-  background: var(--bg);
-  color: var(--fg);
-  color-scheme: dark;
-}
-.atlas-nav {
-  transition:
-    background-color 450ms ease,
-    color 450ms ease,
-    border-color 450ms ease;
-}
-.atlas-nav a,
-.atlas-nav button {
-  transition: color 450ms ease;
-}
-
-/* Python edition: an executable atlas, with a quiet editorial workbench. */
-.python-coordinates {
-  margin-top: 12px;
-}
-.python-coordinates summary {
-  cursor: pointer;
-  font:
-    11px/1.5 Inter,
-    sans-serif;
-  padding: 8px 0;
-}
-
-/* Let equations and code scroll inside their column on narrow screens. */
-
-/* Reading columns must shrink before their equations/code do. */
-main .grid > *,
-main .flex > * {
-  min-width: 0;
-}
-#ch-14 a {
-  overflow-wrap: anywhere;
+  overscroll-behavior-x: contain;
 }
 .equation-block {
   min-width: 0;
   max-width: 100%;
-  padding: 24px clamp(12px, 2vw, 24px);
-  container-type: inline-size;
+  padding: 20px 12px;
 }
 .equation-scroll {
+  overflow: auto hidden;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  color: var(--fg);
-  font-size: clamp(18px, 5cqi, 24px);
-  overscroll-behavior-x: contain;
+  font-size: 20px;
+  padding-bottom: 8px;
 }
 .equation-scroll .katex-display {
   width: max-content;
   min-width: 100%;
   margin: 0;
-  padding: 8px 2px 12px;
-  overflow: visible;
-  text-align: center;
-}
-.equation-scroll:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 4px;
 }
 .equation-scroll-hint {
-  margin-top: 10px;
-  color: var(--fg-3);
   font:
-    11px/1.5 Inter,
+    11px/1.6 Inter,
     sans-serif;
-  letter-spacing: 0.03em;
+  color: var(--fg-3);
+  margin-top: 8px;
 }
 .equation-block dl {
   overflow-wrap: anywhere;
 }
-@container (max-width:440px) {
-  .equation-block dl {
-    grid-template-columns: 1fr;
+.python-coordinates summary {
+  font:
+    12px/1.5 Inter,
+    sans-serif;
+  padding: 12px 0;
+}
+@media (max-width: 760px) {
+  .atlas-nav-links {
+    gap: 10px;
   }
-  .equation-block dd {
-    margin-bottom: 12px;
+  .desktop-sources,
+  .settings-text {
+    display: none !important;
+  }
+  .pf-anaconda img {
+    width: 104px;
+  }
+  .pf-anaconda {
+    font-size: 11px;
+    gap: 6px;
+  }
+  .site-settings summary {
+    justify-content: center;
+    width: 44px;
+  }
+  .site-footer {
+    flex-direction: column;
+    gap: 8px;
   }
 }
-
-/* Anaconda-inspired dark palette, matched to the supplied brand reference. */
-:root[data-theme='atlas'] {
-  --atlas: #0b0d0c;
-  --atlas-2: #171d19;
-  --atlas-ink: #f5f7f5;
-  --atlas-ink-2: #c1cbc3;
-  --atlas-hair: #35453a;
-  --ink: #f5f7f5;
-  --ink-2: #c1cbc3;
-  --ink-3: #a7b7ab;
-  --accent: #08ca4a;
-  --on-accent: #071b0d;
-  --seaweed: #deffaa;
-  --gold: #d9fbb0;
-  --indigo: #ccc6ff;
-  --ochre: #ffe000;
+@media (max-width: 430px) {
+  .atlas-wordmark > span:last-child {
+    display: none;
+  }
 }

@@ -1,4 +1,5 @@
 import { runCooperatively } from '../utils/cooperative'
+import { loadPreparedGeometry, loadPreset } from './assets'
 /**
  * Bake pipeline: master geodetic geometry → per-projection parallel
  * Float32Arrays (design.md §7.2 step 1). Everything the GPU needs is baked
@@ -14,9 +15,6 @@ import { surfacePositionsWork } from './surface'
 import labelsData from '../data/labels.json'
 import { tissotAt } from './distortion'
 import {
-  buildGraticule,
-  buildMasterGeometry,
-  loadGeoData,
   type GraticuleData,
   type MasterGeometry,
 } from './geometry'
@@ -153,10 +151,12 @@ function* bakeWork(
   const lakeStagger = new Float32Array(nLake)
   for (let t = 0; t < nLake; t += 3) {
     if (t % 768 === 0) yield
+    const points = [0, 1, 2].map(k => project(master.lakeTri.lon[t + k], master.lakeTri.lat[t + k]))
+    const valid = points.every(p => p.ok) && (!isFlat || points.every((p, k) => Math.hypot(p.x - points[(k + 1) % 3].x, p.y - points[(k + 1) % 3].y) <= maxJumpRaw))
+    const anchor = points.find(p => p.ok) ?? { x: 0, y: 0, z: -2, ok: true }
     for (let k = 0; k < 3; k++) {
       const lo = master.lakeTri.lon[t + k]
-      const la = master.lakeTri.lat[t + k]
-      const p = project(lo, la)
+      const p = valid ? points[k] : anchor
       lakePositions[(t + k) * 3] = (p.ok ? p.x : 0) * normalizeScale
       lakePositions[(t + k) * 3 + 1] = (p.ok ? p.y : 0) * normalizeScale
       lakePositions[(t + k) * 3 + 2] = isFlat ? 0 : (p.ok ? p.z : -2) * normalizeScale
@@ -299,7 +299,7 @@ export function bakeFromFunction(...args: Parameters<typeof bakeWork>): BakedPro
 }
 
 export function bakeFromFunctionAsync(...args: Parameters<typeof bakeWork>): Promise<BakedProjection> {
-  return runCooperatively(bakeWork(...args))
+  return runCooperatively(bakeWork(...args), 4, args[5]?.signal)
 }
 
 function pointOrRegistered(
@@ -315,64 +315,14 @@ function pointOrRegistered(
 /* ---------------- cache + canonical API ---------------- */
 
 const cache = new Map<string, BakedProjection>()
-const pending = new Map<ProjectionId, Promise<BakedProjection>>()
-let masterPromise: Promise<{
-  master: MasterGeometry
-  graticule: GraticuleData
-}> | null = null
-
-/** Preload shared master geometry + graticule (idempotent). */
-export function initBakeSystem(opts: BakeOptions = {}): Promise<{
-  master: MasterGeometry
-  graticule: GraticuleData
-}> {
-  if (!masterPromise) {
-    masterPromise = loadGeoData().then((geo) => ({
-      master: buildMasterGeometry(geo, opts.densifyDeg ?? 1),
-      graticule: buildGraticule(opts.graticuleStepDeg ?? 10),
-    }))
-  }
-  return masterPromise
+/** Generated topology and probes are fetched only for custom Python runs. */
+export function initBakeSystem(opts: BakeOptions = {}) {
+  return loadPreparedGeometry(opts.quality ?? 'overview')
 }
 
-/** Bake (or fetch from cache) a canonical projection. */
-async function prepareProjection(
-  id: ProjectionId,
-  opts: BakeOptions = {},
-): Promise<BakedProjection> {
-  const cached = cache.get(id)
-  if (cached) return cached
-  const { master, graticule } = await initBakeSystem(opts)
-  const baked =
-    id === 'globe'
-      ? await bakeFromFunctionAsync('globe', (lon, lat) => {
-          void lon
-          void lat
-          return { x: 0, y: 0 } // unused — makeProjector special-cases globe
-        }, { halfWidth: 1, halfHeight: 1 }, master, graticule, opts)
-      : await bakeFromFunctionAsync(
-          id,
-          undefined,
-          getProjection(id).frame,
-          master,
-          graticule,
-          opts,
-          getProjection(id).invertPoint,
-          id === 'mercator',
-        )
-  cache.set(id, baked)
-  return baked
-}
-
-/** Coalesce concurrent scene requests for the same expensive preparation. */
+/** Defaults are generated from the exact teaching Python, never baked at startup. */
 export function bakeProjection(id: ProjectionId, opts: BakeOptions = {}): Promise<BakedProjection> {
-  const cached = cache.get(id)
-  if (cached) return Promise.resolve(cached)
-  const existing = pending.get(id)
-  if (existing) return existing
-  const job = prepareProjection(id, opts).finally(() => pending.delete(id))
-  pending.set(id, job)
-  return job
+  return loadPreset(id, opts.quality ?? 'overview')
 }
 
 /** Synchronous bake when the caller already has master geometry (tests). */
@@ -403,7 +353,7 @@ export async function bakeCustomProjection(
 ): Promise<BakedProjection> {
   const { master, graticule } = await initBakeSystem(opts)
   const baked = await bakeFromFunctionAsync(key, pointFn, frame, master, graticule, opts)
-  cache.set(key, baked)
+  registerBaked(key, baked)
   return baked
 }
 
@@ -413,10 +363,10 @@ export function getBaked(id: string): BakedProjection | undefined {
 
 export function registerBaked(key: string, baked: BakedProjection): void {
   cache.set(key, baked)
+  while (cache.size > 4) cache.delete(cache.keys().next().value!)
 }
 
 /** Test hook. */
 export function clearBakeCache(): void {
   cache.clear()
-  masterPromise = null
 }

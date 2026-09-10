@@ -4,3 +4,12 @@
 
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+/maps/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/textures/*.webp
+  Cache-Control: public, max-age=86400
+
+/
+  Cache-Control: public, max-age=0, must-revalidate

@@ -50,15 +50,7 @@ async function init(): Promise<PyodideLike> {
   const loadPyodide = (self as unknown as { loadPyodide: (o: { indexURL: string }) => Promise<PyodideLike> })
     .loadPyodide
   pyodide = await loadPyodide({ indexURL: PYODIDE_INDEX_URL })
-  // numpy on init (micropip, per brief)
-  try {
-    const micropip = pyodide.pyimport('micropip')
-    await micropip.install('numpy')
-  } catch {
-    await pyodide.loadPackage('micropip')
-    const micropip = pyodide.pyimport('micropip')
-    await micropip.install('numpy')
-  }
+  await pyodide.loadPackage('numpy')
   numpyReady = true
   pyodide.runPython(PROJECTION_ENGINE_PY)
   pyodide.runPython(DISTORTION_PY)
@@ -88,20 +80,27 @@ export interface RunProjectionResult {
 
 const RUN_WRAPPER = `\
 def __efc_run_user(code, params, lon, lat):
-    import numpy as np, io, contextlib
+    import numpy as np, io, contextlib, inspect
+    class LimitedOutput(io.StringIO):
+        def write(self, text):
+            remaining = max(0, 64000 - self.tell())
+            super().write(text[:remaining])
+            return len(text)
     lon = np.asarray(lon, dtype=float)  # JsProxy Float64Array → numpy (buffer protocol)
     lat = np.asarray(lat, dtype=float)
     ns = {"np": np, "numpy": np, "__builtins__": __builtins__}
-    buf = io.StringIO()
-    with contextlib.redirect_stdout(buf):
+    buf = LimitedOutput()
+    with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
         exec(code, ns)
         fn = ns.get("project")
         if fn is None or not callable(fn):
             raise ValueError("code must define project(lon, lat[, params])")
         try:
-            out = fn(lon, lat, params)
+            inspect.signature(fn).bind(lon, lat, params)
         except TypeError:
             out = fn(lon, lat)
+        else:
+            out = fn(lon, lat, params)
         x = np.asarray(out[0], dtype=float)
         y = np.asarray(out[1], dtype=float)
     warnings = []
@@ -130,7 +129,10 @@ def __efc_run_user(code, params, lon, lat):
         raise ValueError("Ring distance must be greater than 0 and at most 19,000 km.")
     if ring.size and (ring.ndim != 2 or ring.shape[1] != 2 or len(ring) > 2048 or not np.isfinite(ring).all()):
         raise ValueError("map_ring must contain at most 2048 finite [x, y] points")
-    return x, y, warnings, buf.getvalue(), ring.tolist()
+    output = buf.getvalue()
+    if len(output) == 64000:
+        output += "\\n[Output limited to 64,000 characters.]"
+    return x, y, warnings, output, ring.tolist()
 `
 
 async function runProjection(

@@ -48,7 +48,7 @@ it('keeps neighboring samples on opposite sides of a shifted map cut separate', 
   })
   expect(projected.fn(lon[0], 0).x).toBe(3.14)
   expect(projected.fn(lon[1], 0).x).toBe(-3.14)
-  expect(() => projected.fn(1.85, 0)).toThrow('Missing renderer sample')
+  expect(() => projected.fn(1.85, 0)).toThrow('Map samples are out of date')
 })
 
 it('excludes deliberate NaN samples from the frame without hiding their count', () => {

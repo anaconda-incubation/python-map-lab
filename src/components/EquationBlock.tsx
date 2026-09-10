@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import katex from 'katex'
+import 'katex/dist/katex.min.css'
 
 /**
  * EquationBlock (design.md §9): KaTeX display block with an optional

@@ -104,3 +104,15 @@ describe('spherical ring area', () => {
     expect(sphericalRingArea(ring)).toBeCloseTo(Math.PI / 2, 3)
   })
 })
+
+describe('polar GeoJSON closure', () => {
+  it('preserves the full pole boundary instead of inverting Antarctica', () => {
+    const cap: [number,number][]=[[-180,-70],[0,-65],[180,-70],[180,-90],[-180,-90],[-180,-70]]
+    const dense=densifyPolyline(cap,2)
+    expect(dense.at(-1)).toEqual(dense[0])
+    const triangles=triangulatePolygon([dense])
+    let area=0
+    for(let i=0;i<triangles.length;i+=3){const [a,b,c]=triangles.slice(i,i+3);area+=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2}
+    expect(area).toBeCloseTo(8100,6)
+  })
+})

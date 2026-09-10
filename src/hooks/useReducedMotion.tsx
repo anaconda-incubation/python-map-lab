@@ -13,8 +13,8 @@ import {
  *
  * Effective value = manual override (nav toggle, persisted to localStorage)
  * falling back to the `prefers-reduced-motion` media query. Mirrored onto
- * `<html data-motion="reduced|full">` so CSS can react too. Lenis and all
- * scroll-scrubbed choreography read this via `useReducedMotion()`.
+ * `<html data-motion="reduced|full">` so CSS can react too. Projection animations read this via `useReducedMotion()`. Native scrolling
+ * is independent of this preference.
  */
 
 const STORAGE_KEY = 'efmc-motion-override'

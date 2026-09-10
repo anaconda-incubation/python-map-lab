@@ -1,0 +1,350 @@
+[
+  {
+    "quality": "overview",
+    "preset": "mercator",
+    "checked_vertices": 4096,
+    "max_error": 2.9795583111891233e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "gallPeters",
+    "checked_vertices": 4096,
+    "max_error": 2.9795583111891233e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "equalEarth",
+    "checked_vertices": 4096,
+    "max_error": 2.9790672595453316e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "authagraph",
+    "checked_vertices": 4096,
+    "max_error": 2.9793278844003623e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "experiment-0",
+    "checked_vertices": 4096,
+    "max_error": 2.9795583111891233e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "experiment-1",
+    "checked_vertices": 4096,
+    "max_error": 2.9799087086779252e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "experiment-2",
+    "checked_vertices": 4096,
+    "max_error": 2.9785351518540892e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "experiment-3",
+    "checked_vertices": 4096,
+    "max_error": 2.9801584533473147e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "experiment-4",
+    "checked_vertices": 4096,
+    "max_error": 2.9793275180267642e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "experiment-5",
+    "checked_vertices": 4096,
+    "max_error": 2.9800186318595934e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "mercator-greenwich",
+    "checked_vertices": 4096,
+    "max_error": 2.9795583111891233e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "mercator-new-york",
+    "checked_vertices": 4096,
+    "max_error": 2.9800075962427286e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "mercator-tokyo",
+    "checked_vertices": 4096,
+    "max_error": 2.9793377209763605e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "mercator-mumbai",
+    "checked_vertices": 4096,
+    "max_error": 2.9790113043048905e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "gallPeters-greenwich",
+    "checked_vertices": 4096,
+    "max_error": 2.9795583111891233e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "gallPeters-new-york",
+    "checked_vertices": 4096,
+    "max_error": 2.9800075962427286e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "gallPeters-tokyo",
+    "checked_vertices": 4096,
+    "max_error": 2.9793377320785908e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "gallPeters-mumbai",
+    "checked_vertices": 4096,
+    "max_error": 2.9790113043048905e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "equalEarth-greenwich",
+    "checked_vertices": 4096,
+    "max_error": 2.9790672595453316e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "equalEarth-new-york",
+    "checked_vertices": 4096,
+    "max_error": 2.972044577109756e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "equalEarth-tokyo",
+    "checked_vertices": 4096,
+    "max_error": 2.9796034195506138e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "equalEarth-mumbai",
+    "checked_vertices": 4096,
+    "max_error": 2.976161284085066e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "authagraph-greenwich",
+    "checked_vertices": 4096,
+    "max_error": 2.9793060130067772e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "authagraph-new-york",
+    "checked_vertices": 4096,
+    "max_error": 2.978457058766537e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "authagraph-tokyo",
+    "checked_vertices": 4096,
+    "max_error": 2.9793278844003623e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "authagraph-mumbai",
+    "checked_vertices": 4096,
+    "max_error": 2.9801530465611847e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "experiment-5-new-york",
+    "checked_vertices": 4096,
+    "max_error": 2.9794486877676718e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "experiment-5-tokyo",
+    "checked_vertices": 4096,
+    "max_error": 2.97809200633381e-08
+  },
+  {
+    "quality": "overview",
+    "preset": "experiment-5-north-pole",
+    "checked_vertices": 4096,
+    "max_error": 2.9801881185065326e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "mercator",
+    "checked_vertices": 4096,
+    "max_error": 2.977783264412892e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "gallPeters",
+    "checked_vertices": 4096,
+    "max_error": 2.977152391281379e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "equalEarth",
+    "checked_vertices": 4096,
+    "max_error": 2.962345291290802e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "authagraph",
+    "checked_vertices": 4096,
+    "max_error": 2.9783818300543885e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "experiment-0",
+    "checked_vertices": 4096,
+    "max_error": 2.977783264412892e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "experiment-1",
+    "checked_vertices": 4096,
+    "max_error": 2.9788079225490094e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "experiment-2",
+    "checked_vertices": 4096,
+    "max_error": 2.978392044106215e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "experiment-3",
+    "checked_vertices": 4096,
+    "max_error": 2.978801949549137e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "experiment-4",
+    "checked_vertices": 4096,
+    "max_error": 2.9785979349661318e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "experiment-5",
+    "checked_vertices": 4096,
+    "max_error": 2.9793957523338577e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "mercator-greenwich",
+    "checked_vertices": 4096,
+    "max_error": 2.977783264412892e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "mercator-new-york",
+    "checked_vertices": 4096,
+    "max_error": 2.9738701723402983e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "mercator-tokyo",
+    "checked_vertices": 4096,
+    "max_error": 2.979640889577695e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "mercator-mumbai",
+    "checked_vertices": 4096,
+    "max_error": 2.9796319522823467e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "gallPeters-greenwich",
+    "checked_vertices": 4096,
+    "max_error": 2.977152391281379e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "gallPeters-new-york",
+    "checked_vertices": 4096,
+    "max_error": 2.978872382097819e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "gallPeters-tokyo",
+    "checked_vertices": 4096,
+    "max_error": 2.9790273914365173e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "gallPeters-mumbai",
+    "checked_vertices": 4096,
+    "max_error": 2.979816582371342e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "equalEarth-greenwich",
+    "checked_vertices": 4096,
+    "max_error": 2.962345291290802e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "equalEarth-new-york",
+    "checked_vertices": 4096,
+    "max_error": 2.9771795584387917e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "equalEarth-tokyo",
+    "checked_vertices": 4096,
+    "max_error": 2.9795148903666302e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "equalEarth-mumbai",
+    "checked_vertices": 4096,
+    "max_error": 2.9799414380526912e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "authagraph-greenwich",
+    "checked_vertices": 4096,
+    "max_error": 2.9801705214715923e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "authagraph-new-york",
+    "checked_vertices": 4096,
+    "max_error": 2.97930794479484e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "authagraph-tokyo",
+    "checked_vertices": 4096,
+    "max_error": 2.9783818300543885e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "authagraph-mumbai",
+    "checked_vertices": 4096,
+    "max_error": 2.9781042520937717e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "experiment-5-new-york",
+    "checked_vertices": 4096,
+    "max_error": 2.9799887557580007e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "experiment-5-tokyo",
+    "checked_vertices": 4096,
+    "max_error": 2.9782891486362928e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "experiment-5-north-pole",
+    "checked_vertices": 4096,
+    "max_error": 2.9779226973225548e-08
+  }
+]

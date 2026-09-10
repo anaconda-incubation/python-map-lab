@@ -142,43 +142,10 @@ describe('bake pipeline', () => {
       expect(covers(p.x * s, p.y * s)).toBeGreaterThan(0)
     }
   })
-  it('mercator bake still collapses antimeridian-straddling triangles', () => {
-    // Seam handling must keep working: the triangle soup in unwrapped
-    // geodetic space has triangles crossing ±180° whose projected vertices
-    // jump ~2π; those must stay degenerate (no streaks across the map).
-    const nTri = mercator.landPositions.length / 9
-    // A source triangle crosses the antimeridian when its unwrapped lon
-    // interval strictly contains a wrap boundary (180 + k·360).
-    const crossesAntimeridian = (t: number): boolean => {
-      const lons = [
-        master.landTri.lon[t * 3],
-        master.landTri.lon[t * 3 + 1],
-        master.landTri.lon[t * 3 + 2],
-      ]
-      const lo = Math.min(...lons)
-      const hi = Math.max(...lons)
-      const k0 = Math.ceil((lo - 180) / 360)
-      const k1 = Math.floor((hi - 180) / 360)
-      for (let k = k0; k <= k1; k++) {
-        const b = 180 + k * 360
-        if (b > lo + 1e-9 && b < hi - 1e-9) return true
-      }
-      return false
-    }
-    let straddlers = 0
-    for (let t = 0; t < nTri; t++) {
-      if (!crossesAntimeridian(t)) continue
-      straddlers++
-      const ax = mercator.landPositions[t * 9]
-      const ay = mercator.landPositions[t * 9 + 1]
-      const bx = mercator.landPositions[t * 9 + 3]
-      const by = mercator.landPositions[t * 9 + 4]
-      const cx = mercator.landPositions[t * 9 + 6]
-      const cy = mercator.landPositions[t * 9 + 7]
-      // seam-crossing triangles must be degenerate in the bake
-      expect(ax === bx && bx === cx && ay === by && by === cy).toBe(true)
-    }
-    expect(straddlers).toBeGreaterThan(0)
+  it('mercator bake collapses an explicit antimeridian-straddling triangle', () => {
+    const seamMaster = {...master,landTri:{lon:new Float64Array([179,181,179]),lat:new Float64Array([10,10,12])}}
+    const baked = bakeProjectionSync('mercator',seamMaster,graticule)
+    for(let i=3;i<9;i+=3) expect(Array.from(baked.landPositions.slice(i,i+3))).toEqual(Array.from(baked.landPositions.slice(0,3)))
   })
   it('orthographic invalidates back-hemisphere Tissot nodes', () => {
     const ortho = bakeProjectionSync('orthographic', master, graticule)

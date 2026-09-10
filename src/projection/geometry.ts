@@ -87,7 +87,11 @@ export function densifyPolyline(
   let cursor = coords[0][0]
   for (let i = 1; i < coords.length; i++) {
     const [rawLon, lat] = coords[i]
-    const dLon = unwrapDelta(cursor, rawLon)
+    // A GeoJSON polar cap explicitly closes along the full ±180° pole edge.
+    // Collapsing that edge to zero unwraps Antarctica into an inverted strip.
+    const previous = coords[i - 1]
+    const polarClosure = Math.abs(previous[1]) === 90 && lat === previous[1] && Math.abs(rawLon - previous[0]) >= 359.999
+    const dLon = polarClosure ? rawLon - previous[0] : unwrapDelta(cursor, rawLon)
     const nextLon = cursor + dLon
     const span = Math.max(Math.abs(dLon), Math.abs(lat - out[out.length - 1][1]))
     const steps = Math.max(1, Math.ceil(span / maxDeg))

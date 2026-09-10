@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en" data-theme="atlas">
+<html lang="en" data-theme="paper">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Python Map Lab · Every Flat Map Is a Choice</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Maps with Python · One world. Many maps.</title>
     <meta
       name="description"
       content="Explore map projections through Python and mathematics. Run code, reshape the world, and discover the tradeoffs behind every flat map."
@@ -22,11 +22,17 @@
       name="twitter:description"
       content="A map is an optimization problem. Ask what you are optimizing for."
     />
-    <meta name="theme-color" content="#0b0d0c" />
+    <meta name="theme-color" content="#f7f8f3" />
+    <script>
+      try {
+        const choice=localStorage.getItem('maps-appearance');
+        document.documentElement.dataset.theme=(choice==='dark'||(choice!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))?'atlas':'paper';
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <noscript>This interactive field guide needs JavaScript to display maps and run Python in your browser.</noscript>
+    <noscript><style>.workspace-nav,.map-toolbar,.expand-button,.map-loading,.mobile-first-action,.lesson-next,.settings-menu{display:none!important}</style><aside style="padding:24px;max-width:800px;margin:auto"><p>The map previews and introductory reading work without JavaScript. Enable it to explore the maps and run Python, or download a complete notebook:</p><p><a href="/notebooks/mercator-lesson.ipynb">Mercator</a> · <a href="/notebooks/gallPeters-lesson.ipynb">Gall–Peters</a> · <a href="/notebooks/equalEarth-lesson.ipynb">Equal Earth</a> · <a href="/notebooks/authagraph-lesson.ipynb">AuthaGraph</a></p></aside></noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

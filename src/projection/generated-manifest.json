@@ -1,0 +1,291 @@
+{
+  "version": "ac297567ba64d858",
+  "qualities": {
+    "overview": {
+      "geometry": {
+        "data": "/maps/overview-geometry-1769d990339c.mapdata",
+        "bytes": 1973638
+      },
+      "presets": {
+        "globe": {
+          "data": "/maps/overview-globe-b0b788236075.mapdata",
+          "bytes": 1361488,
+          "preview": "/maps/globe-b19db94b5c1f.webp"
+        },
+        "mercator": {
+          "data": "/maps/overview-mercator-7a4db70729f5.mapdata",
+          "bytes": 1177884,
+          "preview": "/maps/mercator-449f9e676459.webp"
+        },
+        "gallPeters": {
+          "data": "/maps/overview-gallPeters-e0a7dd6ce4a5.mapdata",
+          "bytes": 1380461,
+          "preview": "/maps/gallPeters-ef2da62538de.webp"
+        },
+        "equalEarth": {
+          "data": "/maps/overview-equalEarth-7f239fb78077.mapdata",
+          "bytes": 1668490,
+          "preview": "/maps/equalEarth-d0461e3fd5ef.webp"
+        },
+        "authagraph": {
+          "data": "/maps/overview-authagraph-927954766fbc.mapdata",
+          "bytes": 1986192,
+          "preview": "/maps/authagraph-29f9cc0967bc.webp"
+        },
+        "experiment-0": {
+          "data": "/maps/overview-experiment-0-6bb46f1ce429.mapdata",
+          "bytes": 1177409,
+          "preview": "/maps/experiment-0-759ebe4ae400.webp"
+        },
+        "experiment-1": {
+          "data": "/maps/overview-experiment-1-e655fb0940bf.mapdata",
+          "bytes": 1223968,
+          "preview": "/maps/experiment-1-e7f6138040de.webp"
+        },
+        "experiment-2": {
+          "data": "/maps/overview-experiment-2-6ea7af2decb4.mapdata",
+          "bytes": 1288769,
+          "preview": "/maps/experiment-2-4a49c6456408.webp"
+        },
+        "experiment-3": {
+          "data": "/maps/overview-experiment-3-80b08c6a9905.mapdata",
+          "bytes": 1283647,
+          "preview": "/maps/experiment-3-96de158f2ad0.webp"
+        },
+        "experiment-4": {
+          "data": "/maps/overview-experiment-4-480b860e8677.mapdata",
+          "bytes": 1293255,
+          "preview": "/maps/experiment-4-fbd5fba4260a.webp"
+        },
+        "experiment-5": {
+          "data": "/maps/overview-experiment-5-dbf211fe893a.mapdata",
+          "bytes": 1993049,
+          "preview": "/maps/experiment-5-81e8c064c607.webp"
+        },
+        "mercator-greenwich": {
+          "data": "/maps/overview-mercator-greenwich-87dcddaea158.mapdata",
+          "bytes": 1177894,
+          "preview": "/maps/mercator-greenwich-449f9e676459.webp"
+        },
+        "mercator-new-york": {
+          "data": "/maps/overview-mercator-new-york-2dadb63915f9.mapdata",
+          "bytes": 1176335,
+          "preview": "/maps/mercator-new-york-14a2e9dabfdb.webp"
+        },
+        "mercator-tokyo": {
+          "data": "/maps/overview-mercator-tokyo-9ea4ca5300cd.mapdata",
+          "bytes": 1150701,
+          "preview": "/maps/mercator-tokyo-72c87abc5325.webp"
+        },
+        "mercator-mumbai": {
+          "data": "/maps/overview-mercator-mumbai-3b81efa70116.mapdata",
+          "bytes": 1157706,
+          "preview": "/maps/mercator-mumbai-56dec585b071.webp"
+        },
+        "gallPeters-greenwich": {
+          "data": "/maps/overview-gallPeters-greenwich-4ddbfb12e284.mapdata",
+          "bytes": 1380487,
+          "preview": "/maps/gallPeters-greenwich-ef2da62538de.webp"
+        },
+        "gallPeters-new-york": {
+          "data": "/maps/overview-gallPeters-new-york-69ddc2a0ea66.mapdata",
+          "bytes": 1413589,
+          "preview": "/maps/gallPeters-new-york-7e16aaa66675.webp"
+        },
+        "gallPeters-tokyo": {
+          "data": "/maps/overview-gallPeters-tokyo-1172c21c4807.mapdata",
+          "bytes": 1362611,
+          "preview": "/maps/gallPeters-tokyo-a3342638217a.webp"
+        },
+        "gallPeters-mumbai": {
+          "data": "/maps/overview-gallPeters-mumbai-ff7fac4ec366.mapdata",
+          "bytes": 1380795,
+          "preview": "/maps/gallPeters-mumbai-a32d81eef9ae.webp"
+        },
+        "equalEarth-greenwich": {
+          "data": "/maps/overview-equalEarth-greenwich-5b485416d83b.mapdata",
+          "bytes": 1668510,
+          "preview": "/maps/equalEarth-greenwich-d0461e3fd5ef.webp"
+        },
+        "equalEarth-new-york": {
+          "data": "/maps/overview-equalEarth-new-york-99caab783f2f.mapdata",
+          "bytes": 1651433,
+          "preview": "/maps/equalEarth-new-york-532296a05cd7.webp"
+        },
+        "equalEarth-tokyo": {
+          "data": "/maps/overview-equalEarth-tokyo-0071164d3a82.mapdata",
+          "bytes": 1686422,
+          "preview": "/maps/equalEarth-tokyo-e88b592af6ca.webp"
+        },
+        "equalEarth-mumbai": {
+          "data": "/maps/overview-equalEarth-mumbai-3fa0e575f2a6.mapdata",
+          "bytes": 1686475,
+          "preview": "/maps/equalEarth-mumbai-27ca8beb45cf.webp"
+        },
+        "authagraph-greenwich": {
+          "data": "/maps/overview-authagraph-greenwich-623d1aa86bb6.mapdata",
+          "bytes": 1994252,
+          "preview": "/maps/authagraph-greenwich-925d4876d694.webp"
+        },
+        "authagraph-new-york": {
+          "data": "/maps/overview-authagraph-new-york-57b493824f7a.mapdata",
+          "bytes": 1992790,
+          "preview": "/maps/authagraph-new-york-e1809360d3e4.webp"
+        },
+        "authagraph-tokyo": {
+          "data": "/maps/overview-authagraph-tokyo-e8848d1ef9cd.mapdata",
+          "bytes": 1986203,
+          "preview": "/maps/authagraph-tokyo-29f9cc0967bc.webp"
+        },
+        "authagraph-mumbai": {
+          "data": "/maps/overview-authagraph-mumbai-95ba58aba9e7.mapdata",
+          "bytes": 1977710,
+          "preview": "/maps/authagraph-mumbai-6782ec7db581.webp"
+        },
+        "experiment-5-new-york": {
+          "data": "/maps/overview-experiment-5-new-york-ee4c3c22cc3a.mapdata",
+          "bytes": 1979195,
+          "preview": "/maps/experiment-5-new-york-fcd3d6a088f4.webp"
+        },
+        "experiment-5-tokyo": {
+          "data": "/maps/overview-experiment-5-tokyo-52cb94bafc3b.mapdata",
+          "bytes": 1993936,
+          "preview": "/maps/experiment-5-tokyo-8a7f25efdb7f.webp"
+        },
+        "experiment-5-north-pole": {
+          "data": "/maps/overview-experiment-5-north-pole-78cad6ff1a32.mapdata",
+          "bytes": 1128687,
+          "preview": "/maps/experiment-5-north-pole-89583d0a51fb.webp"
+        }
+      }
+    },
+    "detail": {
+      "geometry": {
+        "data": "/maps/detail-geometry-2ea5f1eb0ebc.mapdata",
+        "bytes": 12264284
+      },
+      "presets": {
+        "globe": {
+          "data": "/maps/detail-globe-dd93944998d5.mapdata",
+          "bytes": 7008376
+        },
+        "mercator": {
+          "data": "/maps/detail-mercator-2b9dce0e0b24.mapdata",
+          "bytes": 6404777
+        },
+        "gallPeters": {
+          "data": "/maps/detail-gallPeters-c6cf4058e09a.mapdata",
+          "bytes": 7476320
+        },
+        "equalEarth": {
+          "data": "/maps/detail-equalEarth-b5add6c84811.mapdata",
+          "bytes": 8483930
+        },
+        "authagraph": {
+          "data": "/maps/detail-authagraph-231f714fa305.mapdata",
+          "bytes": 9542350
+        },
+        "experiment-0": {
+          "data": "/maps/detail-experiment-0-098d6a092d17.mapdata",
+          "bytes": 6398238
+        },
+        "experiment-1": {
+          "data": "/maps/detail-experiment-1-75202814d588.mapdata",
+          "bytes": 6740104
+        },
+        "experiment-2": {
+          "data": "/maps/detail-experiment-2-6bb63b52cdef.mapdata",
+          "bytes": 6751444
+        },
+        "experiment-3": {
+          "data": "/maps/detail-experiment-3-5ff5aa0d0c15.mapdata",
+          "bytes": 6748206
+        },
+        "experiment-4": {
+          "data": "/maps/detail-experiment-4-192101a685cb.mapdata",
+          "bytes": 6755990
+        },
+        "experiment-5": {
+          "data": "/maps/detail-experiment-5-24bb2ac068a7.mapdata",
+          "bytes": 9617067
+        },
+        "mercator-greenwich": {
+          "data": "/maps/detail-mercator-greenwich-4c6fb2615053.mapdata",
+          "bytes": 6404822
+        },
+        "mercator-new-york": {
+          "data": "/maps/detail-mercator-new-york-9afb693a5ea7.mapdata",
+          "bytes": 6401028
+        },
+        "mercator-tokyo": {
+          "data": "/maps/detail-mercator-tokyo-b6b8e99e38f7.mapdata",
+          "bytes": 6355294
+        },
+        "mercator-mumbai": {
+          "data": "/maps/detail-mercator-mumbai-72a25ce9b94b.mapdata",
+          "bytes": 6367257
+        },
+        "gallPeters-greenwich": {
+          "data": "/maps/detail-gallPeters-greenwich-341523146d35.mapdata",
+          "bytes": 7476359
+        },
+        "gallPeters-new-york": {
+          "data": "/maps/detail-gallPeters-new-york-bb7d55424013.mapdata",
+          "bytes": 7645877
+        },
+        "gallPeters-tokyo": {
+          "data": "/maps/detail-gallPeters-tokyo-cf6e4f3caa12.mapdata",
+          "bytes": 7500236
+        },
+        "gallPeters-mumbai": {
+          "data": "/maps/detail-gallPeters-mumbai-5b325db85dcc.mapdata",
+          "bytes": 7568354
+        },
+        "equalEarth-greenwich": {
+          "data": "/maps/detail-equalEarth-greenwich-fd853409d581.mapdata",
+          "bytes": 8483938
+        },
+        "equalEarth-new-york": {
+          "data": "/maps/detail-equalEarth-new-york-bb674c38a3f5.mapdata",
+          "bytes": 8417799
+        },
+        "equalEarth-tokyo": {
+          "data": "/maps/detail-equalEarth-tokyo-a0fc79c5e5e1.mapdata",
+          "bytes": 8532221
+        },
+        "equalEarth-mumbai": {
+          "data": "/maps/detail-equalEarth-mumbai-0118128f84d1.mapdata",
+          "bytes": 8534937
+        },
+        "authagraph-greenwich": {
+          "data": "/maps/detail-authagraph-greenwich-3a27af948e98.mapdata",
+          "bytes": 9573784
+        },
+        "authagraph-new-york": {
+          "data": "/maps/detail-authagraph-new-york-b174b6697244.mapdata",
+          "bytes": 9567001
+        },
+        "authagraph-tokyo": {
+          "data": "/maps/detail-authagraph-tokyo-93d9a15fcdc2.mapdata",
+          "bytes": 9542363
+        },
+        "authagraph-mumbai": {
+          "data": "/maps/detail-authagraph-mumbai-ca7877093a2c.mapdata",
+          "bytes": 9499856
+        },
+        "experiment-5-new-york": {
+          "data": "/maps/detail-experiment-5-new-york-f548a192724b.mapdata",
+          "bytes": 9604339
+        },
+        "experiment-5-tokyo": {
+          "data": "/maps/detail-experiment-5-tokyo-2e4676d4cfa0.mapdata",
+          "bytes": 9603101
+        },
+        "experiment-5-north-pole": {
+          "data": "/maps/detail-experiment-5-north-pole-13f34a3a8c78.mapdata",
+          "bytes": 5977886
+        }
+      }
+    }
+  }
+}

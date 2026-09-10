@@ -63,37 +63,37 @@ interface SourceEntry {
 
 const SOURCES: SourceEntry[] = [
   {
-    chapter: '05 · Equal Earth',
+    chapter: 'Equal Earth',
     citation:
       'Šavrič, B., Patterson, T., & Jenny, B. (2019). “The Equal Earth map projection.” International Journal of Geographical Information Science 33(3), 454–465.',
     href: 'https://doi.org/10.1080/13658816.2018.1504949',
   },
   {
-    chapter: '02 · Distortion engine',
+    chapter: 'Distortion',
     citation:
       'Snyder, J. P. (1987). Map Projections: A Working Manual. USGS Professional Paper 1395 — Tissot’s indicatrix, equations 4-1 to 4-12.',
     href: 'https://pubs.usgs.gov/pp/1395/report.pdf',
   },
   {
-    chapter: '06 · AuthaGraph',
+    chapter: 'AuthaGraph',
     citation:
       'Narukawa, H. (2022). “Formulation of AuthaGraph Map Projection and an Evaluation of its Distortion.” Map (Journal of the Japan Cartographers Association) 60(1), 1–16. The 2022 formulation approximates the original hand-built curved tetrahedron with four cones (<4% radial deviation).',
     href: 'https://doi.org/10.11212/jjca.60.1_1',
   },
   {
-    chapter: '05 · Equal Earth',
+    chapter: 'Equal Earth',
     citation:
       'Kerkovits, K. (2021). “Image-Based Angular Distortion Metric for Comparing World Map Projections.” ISPRS IJGI 11(1):1 — Equal Earth RMSE 2.678°.',
     href: 'https://www.mdpi.com/2220-9964/11/1/1',
   },
   {
-    chapter: '02 · Distortion engine',
+    chapter: 'Distortion',
     citation:
       'Goldberg, D. M., & Gott, J. R. (2007). “Flexion and skewness in map projections of the Earth.” Cartographica 42(4).',
     href: 'https://utpjournals.press/doi/10.3138/carto.42.4.297',
   },
   {
-    chapter: '08 · The scorecard',
+    chapter: 'Measuring areas',
     citation:
       'González, Á. (2010). “Measurement of areas on a sphere using Fibonacci and latitude–longitude lattices.” Mathematical Geosciences 42.',
     href: 'https://doi.org/10.1007/s11004-009-9257-x',
@@ -113,11 +113,11 @@ const SOURCES: SourceEntry[] = [
   {
     chapter: 'Geometry',
     citation:
-      'Natural Earth vector data (110m land, lakes, coastline) — public domain.',
+      'Natural Earth vector data (110m and 50m land, lakes, coastline) — public domain.',
     href: 'https://www.naturalearthdata.com/about/terms-of-use/',
   },
   {
-    chapter: '12 · The decision',
+    chapter: 'Why this matters',
     citation:
       'African Union Commission, September 4, 2026: statement welcoming the UN General Assembly resolution championed by Togo and encouraging maps that more accurately represent land areas.',
     href: 'https://www.au.int/en/pressreleases/20260904/communique-auc-chairperson-adoption-correct-map-resolution',
@@ -175,7 +175,6 @@ export default function Drawer() {
   return (
     <div
       className="fixed inset-0 z-[120]"
-      data-lenis-prevent
       style={{ pointerEvents: open ? 'auto' : 'none' }}
       aria-hidden={!open}
       inert={!open}
@@ -227,7 +226,6 @@ export default function Drawer() {
           tabIndex={0}
           role="region"
           aria-label="Source references"
-          data-lenis-prevent
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6"
           style={{ scrollbarGutter: 'stable' }}
         >
@@ -272,9 +270,9 @@ export default function Drawer() {
               className="font-ui text-caption"
               style={{ color: 'var(--fg-2)' }}
             >
-              Type: Fraunces, Source Serif 4, Inter, JetBrains Mono.
-              Mathematics: KaTeX. Built with Three.js · GSAP · Pyodide.
-              Geography: Natural Earth 50m · NASA Blue Marble. AuthaGraph
+              Type: Source Serif 4, Inter, JetBrains Mono.
+              Mathematics: KaTeX. Built with Three.js · NumPy · Pyodide.
+              Geography: Natural Earth 110m and 50m · NASA Blue Marble. AuthaGraph
               formulas after Narukawa (2022); Equal Earth after Šavrič,
               Patterson &amp; Jenny (2018).
             </p>

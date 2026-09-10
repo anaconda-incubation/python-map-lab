@@ -8,13 +8,10 @@
  * while autorotating or animating fades; state changes invalidate once.
  */
 import * as THREE from 'three'
+import { recordFrame, rendererCount } from '../utils/diagnostics'
+import type { MapQuality } from '../projection/assets'
 import { SURFACE_GRID, surfacePositions, morphProgress } from '../projection/surface'
-import {
-  bakeProjection,
-  getBaked,
-  registerBaked,
-  LABEL_ANCHORS,
-} from '../projection/bake'
+import { bakeProjection, getBaked, registerBaked, LABEL_ANCHORS } from '../projection/bake'
 import { getProjection, sphereInverse, spherePoint } from '../projection/projections'
 import type {
   BakedProjection,
@@ -237,6 +234,8 @@ type UniformSet = Record<string, THREE.IUniform>
 
 export class MapStage {
   onHover: HoverCallback | null = null
+  onContextLost: (() => void) | null = null
+  private quality: MapQuality
   /**
    * Fired after every rendered frame (render-on-demand loop). HTML/SVG
    * overlay layers (region outlines, the Move-a-Circle glyph) re-project
@@ -298,8 +297,9 @@ export class MapStage {
   private readonly scratchVecA = new THREE.Vector3()
   private readonly scratchVecB = new THREE.Vector3()
 
-  constructor(opts: { theme?: StageTheme } = {}) {
+  constructor(opts: { theme?: StageTheme; quality?: MapQuality } = {}) {
     this.theme = opts.theme ?? 'paper'
+    this.quality = opts.quality ?? 'overview'
   }
 
   /* ---------- lifecycle ---------- */
@@ -307,12 +307,9 @@ export class MapStage {
   mount(container: HTMLElement): void {
     if (this.renderer) return
     this.container = container
-    this.isMobile =
-      typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
+    this.isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false })
-    renderer.setPixelRatio(
-      Math.min(window.devicePixelRatio || 1, this.isMobile ? 1.5 : 2),
-    )
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.isMobile ? 1.5 : 2))
     renderer.setClearColor(new THREE.Color(THEME_COLORS[this.theme].background))
     container.appendChild(renderer.domElement)
     Object.assign(renderer.domElement.style, {
@@ -323,6 +320,9 @@ export class MapStage {
       display: 'block',
     })
     this.renderer = renderer
+    rendererCount(1)
+    renderer.domElement.addEventListener('webglcontextlost', this.handleContextLost)
+    document.addEventListener('visibilitychange', this.handleVisibility)
 
     const labelHost = document.createElement('div')
     Object.assign(labelHost.style, {
@@ -331,6 +331,7 @@ export class MapStage {
       overflow: 'hidden',
       pointerEvents: 'none',
     })
+    labelHost.setAttribute('aria-hidden', 'true')
     container.appendChild(labelHost)
     this.labelLayer = new LabelLayer(labelHost, LABEL_ANCHORS, this.theme)
 
@@ -339,7 +340,10 @@ export class MapStage {
     this.handleResize()
     this.visibilityObserver = new IntersectionObserver(([entry]) => {
       this.inView = entry.isIntersecting
-      if (this.inView) { this.lastTime = 0; this.invalidate() }
+      if (this.inView) {
+        this.lastTime = 0
+        this.invalidate()
+      }
     })
     this.visibilityObserver.observe(container)
 
@@ -361,6 +365,11 @@ export class MapStage {
     }
     for (const g of this.geometries) g.dispose()
     for (const m of this.materials) m.dispose()
+    if (this.renderer) {
+      rendererCount(-1)
+      this.renderer.domElement.removeEventListener('webglcontextlost', this.handleContextLost)
+    }
+    document.removeEventListener('visibilitychange', this.handleVisibility)
     this.renderer?.dispose()
     this.labelLayer?.dispose()
     this.renderer = null
@@ -368,6 +377,11 @@ export class MapStage {
   }
 
   /* ---------- public API ---------- */
+
+  /** Local diagnostics exercise the same recovery path as a device context loss. */
+  testContextLoss(): void {
+    this.renderer?.forceContextLoss()
+  }
 
   /** Optional Python polyline, in the same normalized plane as the flat map. */
   setMapRing(points: [number, number][], scale = 1): void {
@@ -381,13 +395,18 @@ export class MapStage {
       const geometry = new THREE.BufferGeometry().setFromPoints(
         points.map(([x, y]) => new THREE.Vector3(x / scale, y / scale, 0.015)),
       )
-      this.mapRing = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: '#DEFFAA', depthTest: false }))
+      this.mapRing = new THREE.Line(
+        geometry,
+        new THREE.LineBasicMaterial({
+          color: THEME_COLORS[this.theme].selection,
+          depthTest: false,
+        }),
+      )
       this.mapRing.renderOrder = 100
       this.scene.add(this.mapRing)
     }
     this.invalidate()
   }
-
 
   /** Set the two morph endpoints (baked lazily on first use). */
   async setMorphTargets(a: ProjectionId | string, b: ProjectionId | string): Promise<void> {
@@ -406,8 +425,7 @@ export class MapStage {
   /** Drive the morph (0 = target A, 1 = target B). Pure uniform updates. */
   setMorph(t: number): void {
     this.morphT = Math.min(1, Math.max(0, t))
-    const eased =
-      this.morphT * this.morphT * (3 - 2 * this.morphT) // smoothstep for camera
+    const eased = this.morphT * this.morphT * (3 - 2 * this.morphT) // smoothstep for camera
     for (const m of this.materials) {
       if (m.uniforms.uT) m.uniforms.uT.value = this.morphT
       if (m.uniforms.uGlobeMix) m.uniforms.uGlobeMix.value = this.globeMix()
@@ -430,6 +448,8 @@ export class MapStage {
     const c = THEME_COLORS[theme]
     this.renderer?.setClearColor(new THREE.Color(c.background))
     this.labelLayer?.setTheme(theme)
+    if (this.mapRing)
+      (this.mapRing.material as THREE.LineBasicMaterial).color.set(THEME_COLORS[theme].selection)
     this.applyThemeUniforms()
     this.invalidate()
   }
@@ -451,14 +471,23 @@ export class MapStage {
     this.invalidate()
   }
 
+  resetCamera(): void {
+    const target = this.targetB ?? this.targetA
+    if (!target) return
+    this.azimuth = 0
+    this.rotationVelocity = 0
+    this.autoRotate = false
+    const camera = target.isGlobe ? this.globeCamera() : this.flatCamera(target.baked)
+    target.cam = camera
+    this.setCameraState(camera, { immediate: true })
+  }
+
   /** Recompute the destination camera so the map fits with 8% padding. */
   fitToProjection(id: ProjectionId | string): void {
     const baked = getBaked(id) ?? this.custom.get(id)?.baked
     if (!baked) return
     const isGlobe = id === 'globe' || this.custom.get(id)?.isGlobe === true
-    const cam = isGlobe
-      ? this.globeCamera()
-      : this.flatCamera(baked)
+    const cam = isGlobe ? this.globeCamera() : this.flatCamera(baked)
     this.camGoal = cam
     const target = this.morphT < 0.5 ? this.targetA : this.targetB
     if (target) target.cam = cam
@@ -472,6 +501,7 @@ export class MapStage {
     opts: { inverse?: InversePointFn | null; camera?: CameraKeyframe } = {},
   ): void {
     registerBaked(id, buffers)
+    if (this.custom.size >= 3) this.custom.delete(this.custom.keys().next().value!)
     this.custom.set(id, {
       id,
       baked: buffers,
@@ -540,10 +570,7 @@ export class MapStage {
    * occluded (far-side) or behind-camera points — callers should break
    * overlay paths there rather than drop the point.
    */
-  lonLatToScreen(
-    lon: number,
-    lat: number,
-  ): { x: number; y: number; visible: boolean } | null {
+  lonLatToScreen(lon: number, lat: number): { x: number; y: number; visible: boolean } | null {
     if (!this.renderer || !this.container || !this.targetA || !this.targetB) return null
     const wA = this.targetWorld(this.targetA, lon, lat)
     const wB = this.targetWorld(this.targetB, lon, lat)
@@ -570,11 +597,7 @@ export class MapStage {
   }
 
   /** World-space position of (lon, lat) radians under one morph target. */
-  private targetWorld(
-    target: MorphTarget,
-    lon: number,
-    lat: number,
-  ): THREE.Vector3 | null {
+  private targetWorld(target: MorphTarget, lon: number, lat: number): THREE.Vector3 | null {
     if (target.isGlobe) {
       const p = spherePoint(lon, lat)
       return new THREE.Vector3(p.x, p.y, p.z)
@@ -593,28 +616,47 @@ export class MapStage {
     if (existing) return existing
     const baked = await bakeProjection(id as ProjectionId, {
       tissotStepDeg: 30,
+      quality: this.quality,
     })
-    const def = getProjection(id as ProjectionId)
+    const def = [
+      'globe',
+      'mercator',
+      'gallPeters',
+      'equalEarth',
+      'authagraph',
+      'mollweide',
+      'orthographic',
+    ].includes(id)
+      ? getProjection(id as ProjectionId)
+      : null
     return {
       id,
       baked,
-      isGlobe: def.isGlobe,
-      inverse: def.invertPoint,
-      point: def.isGlobe ? null : def.projectPoint,
-      cam: def.isGlobe ? this.globeCamera() : this.flatCamera(baked),
+      isGlobe: id === 'globe',
+      inverse: def?.invertPoint ?? null,
+      point: def?.isGlobe ? null : (def?.projectPoint ?? null),
+      cam: id === 'globe' ? this.globeCamera() : this.flatCamera(baked),
     }
   }
 
   private globeCamera(): CameraKeyframe {
-    const aspect = this.container ? this.container.clientWidth / Math.max(1, this.container.clientHeight) : 1
-    const distance = 1.18 / Math.sin(16 * Math.PI / 180) / Math.min(1, aspect)
+    const aspect = this.container
+      ? this.container.clientWidth / Math.max(1, this.container.clientHeight)
+      : 1
+    const distance = 1.18 / Math.sin((16 * Math.PI) / 180) / Math.min(1, aspect)
     return { position: [0, 0.25, distance], target: [0, 0, 0], fov: 32 }
   }
 
-  setLabels(visible: boolean): void { this.labelsEnabled = visible; this.invalidate() }
+  setLabels(visible: boolean): void {
+    this.labelsEnabled = visible
+    this.invalidate()
+  }
 
   /** Camera orientation is independent of mesh coordinates and pointer picks. */
-  settleRotation(): void { this.autoRotate = false; this.invalidate() }
+  settleRotation(): void {
+    this.autoRotate = false
+    this.invalidate()
+  }
 
   private flatCamera(baked: BakedProjection): CameraKeyframe {
     const aspect = this.container
@@ -661,9 +703,18 @@ export class MapStage {
     // --- land ---
     if (!this.landMesh) {
       const geo = new THREE.BufferGeometry()
-      geo.setAttribute('positionA', new THREE.BufferAttribute(new Float32Array(a.vertexCount * 3), 3))
-      geo.setAttribute('positionB', new THREE.BufferAttribute(new Float32Array(a.vertexCount * 3), 3))
-      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(a.vertexCount * 3), 3))
+      geo.setAttribute(
+        'positionA',
+        new THREE.BufferAttribute(new Float32Array(a.vertexCount * 3), 3),
+      )
+      geo.setAttribute(
+        'positionB',
+        new THREE.BufferAttribute(new Float32Array(a.vertexCount * 3), 3),
+      )
+      geo.setAttribute(
+        'position',
+        new THREE.BufferAttribute(new Float32Array(a.vertexCount * 3), 3),
+      )
       geo.setAttribute('aStagger', new THREE.BufferAttribute(new Float32Array(a.vertexCount), 1))
       geo.setAttribute('aArea', new THREE.BufferAttribute(new Float32Array(a.vertexCount * 2), 2))
       geo.setAttribute('aAngle', new THREE.BufferAttribute(new Float32Array(a.vertexCount * 2), 2))
@@ -817,7 +868,7 @@ export class MapStage {
       } else {
         this.graticuleLines = obj
         this.track(mat.uniforms.uOpacity as { value: number }, 0)
-        ;(mat.userData.baseOpacity = baseOpacity)
+        mat.userData.baseOpacity = baseOpacity
       }
     }
     this.copyAttr(obj, 'positionA', posA)
@@ -831,7 +882,11 @@ export class MapStage {
     else mat.userData.baseOpacity = baseOpacity
   }
 
-  private uploadTissot(a: BakedProjection, b: BakedProjection, theme: { tissot: string; tissotFillAlpha: number }): void {
+  private uploadTissot(
+    a: BakedProjection,
+    b: BakedProjection,
+    theme: { tissot: string; tissotFillAlpha: number },
+  ): void {
     const n = a.tissotLonLat.length / 2
     if (!this.tissotMesh) {
       // base circle: center + rim fan, aRim = radial fraction
@@ -902,9 +957,14 @@ export class MapStage {
       geo.setAttribute('aStagger', new THREE.BufferAttribute(SURFACE_GRID.stagger, 1))
       geo.setAttribute('uv', new THREE.BufferAttribute(SURFACE_GRID.uv, 2))
       const mat = this.makeMaterial(oceanVert, oceanFrag, {
-        uT: { value: this.morphT }, uBase: { value: new THREE.Color(theme.ocean) },
-        uGlow: { value: new THREE.Color(theme.oceanGlow) }, uOpacity: { value: 1 },
-        uGlobeMix: { value: this.globeMix() }, uTextureReady: { value: 0 }, uGeography: { value: 1 }, uEarth: { value: null },
+        uT: { value: this.morphT },
+        uBase: { value: new THREE.Color(theme.ocean) },
+        uGlow: { value: new THREE.Color(theme.oceanGlow) },
+        uOpacity: { value: 1 },
+        uGlobeMix: { value: this.globeMix() },
+        uTextureReady: { value: 0 },
+        uGeography: { value: 1 },
+        uEarth: { value: null },
       })
       mat.side = THREE.DoubleSide
       mat.transparent = false
@@ -914,20 +974,41 @@ export class MapStage {
       this.scene.add(this.oceanSphere)
       this.geometries.push(geo)
       const loader = new THREE.TextureLoader()
-      loader.load('./textures/earth-blue-marble.jpg', (texture) => {
-        if (this.disposed) { texture.dispose(); return }
-        texture.colorSpace = THREE.SRGBColorSpace
-        texture.anisotropy = Math.min(4, this.renderer?.capabilities.getMaxAnisotropy() ?? 1)
-        this.earthTexture = texture
-        mat.uniforms.uEarth.value = texture
-        this.textureReady = 1
-        for (const m of this.materials) if (m.uniforms.uTextureReady) m.uniforms.uTextureReady.value = 1
-        this.invalidate()
-      }, undefined, () => { /* The vector globe remains usable if imagery is unavailable. */ })
+      loader.load(
+        this.quality === 'overview'
+          ? '/textures/earth-overview.webp'
+          : '/textures/earth-detail.webp',
+        (texture) => {
+          if (this.disposed) {
+            texture.dispose()
+            return
+          }
+          texture.colorSpace = THREE.SRGBColorSpace
+          texture.anisotropy = Math.min(4, this.renderer?.capabilities.getMaxAnisotropy() ?? 1)
+          this.earthTexture = texture
+          mat.uniforms.uEarth.value = texture
+          this.textureReady = 1
+          for (const m of this.materials)
+            if (m.uniforms.uTextureReady) m.uniforms.uTextureReady.value = 1
+          this.invalidate()
+        },
+        undefined,
+        () => {
+          /* The vector globe remains usable if imagery is unavailable. */
+        },
+      )
     }
     if (this.targetA && this.targetB) {
-      for (const [attribute, target] of [['positionA', this.targetA], ['positionB', this.targetB]] as const) {
-        this.copyAttr(this.oceanSphere, attribute, target.baked.surfacePositions ?? surfacePositions(target.isGlobe, target.point, target.baked.normalizeScale))
+      for (const [attribute, target] of [
+        ['positionA', this.targetA],
+        ['positionB', this.targetB],
+      ] as const) {
+        this.copyAttr(
+          this.oceanSphere,
+          attribute,
+          target.baked.surfacePositions ??
+            surfacePositions(target.isGlobe, target.point, target.baked.normalizeScale),
+        )
       }
     }
   }
@@ -943,7 +1024,12 @@ export class MapStage {
 
   private applyLayerFades(immediate = false): void {
     const theme = THEME_COLORS[this.theme]
-    const set = (mesh: THREE.Mesh | THREE.LineSegments | null, key: string, on: boolean, base: number) => {
+    const set = (
+      mesh: THREE.Mesh | THREE.LineSegments | null,
+      key: string,
+      on: boolean,
+      base: number,
+    ) => {
       if (!mesh) return
       const mat = mesh.material as THREE.ShaderMaterial
       const u = mat.uniforms[key] as { value: number }
@@ -952,7 +1038,11 @@ export class MapStage {
       if (immediate) u.value = on ? base : 0
       mesh.visible = on || u.value > 0.001
     }
-    if (this.oceanSphere) (this.oceanSphere.material as THREE.ShaderMaterial).uniforms.uGeography.value = this.layers.geography ? 1 : 0
+    if (this.oceanSphere)
+      (this.oceanSphere.material as THREE.ShaderMaterial).uniforms.uGeography.value = this.layers
+        .geography
+        ? 1
+        : 0
     set(this.landMesh, 'uOpacity', this.layers.geography, 1)
     set(this.lakeMesh, 'uOpacity', this.layers.geography, 1)
     set(this.coastLines, 'uOpacity', this.layers.geography, baseCoast(this.theme))
@@ -980,9 +1070,7 @@ export class MapStage {
     setColor(this.oceanPlane, 'uGlow', theme.oceanGlow)
     if (this.graticuleLines) {
       const f = this.fades.find(
-        (x) =>
-          x.u ===
-          (this.graticuleLines!.material as THREE.ShaderMaterial).uniforms.uOpacity,
+        (x) => x.u === (this.graticuleLines!.material as THREE.ShaderMaterial).uniforms.uOpacity,
       )
       if (f && f.target > 0) f.target = theme.graticuleAlpha
     }
@@ -992,20 +1080,22 @@ export class MapStage {
 
   private tick(time: number): void {
     this.rafId = null
-    if (this.disposed || !this.renderer || !this.inView) return
+    if (this.disposed || !this.renderer || !this.inView || document.hidden) return
     const dt = this.lastTime ? Math.min(0.1, (time - this.lastTime) / 1000) : 0.016
     this.lastTime = time
 
     const reduced = document.documentElement.dataset.motion === 'reduced'
     const rotating = this.autoRotate && !reduced && this.globeMix() > 0.99
-    this.rotationVelocity += ((rotating ? 0.035 : 0) - this.rotationVelocity) * (1 - Math.exp(-dt / 0.28))
+    this.rotationVelocity +=
+      ((rotating ? 0.035 : 0) - this.rotationVelocity) * (1 - Math.exp(-dt / 0.28))
     if (reduced) this.rotationVelocity = 0
     this.azimuth += this.rotationVelocity * dt
     this.azimuth = Math.atan2(Math.sin(this.azimuth), Math.cos(this.azimuth))
     if (!rotating) this.azimuth *= Math.exp(-dt / 0.25)
 
     // 400ms uniform fades (exponential ease, τ ≈ 130ms ≈ 400ms to ~95%)
-    let animating = rotating || Math.abs(this.rotationVelocity) > 0.0001 || Math.abs(this.azimuth) > 0.0001
+    let animating =
+      rotating || Math.abs(this.rotationVelocity) > 0.0001 || Math.abs(this.azimuth) > 0.0001
     const k = 1 - Math.exp(-dt / 0.13)
     for (const f of this.fades) {
       const delta = f.target - f.u.value
@@ -1041,6 +1131,7 @@ export class MapStage {
     this.updateVisibility()
 
     this.renderer.render(this.scene, this.camera)
+    recordFrame()
     this.updateLabels()
     this.onFrame?.()
 
@@ -1084,6 +1175,15 @@ export class MapStage {
     if (!this.renderer || !this.container) return
     const w = Math.max(1, this.container.clientWidth)
     const h = Math.max(1, this.container.clientHeight)
+    this.isMobile = w < 900
+    const maxPixels = this.isMobile ? 1_000_000 : 3_000_000
+    this.renderer.setPixelRatio(
+      Math.min(
+        window.devicePixelRatio || 1,
+        this.isMobile ? 1.5 : 2,
+        Math.sqrt(maxPixels / (w * h)),
+      ),
+    )
     this.renderer.setSize(w, h, false)
     this.camera.aspect = w / h
     for (const target of [this.targetA, this.targetB]) {
@@ -1092,6 +1192,22 @@ export class MapStage {
     if (this.targetA && this.targetB) this.setMorph(this.morphT)
     this.camera.updateProjectionMatrix()
     this.invalidate()
+  }
+
+  private handleVisibility = (): void => {
+    if (document.hidden && this.rafId !== null) {
+      cancelAnimationFrame(this.rafId)
+      this.rafId = null
+    }
+    if (!document.hidden) {
+      this.lastTime = 0
+      this.invalidate()
+    }
+  }
+
+  private handleContextLost = (event: Event): void => {
+    event.preventDefault()
+    this.onContextLost?.()
   }
 
   private handlePointer = (ev: PointerEvent): void => {
@@ -1118,8 +1234,16 @@ function dist3(a: [number, number, number], b: [number, number, number]): number
 
 function lerpCam(a: CameraKeyframe, b: CameraKeyframe, t: number): CameraKeyframe {
   return {
-    position: [lerp(a.position[0], b.position[0], t), lerp(a.position[1], b.position[1], t), lerp(a.position[2], b.position[2], t)],
-    target: [lerp(a.target[0], b.target[0], t), lerp(a.target[1], b.target[1], t), lerp(a.target[2], b.target[2], t)],
+    position: [
+      lerp(a.position[0], b.position[0], t),
+      lerp(a.position[1], b.position[1], t),
+      lerp(a.position[2], b.position[2], t),
+    ],
+    target: [
+      lerp(a.target[0], b.target[0], t),
+      lerp(a.target[1], b.target[1], t),
+      lerp(a.target[2], b.target[2], t),
+    ],
     fov: lerp(a.fov, b.fov, t),
   }
 }

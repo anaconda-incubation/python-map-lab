@@ -22,7 +22,7 @@ export interface ThemeColors {
 
 export const THEME_COLORS: Record<StageTheme, ThemeColors> = {
   paper: {
-    background: '#F5F1E8',
+    background: '#EDF2E9',
     ocean: '#CCD9D6',
     oceanGlow: '#A8C9C7',
     land: '#9BAF94',
