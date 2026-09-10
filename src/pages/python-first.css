@@ -214,11 +214,11 @@
   position: absolute;
   right: 10px;
   bottom: calc(100% + 12px);
-  width: min(330px, calc(100vw - 60px));
+  width: min(360px, calc(100vw - 60px));
   padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   background: var(--bg);
   border: 1px solid var(--hair);
   border-radius: 10px;
@@ -226,27 +226,112 @@
   z-index: 8;
   max-height: 60svh;
   overflow: auto;
+  overscroll-behavior: contain;
 }
-.layer-options button {
+.map-options-heading {
+  position: sticky;
+  top: -18px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -18px -18px 0;
+  padding: 8px 18px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--hair);
+  font-size: 15px;
+}
+.map-options-heading button {
   min-height: 44px;
-  text-align: left;
+  color: var(--accent);
+  font-size: 12px;
+}
+.map-options-heading button span {
+  margin-left: 6px;
+  font-size: 18px;
+}
+.distortion-choice {
+  display: grid;
+  gap: 8px;
+}
+.distortion-choice > label {
+  font-size: 13px;
 }
 .layer-options p {
   font:
-    11px/1.6 Inter,
+    12px/1.5 Inter,
     sans-serif;
   color: var(--fg-3);
 }
-.layer-options > button[aria-pressed='true'] {
-  color: var(--accent);
+.map-option-switches {
+  border-block: 1px solid var(--hair);
 }
-.close-layers {
-  color: var(--accent);
-  border-top: 1px solid var(--hair);
+.map-option-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.map-option-switch input {
+  appearance: none;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 22px;
+  border: 1px solid var(--fg-3);
+  border-radius: 12px;
+  background: var(--bg);
+  cursor: pointer;
+}
+.map-option-switch input::before {
+  content: '';
+  display: block;
+  width: 14px;
+  height: 14px;
+  margin: 3px;
+  border-radius: 50%;
+  background: var(--fg-3);
+}
+.map-option-switch input:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.map-option-switch input:checked::before {
+  transform: translateX(14px);
+  background: var(--on-accent);
+}
+.map-option-switch input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.map-detail-options > summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  padding-block: 12px;
+  color: var(--fg-2);
+}
+.map-detail-options > summary span {
+  font-size: 18px;
+}
+.map-detail-options[open] > summary span {
+  transform: rotate(45deg);
+}
+.map-detail-options select {
+  width: 100%;
+  margin-bottom: 8px;
 }
 .layer-legend {
-  padding-top: 10px;
+  padding: 10px 20px;
   border-top: 1px solid var(--hair);
+  color: var(--fg-2);
+  font:
+    11px/1.6 Inter,
+    sans-serif;
 }
 .map-caption {
   padding: 0 20px 15px;

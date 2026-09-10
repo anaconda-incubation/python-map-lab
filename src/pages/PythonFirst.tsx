@@ -2,6 +2,7 @@ import {
   lazy,
   Suspense,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -12,7 +13,7 @@ import { track } from '@/analytics/events'
 import { useAppearance } from '@/hooks/useAppearance'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import type { MapViewHandle } from '@/components/MapView'
-import StageToggle, { type StageLayerState } from '@/components/StageToggle'
+import MapOptions, { type DistortionView } from '@/components/MapOptions'
 import { previewAspectRatio, previewUrl, type MapQuality } from '@/projection/assets'
 import type { RunProjectionResult } from '@/projection/worker-client'
 import { measure, diagnostics } from '@/utils/diagnostics'
@@ -76,13 +77,18 @@ export default function PythonFirst() {
     [exploring, setExploring] = useState(false)
   const [quality, setQuality] = useState<MapQuality>('overview')
   const [labels, setLabels] = useState(true)
-  const [layers, setLayers] = useState<StageLayerState>({
-    geography: true,
-    graticule: false,
-    tissot: false,
-    area: false,
-    angle: false,
-  })
+  const [grid, setGrid] = useState(false)
+  const [distortion, setDistortion] = useState<DistortionView>('none')
+  const layers = useMemo(
+    () => ({
+      geography: true,
+      graticule: grid,
+      tissot: distortion === 'circles',
+      area: distortion === 'area',
+      angle: distortion === 'shape',
+    }),
+    [grid, distortion],
+  )
   const [mapReady, setMapReady] = useState(false),
     [mapChanging, setMapChanging] = useState(false),
     [mapError, setMapError] = useState(''),
@@ -244,9 +250,6 @@ export default function PythonFirst() {
   }
   function edit(nextCode: string) {
     setDrafts((previous) => ({ ...previous, [selection.id]: { code: nextCode, preset } }))
-  }
-  function toggleLayer(layer: keyof StageLayerState) {
-    setLayers((previous) => ({ ...previous, [layer]: !previous[layer] }))
   }
   function openEditor() {
     setEditorId(selection.id)
@@ -585,54 +588,21 @@ export default function PythonFirst() {
             ) : (
               <span className="map-kind">{lesson?.promise ?? 'A change in the rules'}</span>
             )}
-            <details className="layers-popover">
-              <summary>
-                Layers <span aria-hidden="true">☷</span>
-              </summary>
-              <div className="layer-options">
-                <StageToggle layers={layers} onChange={toggleLayer} />
-                <button aria-pressed={labels} onClick={() => setLabels((v) => !v)}>
-                  Place labels {labels ? 'on' : 'off'}
-                </button>
-                <label htmlFor="map-quality">Geography detail</label>
-                <select
-                  id="map-quality"
-                  value={quality}
-                  disabled={running}
-                  onChange={(e) => {
-                    setQuality(e.target.value as MapQuality)
-                    setExecuted(null)
-                    setMapError('')
-                  }}
-                >
-                  <option value="overview">Overview · faster</option>
-                  <option value="detail">Detailed · larger download</option>
-                </select>
-                <p>
-                  Labels adapt to the available space. Detail changes the coastline, not the
-                  projection formula.
-                </p>
-                {(layers.area || layers.angle) && (
-                  <p className="layer-legend">
-                    {layers.area
-                      ? 'Area: blue = compressed · cream = unchanged · red = enlarged.'
-                      : 'Shape: cream = less angular distortion · deep red = more.'}
-                  </p>
-                )}
-                <button
-                  className="close-layers"
-                  onClick={(e) => {
-                    const panel = e.currentTarget.closest('details')
-                    if (panel) {
-                      panel.open = false
-                      panel.querySelector('summary')?.focus()
-                    }
-                  }}
-                >
-                  Done
-                </button>
-              </div>
-            </details>
+            <MapOptions
+              distortion={distortion}
+              onDistortionChange={setDistortion}
+              grid={grid}
+              onGridChange={setGrid}
+              labels={labels}
+              onLabelsChange={setLabels}
+              quality={quality}
+              running={running}
+              onQualityChange={(next) => {
+                setQuality(next)
+                setExecuted(null)
+                setMapError('')
+              }}
+            />
             <button
               className="icon-button"
               aria-label="Reset map view"
@@ -656,6 +626,13 @@ export default function PythonFirst() {
               </span>
             )}
           </p>
+          {(layers.area || layers.angle) && (
+            <p className="layer-legend">
+              {layers.area
+                ? 'Area: blue = compressed · cream = unchanged · red = enlarged.'
+                : 'Shape: cream = less angular distortion · deep red = more.'}
+            </p>
+          )}
           {exploring && (
             <div className="globe-help">
               <button aria-label="Zoom out" onClick={() => map.current?.zoom(0.9)}>
@@ -719,7 +696,7 @@ export default function PythonFirst() {
                   <button
                     className="text-button"
                     onClick={() => {
-                      toggleLayer('tissot')
+                      setDistortion(distortion === 'circles' ? 'none' : 'circles')
                       if (small) showMap()
                     }}
                   >

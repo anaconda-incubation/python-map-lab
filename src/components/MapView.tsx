@@ -1,8 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { MapStage, globeCameraDistance } from '@/three/MapStage'
+import { MapStage, globeCameraDistance, type LayerState } from '@/three/MapStage'
 import type { MapQuality } from '@/projection/assets'
 import type { BakedProjection } from '@/projection/types'
-import type { StageLayerState } from './StageToggle'
 import { recordPhase } from '@/utils/diagnostics'
 
 export interface MapViewHandle {
@@ -20,7 +19,7 @@ type Props = {
   preset: string
   quality: MapQuality
   theme: 'paper' | 'atlas'
-  layers: StageLayerState
+  layers: LayerState
   labels: boolean
   exploring: boolean
   fitWidth: boolean
@@ -203,7 +202,8 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(props, ref) {
     o.yaw += yaw
     o.pitch = Math.max(-1.3, Math.min(1.3, o.pitch + pitch))
     o.zoom = Math.max(0.8, Math.min(1.6, o.zoom * zoom))
-    const distance = globeCameraDistance(host.current.clientWidth, host.current.clientHeight) / o.zoom
+    const distance =
+      globeCameraDistance(host.current.clientWidth, host.current.clientHeight) / o.zoom
     engine.current?.setCameraState({
       position: [
         distance * Math.sin(o.yaw) * Math.cos(o.pitch),

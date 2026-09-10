@@ -55,7 +55,7 @@ The diagnostic `cumulativeLayoutShift` is a simple sum of observed shifts, not t
 | 5 | Wide desktop map, approximately 62% of the workspace; constrained prose and explicit full-width mode. |
 | 6 | Phone focus view uses dynamic viewport height and safe areas, Escape, focus containment, and return focus/scroll. Portrait expansion verified; landscape layout checked. |
 | 7 | Default `pan-y` lets scrolling pass over the map; Explore opts into dragging. Keyboard rotation, zoom, Done, and Reset exercised. Physical touch remains a device check. |
-| 8 | Layers sheet includes all five overlays, Labels, and detail; 44px controls and pressed states. The sheet was corrected to stay inside narrow/short viewports. |
+| 8 | Map options now offers one explained distortion view, switches for names and coordinate lines, and optional coastline detail. Geography stays visible. Narrow/short viewports and keyboard controls were checked. |
 | 9 | Existing prioritized, collision-aware geographic labels retained, excluded from redundant screen-reader output. Labels can be hidden; space-dependent placement is explained. |
 | 10 | System/Light/Dark preference and early theme application implemented. Light and dark screenshots inspected, including editor, map, and errors. |
 | 11 | Shorter introduction, consistent serif/UI/code typography, centered actual Anaconda logo, modest footer. Seven widths checked for overflow. |
@@ -97,6 +97,14 @@ The diagnostic `cumulativeLayoutShift` is a simple sum of observed shifts, not t
 Important defects caught in this pass: an inverted 110m Antarctica closure; lake triangles crossing projection cuts; a narrow-screen Layers panel outside the viewport; cancellation losing an existing distance ring; a late target winning after selecting back to the already displayed map; opening the editor before the map's first visible frame; and stale output text beneath a later failed run. These were corrected and the relevant browser paths rerun.
 
 ## Follow-up refinements
+
+### Simpler map options
+
+Replaced the row of layer pills with an **Explore distortion** selector: Plain map, Distortion circles, Area distortion, or Shape distortion. Only one distortion view is active at a time, making the visual and its explanation unambiguous. Land and water are always enabled. The lesson's Show/Hide distortion circles shortcut updates the same selection.
+
+Place names and latitude/longitude lines use labeled switches with 48px rows. Coastline detail is an optional disclosure. Each distortion view has a short explanation, and active color views keep their key below the map after the panel closes. Close remains visible while scrolling a short panel; Escape closes the panel and restores focus without closing an expanded map.
+
+Verified all four views, label and grid switching, the lesson shortcut, Standard/Detailed coastline changes, keyboard switch operation, focus return, and expanded-map dismissal. Inspected the panel at 320×740, 390×844, 844×390 landscape, and 1440×900, including Light and Dark. No horizontal overflow was observed. The 126-test, lint, TypeScript, and production build checks passed; no projection mathematics or notebooks changed.
 
 ### Mobile controls and map while reading
 
