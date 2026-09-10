@@ -43,6 +43,10 @@ The historical cleanup comparison script requires an explicit old checkout path 
 
 Mercator, Gall–Peters, and Equal Earth use a `central_meridian` in degrees, positive east and negative west. AuthaGraph instead uses `center_lat` and `center_lon` to place a selected point at the rectangle's center. Centering changes its cuts, not its distortion properties. The azimuthal equidistant experiment preserves great-circle distances from its center and supports an optional ring up to 19,000 km.
 
+## License
+
+Original project code is licensed under the [BSD 3-Clause License](LICENSE), copyright 2026 Anaconda, Inc. Third-party code and assets retain their existing licenses and notices, including the MPL-2.0 AuthaGraph implementations.
+
 ## Assets and attribution
 
 Natural Earth public-domain geography supplies the renderer (1:50 million) and exported notebooks (1:110 million). The photographic globe uses NASA Blue Marble. The Sources drawer lists references and credits. AuthaGraph's adapted helper implementations retain their MPL-2.0 notices. Branding and typography retain their respective owners' rights.
