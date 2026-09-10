@@ -900,21 +900,6 @@ export default function PythonFirst() {
           </button>
         )}
       </nav>
-      {globe && (
-        <section className="projection-index" aria-label="The mapmakers’ choices">
-          <p className="eyebrow">Four different answers</p>
-          <div>
-            {lessons.map((l) => (
-              <button key={l.id} onClick={() => choose({ mode: 'learn', id: l.id, city: '' })}>
-                <h3>
-                  {l.name} <span aria-hidden="true">↗</span>
-                </h3>
-                <p>{l.tradeoff}</p>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
       <aside className="context-note">
         <span className="eyebrow">Why this matters</span>
         <p>
