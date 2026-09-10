@@ -101,9 +101,12 @@ export default function PythonFirst() {
   const [small, setSmall] = useState(
     () => typeof matchMedia !== 'undefined' && matchMedia('(max-width: 900px)').matches,
   )
+  const [canPinMap, setCanPinMap] = useState(false)
   const map = useRef<MapViewHandle>(null),
     mapSection = useRef<HTMLElement>(null),
-    codeSection = useRef<HTMLElement>(null)
+    codeSection = useRef<HTMLElement>(null),
+    workspaceNav = useRef<HTMLDivElement>(null),
+    workspaceTabs = useRef<HTMLDivElement>(null)
   const restoreFocus = useRef<HTMLElement | null>(null),
     restoreScroll = useRef(0),
     customSerial = useRef(0)
@@ -151,6 +154,39 @@ export default function PythonFirst() {
     const timer = setTimeout(() => writeDrafts(drafts), 250)
     return () => clearTimeout(timer)
   }, [drafts])
+  useEffect(() => {
+    if (!small) return
+    const nav = workspaceNav.current,
+      mapElement = mapSection.current,
+      tabs = workspaceTabs.current
+    const root = nav?.parentElement
+    if (!nav || !mapElement || !root) return
+    const viewport = window.visualViewport
+    const update = () => {
+      const navHeight = nav.offsetHeight,
+        tabsHeight = tabs?.offsetHeight ?? 0,
+        mapHeight = mapElement.offsetHeight
+      const headerHeight =
+        document.querySelector('.atlas-nav')?.getBoundingClientRect().height ?? 56
+      const height = viewport?.height ?? window.innerHeight
+      root.style.setProperty('--workspace-nav-height', `${navHeight}px`)
+      root.style.setProperty('--workspace-tabs-height', `${tabsHeight}px`)
+      root.style.setProperty('--pinned-map-height', `${mapHeight}px`)
+      // Keep a meaningful reading area, including on short screens or with a keyboard open.
+      const readingRoom = height - headerHeight - navHeight - tabsHeight - mapHeight
+      setCanPinMap(!expanded && mapHeight > 0 && readingRoom >= Math.max(240, height * 0.32))
+    }
+    const observer = new ResizeObserver(update)
+    for (const element of [nav, mapElement, tabs]) if (element) observer.observe(element)
+    viewport?.addEventListener('resize', update)
+    window.addEventListener('resize', update)
+    update()
+    return () => {
+      observer.disconnect()
+      viewport?.removeEventListener('resize', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [small, expanded, editorOpen, mobilePane])
   useEffect(() => {
     if (!expanded || !small) return
     const before = document.body.style.overflow
@@ -202,8 +238,9 @@ export default function PythonFirst() {
       selectionUrl(next) +
         (new URLSearchParams(location.search).has('diagnostics') ? '&diagnostics' : ''),
     )
-    if (mapSection.current && mapSection.current.getBoundingClientRect().top < 0)
-      mapSection.current.scrollIntoView({ block: 'start', behavior: 'instant' })
+    const workspace = mapSection.current?.parentElement
+    if (workspace && workspace.getBoundingClientRect().top < 0)
+      void frames().then(() => workspace.scrollIntoView({ block: 'start', behavior: 'instant' }))
   }
   function edit(nextCode: string) {
     setDrafts((previous) => ({ ...previous, [selection.id]: { code: nextCode, preset } }))
@@ -348,7 +385,7 @@ export default function PythonFirst() {
           <br className="desktop-break" /> how you see the world.
         </p>
       </section>
-      <div className="workspace-nav">
+      <div className="workspace-nav" ref={workspaceNav}>
         <div className="mode-switch" role="group" aria-label="Choose how to explore">
           <button
             aria-pressed={selection.mode === 'learn'}
@@ -403,7 +440,12 @@ export default function PythonFirst() {
         </div>
       </div>
       {editorOpen && (
-        <div className="mobile-workspace-tabs" role="group" aria-label="Python workspace view">
+        <div
+          className="mobile-workspace-tabs"
+          ref={workspaceTabs}
+          role="group"
+          aria-label="Python workspace view"
+        >
           <button aria-pressed={mobilePane === 'map'} onClick={showMap}>
             Map
           </button>
@@ -421,6 +463,7 @@ export default function PythonFirst() {
       <div
         className={
           'workspace-grid' +
+          (canPinMap ? ' can-pin-map' : '') +
           (expanded ? ' expanded' : '') +
           (editorOpen ? ' editor-open pane-' + mobilePane : '')
         }

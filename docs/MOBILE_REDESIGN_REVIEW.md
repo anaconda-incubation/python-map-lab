@@ -51,7 +51,7 @@ The diagnostic `cumulativeLayoutShift` is a simple sum of observed shifts, not t
 | 1 | Compact opening screen and immediately available genuine map image; seven viewport measurements above. |
 | 2 | Small Learn/Experiment control, direct selector, step count and previous/next navigation. |
 | 3 | Consistent question, observation prompt, explanation, and optional code; historical content and math preserved. |
-| 4 | Native story reading; bounded desktop sticky map. Phone maps use normal flow because a persistent sticky map leaves too little reading space. Scrolling never runs code or selects projections. |
+| 4 | Native story reading; bounded desktop sticky map. Following the mobile review, the chooser stays pinned and the map pins only when it leaves sufficient reading room. Short screens retain normal map flow. Scrolling never runs code or selects projections. |
 | 5 | Wide desktop map, approximately 62% of the workspace; constrained prose and explicit full-width mode. |
 | 6 | Phone focus view uses dynamic viewport height and safe areas, Escape, focus containment, and return focus/scroll. Portrait expansion verified; landscape layout checked. |
 | 7 | Default `pan-y` lets scrolling pass over the map; Explore opts into dragging. Keyboard rotation, zoom, Done, and Reset exercised. Physical touch remains a device check. |
@@ -96,7 +96,26 @@ The diagnostic `cumulativeLayoutShift` is a simple sum of observed shifts, not t
 
 Important defects caught in this pass: an inverted 110m Antarctica closure; lake triangles crossing projection cuts; a narrow-screen Layers panel outside the viewport; cancellation losing an existing distance ring; a late target winning after selecting back to the already displayed map; opening the editor before the map's first visible frame; and stale output text beneath a later failed run. These were corrected and the relevant browser paths rerun.
 
-## Remaining device and release checks
+## Follow-up refinements
+
+### Mobile controls and map while reading
+
+The Learn/Experiment control and projection chooser stay beneath the site header at widths up to 900px. The map stays beneath those controls when the remaining reading space is at least 240px and 32% of the visible viewport. This uses the actual map and control heights, rather than assuming all phones or projections are the same size. Tall maps and short landscape screens keep normal map flow; the chooser remains available. The map is not reduced to make it sticky.
+
+Map/Python tabs stack beneath the chooser. In the Python pane the map is hidden, leaving the editor room to scroll. ResizeObserver and visual-viewport resize updates maintain the offsets; there is no scroll listener or additional rendering loop. Expanded mode remains a separate full-screen view and restores the previous scroll and focus on exit. Switching projections while reading returns to the new lesson's beginning.
+
+Checked in responsive browser viewports:
+
+| Viewport | Observed behavior |
+| --- | --- |
+| 320×740 | Mercator and controls pinned; 265px remained below the map. Globe released because its taller pane would crowd the reading. |
+| 390×844 | Pinch the equator pinned, with 358px below it; Map/Python tabs and the editor scrolled correctly. |
+| 476×1173 | Pinch the equator pinned, with about 633px of reading room; scrolling over the map moved the document normally. |
+| 768×1024 | AuthaGraph and Gall–Peters pinned, leaving 382px below; expand/Escape preserved a 410px scroll position. |
+| 844×390 | Chooser pinned; map scrolled away, keeping the lesson usable in landscape. |
+| 1440×900 | Existing side-by-side desktop layout and sticky map retained. |
+
+No horizontal document overflow was found in those viewports. Layers opened without moving the reading position, switching maps restored the lesson start, and Light/Dark sticky backgrounds were inspected. No browser warnings or errors were reported. The full lint, 126-test, TypeScript, and production build checks passed. These are browser viewport checks; physical touch and software-keyboard behavior remain device checks.
 
 ### Phone-width and dropdown refinement
 
