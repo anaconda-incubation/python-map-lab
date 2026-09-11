@@ -47,7 +47,7 @@ const FLAT_FOV = 12
 const TISSOT_RADIUS = 0.09
 
 export function globeCameraDistance(width: number, height: number): number {
-  const padding = width <= 600 ? 1.05 : 1.18
+  const padding = 1.035
   return padding / Math.sin((16 * Math.PI) / 180) / Math.min(1, viewportAspect(width, height))
 }
 
@@ -685,10 +685,8 @@ export class MapStage {
     const hFit = halfW / (Math.tan(((FLAT_FOV / 2) * Math.PI) / 180) * aspect)
     // The regular Mercator view fills its wider pane at every screen size.
     // Expansion disables fitWidth and restores the complete projected extent.
-    const compact = (this.container?.clientWidth ?? 800) <= 600
     const fit = this.fitWidth ? hFit : Math.max(vFit, hFit)
-    const tight = compact || this.fitWidth
-    const d = fit * (tight ? 1.035 : 1.08) + (tight ? 0 : 1)
+    const d = fit * 1.02
     const cx = (baked.bounds.minX + baked.bounds.maxX) / 2
     const visibleHalfH = d * Math.tan(((FLAT_FOV / 2) * Math.PI) / 180)
     // Keep more of the north; crop more of the oversized southern polar region.

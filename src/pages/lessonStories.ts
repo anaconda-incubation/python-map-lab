@@ -7,6 +7,7 @@ export const lessonStories: Record<
     history: string
     source: string
     sourceLabel: string
+    historySource?: { label: string; url: string }
   }
 > = {
   mercator: {
@@ -38,9 +39,13 @@ export const lessonStories: Record<
     objective:
       'Keep true relative areas while giving the world a rounded, readable outline. The coefficients balance appearance and shape distortion; they are design choices, not magic numbers.',
     history:
-      'Bojan Šavrič, Tom Patterson, and Bernhard Jenny introduced Equal Earth in 2018. They combined the useful area property with a familiar-looking world-map shape and published the formulas for others to implement.',
+      'Bojan Šavrič, Tom Patterson, and Bernhard Jenny introduced Equal Earth in 2018. They combined the useful area property with a familiar-looking world-map shape and published the formulas for others to implement. This is one of the equal-area projections the UN General Assembly recommended on September 4, 2026, for maps where relative size matters.',
     source: 'https://shadedrelief.com/ee_proj/',
     sourceLabel: 'Read the designers’ introduction',
+    historySource: {
+      label: 'Read the UN recommendation',
+      url: 'https://www.un.org/osaa/en/news/victory-africa-un-votes-resolution-correct-map',
+    },
   },
   authagraph: {
     question: 'Can we give every continent room?',

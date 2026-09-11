@@ -109,11 +109,20 @@ export default function HowItWorks() {
           foundation of every lesson.
         </p>
         <ul>
-          {lessons.map((l) => (
-            <li key={l.id}>
-              <a href={lessonStories[l.id].source}>{l.name}</a> — {lessonStories[l.id].history}
-            </li>
-          ))}
+          {lessons.map((l) => {
+            const story = lessonStories[l.id]
+            return (
+              <li key={l.id}>
+                <a href={story.source}>{l.name}</a> — {story.history}
+                {story.historySource && (
+                  <>
+                    {' '}
+                    <a href={story.historySource.url}>{story.historySource.label} ↗</a>
+                  </>
+                )}
+              </li>
+            )
+          })}
           <li>
             <a href="https://proj.org/en/stable/operations/projections/moll.html">Mollweide</a> —
             Karl Brandan Mollweide, 1805. The exercise uses the spherical equations; PROJ supplies

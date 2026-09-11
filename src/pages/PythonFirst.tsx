@@ -19,6 +19,7 @@ import type { RunProjectionResult } from '@/projection/worker-client'
 import { measure, diagnostics } from '@/utils/diagnostics'
 import { lessons } from './pythonLessons'
 import CircleGuide from './CircleGuide'
+import { isEditedDraft } from './drafts'
 import { lessonStories } from './lessonStories'
 import { variants } from './experimentRecipes'
 import { EqualEarthNote, LessonStory } from './LessonReading'
@@ -128,7 +129,8 @@ export default function PythonFirst() {
   currentSelection.current = location.key
   const preset = presetId(selection),
     baseCode = presetCode(selection)
-  const code = drafts[selection.id]?.code ?? baseCode
+  const savedDraft = drafts[selection.id]
+  const code = isEditedDraft(selection, savedDraft) ? savedDraft.code : baseCode
   const lesson = lessons.find((l) => l.id === selection.id)
   const experiment =
     selection.mode === 'experiments' ? variants[Number(selection.id.split('-')[1])] : undefined
@@ -189,7 +191,6 @@ export default function PythonFirst() {
     }
   }, [drafts])
   useEffect(() => {
-    if (!small) return
     const nav = workspaceNav.current,
       mapElement = mapSection.current,
       tabs = workspaceTabs.current
@@ -208,7 +209,13 @@ export default function PythonFirst() {
       root.style.setProperty('--pinned-map-height', `${mapHeight}px`)
       // Keep a meaningful reading area, including on short screens or with a keyboard open.
       const readingRoom = height - headerHeight - navHeight - tabsHeight - mapHeight
-      setCanPinMap(!expanded && mapHeight > 0 && readingRoom >= Math.max(240, height * 0.32))
+      setCanPinMap(
+        !expanded &&
+          mapHeight > 0 &&
+          (small
+            ? readingRoom >= Math.max(240, height * 0.32)
+            : mapHeight <= height - headerHeight - 24),
+      )
     }
     const observer = new ResizeObserver(update)
     for (const element of [nav, mapElement, tabs]) if (element) observer.observe(element)
@@ -717,6 +724,13 @@ export default function PythonFirst() {
               <a href={story.source} target="_blank" rel="noreferrer">
                 {story.sourceLabel} ↗
               </a>
+              {story.historySource && (
+                <p>
+                  <a href={story.historySource.url} target="_blank" rel="noreferrer">
+                    {story.historySource.label} ↗
+                  </a>
+                </p>
+              )}
               <h3>What changes on the map?</h3>
               <p>{lesson!.explanation}</p>
             </div>

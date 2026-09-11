@@ -57,8 +57,8 @@
   min-width: 0;
 }
 .map-section {
-  position: sticky;
-  top: 80px;
+  position: relative;
+  top: auto;
   border: 1px solid var(--hair);
   border-radius: 12px;
   background: var(--map-bg);
@@ -913,30 +913,35 @@
   margin-top: 4px;
   color: var(--fg-3);
 }
-.workspace-grid:not(.expanded) .map-canvas.mercator-map {
+.workspace-grid:not(.expanded) .map-canvas {
   width: 100%;
   height: auto;
   min-height: 0;
-  aspect-ratio: var(--map-aspect, 2);
+  aspect-ratio: var(--map-aspect, 1);
+}
+.workspace-grid:not(.expanded) .flat-map .map-preview {
+  /* Generated previews place a 700-unit-wide map in an 800-unit viewBox. */
+  width: calc(100% * 800 / 700 / 1.02);
+  max-width: none;
+  height: auto;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
 }
 .workspace-grid:not(.expanded) .mercator-map .map-preview {
-  object-fit: cover;
-  object-position: center 37.5%;
+  transform: translate(-50%, -42%);
 }
-@media (max-width: 600px) {
+@media (min-width: 901px) {
+  .can-pin-map:not(.expanded) .map-section {
+    position: sticky;
+    top: 80px;
+  }
+}
+@media (max-width: 900px) {
   .workspace-grid:not(.expanded) .map-section {
     width: calc(100% + 24px);
     margin-inline: -12px;
     border-inline: 0;
     border-radius: 0;
-  }
-}
-@media (max-width: 600px) and (min-height: 501px) {
-  .workspace-grid:not(.expanded) .map-canvas {
-    width: 100%;
-    height: auto;
-    aspect-ratio: var(--map-aspect, 1);
-    min-height: 180px;
   }
 }
 @media (max-height: 500px) and (max-width: 1000px) {
