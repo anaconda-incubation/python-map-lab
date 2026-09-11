@@ -142,9 +142,7 @@ export default function PythonFirst() {
       ? executed.aspectRatio
       : previewAspectRatio(preset)
   const paneAspect =
-    selection.id === 'mercator'
-      ? Math.max(1.5, resultAspect)
-      : Math.max(1, Math.min(3, resultAspect))
+    selection.id === 'mercator' ? Math.max(2, resultAspect) : Math.max(1, Math.min(3, resultAspect))
   const dirty = code !== baseCode && !custom
   const options = selection.mode === 'learn' ? destinations : activities
   const position = options.findIndex((o) => o.id === selection.id)
@@ -553,7 +551,11 @@ export default function PythonFirst() {
             </button>
           </div>
           <div
-            className={'map-canvas ' + (globe ? 'globe-map' : 'flat-map')}
+            className={
+              'map-canvas ' +
+              (globe ? 'globe-map' : 'flat-map') +
+              (selection.id === 'mercator' ? ' mercator-map' : '')
+            }
             style={{ '--map-aspect': paneAspect } as CSSProperties}
           >
             <img
@@ -664,9 +666,7 @@ export default function PythonFirst() {
                   : 'Our reference: a curved world, before we flatten it.'
                 : status}
             {selection.id === 'mercator' && !expanded && (
-              <span className="map-crop-note">
-                Polar edges may be cropped · Expand for the full map
-              </span>
+              <span className="map-crop-note">Polar regions cropped · Expand for the full map</span>
             )}
           </p>
           {(layers.area || layers.angle) && (

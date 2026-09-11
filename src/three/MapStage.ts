@@ -683,13 +683,17 @@ export class MapStage {
     const halfH = (baked.bounds.maxY - baked.bounds.minY) / 2
     const vFit = halfH / Math.tan(((FLAT_FOV / 2) * Math.PI) / 180)
     const hFit = halfW / (Math.tan(((FLAT_FOV / 2) * Math.PI) / 180) * aspect)
-    // Compact Mercator can crop polar extremes; expanded maps always fit fully.
+    // The regular Mercator view fills its wider pane at every screen size.
+    // Expansion disables fitWidth and restores the complete projected extent.
     const compact = (this.container?.clientWidth ?? 800) <= 600
-    const cropPoles = this.fitWidth && window.matchMedia('(max-width: 600px)').matches
-    const fit = compact && cropPoles ? hFit : Math.max(vFit, hFit)
-    const d = fit * (compact ? 1.035 : 1.08) + (compact ? 0 : 1)
+    const fit = this.fitWidth ? hFit : Math.max(vFit, hFit)
+    const tight = compact || this.fitWidth
+    const d = fit * (tight ? 1.035 : 1.08) + (tight ? 0 : 1)
     const cx = (baked.bounds.minX + baked.bounds.maxX) / 2
-    const cy = (baked.bounds.minY + baked.bounds.maxY) / 2
+    const visibleHalfH = d * Math.tan(((FLAT_FOV / 2) * Math.PI) / 180)
+    // Keep more of the north; crop more of the oversized southern polar region.
+    const northBias = this.fitWidth ? Math.max(0, halfH - visibleHalfH) * 0.25 : 0
+    const cy = (baked.bounds.minY + baked.bounds.maxY) / 2 + northBias
     return { position: [cx, cy, d], target: [cx, cy, 0], fov: FLAT_FOV }
   }
 

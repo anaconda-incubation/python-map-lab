@@ -909,14 +909,21 @@
   }
 }
 .map-crop-note {
-  display: none;
+  display: block;
+  margin-top: 4px;
+  color: var(--fg-3);
+}
+.workspace-grid:not(.expanded) .map-canvas.mercator-map {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: var(--map-aspect, 2);
+}
+.workspace-grid:not(.expanded) .mercator-map .map-preview {
+  object-fit: cover;
+  object-position: center 37.5%;
 }
 @media (max-width: 600px) {
-  .map-crop-note {
-    display: block;
-    margin-top: 4px;
-    color: var(--fg-3);
-  }
   .workspace-grid:not(.expanded) .map-section {
     width: calc(100% + 24px);
     margin-inline: -12px;

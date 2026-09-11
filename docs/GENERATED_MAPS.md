@@ -27,7 +27,7 @@ The reader view loads a precomputed map from the **same Python source** shown in
 
 ## Responsive map frames
 
-The normal build also runs `scripts/map-frames.mjs`. It reads the already-generated map bounds and writes the small `generated-frames.json` layout index. This keeps the initial phone pane proportional before downloading interactive geometry; it does not rerun Python or change projection assets. Custom Python results supply their own bounds after execution. Compact Mercator deliberately uses a wider, cropped viewport, with the full extent available through Expand.
+The normal build also runs `scripts/map-frames.mjs`. It reads the already-generated map bounds and writes the small `generated-frames.json` layout index. This keeps the initial phone pane proportional before downloading interactive geometry; it does not rerun Python or change projection assets. Custom Python results supply their own bounds after execution. The regular Mercator pane uses a 2:1 viewport at every screen width, fits the map horizontally, and biases the crop northward to remove more of the oversized southern polar region. Expand restores the full extent. This changes only the view, not the projection coordinates or notebook output.
 
 ## Challenge assets
 
