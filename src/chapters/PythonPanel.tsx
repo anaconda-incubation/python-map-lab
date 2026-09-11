@@ -41,6 +41,7 @@ export interface PythonPanelProps {
   runLabel?: string
   canRun?: boolean | string
   hideCulledVertexWarnings?: boolean
+  checkResult?: { samples: Samples; evaluate: (result: RunProjectionResult) => string }
   className?: string
 }
 const theme = EditorView.theme({
@@ -126,6 +127,7 @@ export default function PythonPanel(props: PythonPanelProps) {
     [running, setRunning] = useState(false)
   const [error, setError] = useState(''),
     [result, setResult] = useState<RunProjectionResult | null>(null)
+  const [checkReport, setCheckReport] = useState('')
   const [confirmReset, setConfirmReset] = useState(false)
   current.current = props
   function report(message: string) {
@@ -172,6 +174,9 @@ export default function PythonPanel(props: PythonPanelProps) {
           ]),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
+              setCheckReport('')
+              setResult(null)
+              if (!controller.current) setStage('Edits not run')
               source.current = update.state.doc.toString()
               current.current.onCodeChange?.(source.current)
               current.current.onEdit?.()
@@ -203,7 +208,16 @@ export default function PythonPanel(props: PythonPanelProps) {
     }
   }, [])
 
-  async function run(fromKeyboard: boolean) {
+  useEffect(() => {
+    if (view.current && initialCode !== source.current) {
+      view.current.dispatch({
+        changes: { from: 0, to: view.current.state.doc.length, insert: initialCode },
+      })
+      setCheckReport('')
+    }
+  }, [initialCode])
+
+  async function run(fromKeyboard: boolean, checking = false) {
     if (controller.current || !canRun) return
     const abort = new AbortController()
     controller.current = abort
@@ -211,18 +225,29 @@ export default function PythonPanel(props: PythonPanelProps) {
     setRunning(true)
     props.onRunStateChange?.(true)
     setError('')
+    setCheckReport('')
     setResult(null)
     report('Starting Python…')
     if (analyticsNotebook) track('Python Run', { notebook: analyticsNotebook })
     try {
+      if (executed.includes('raise NotImplementedError("Your projection is unfinished.'))
+        throw new Error(
+          'Your projection is unfinished. Open the first hint below the editor, then replace the TODOs with your calculation.',
+        )
       await pythonClient.warmup(abort.signal)
       report('Preparing sample points…')
-      const points = typeof samples === 'function' ? await samples() : samples
+      const points =
+        checking && props.checkResult
+          ? props.checkResult.samples
+          : typeof samples === 'function'
+            ? await samples()
+            : samples
       abort.signal.throwIfAborted()
       report('Running your function…')
       const output = await measure('python-execution', () =>
         pythonClient.runProjection(
-          supportCode ? `${supportCode}\n${executed}` : executed,
+          (supportCode ? `${supportCode}\n${executed}` : executed) +
+            (checking ? '\ncentral_meridian = 0\n' : ''),
           {},
           points.lon,
           points.lat,
@@ -230,6 +255,11 @@ export default function PythonPanel(props: PythonPanelProps) {
         ),
       )
       abort.signal.throwIfAborted()
+      if (checking && props.checkResult) {
+        setCheckReport(props.checkResult.evaluate(output))
+        report('Checks passed. Your map has not changed.')
+        return
+      }
       report('Preparing your map…')
       await props.onResult?.(output, executed, abort.signal, fromKeyboard)
       abort.signal.throwIfAborted()
@@ -243,7 +273,11 @@ export default function PythonPanel(props: PythonPanelProps) {
       else {
         const message = error instanceof Error ? error.message : String(error)
         setError(message.slice(0, 6000))
-        report('Could not update the map. Your code and last valid map are kept.')
+        report(
+          checking
+            ? 'Checks did not pass. Your code and map are kept.'
+            : 'Could not update the map. Your code and last valid map are kept.',
+        )
         if (analyticsNotebook)
           track('Python Run Completed', { notebook: analyticsNotebook, outcome: 'error' })
       }
@@ -263,6 +297,7 @@ export default function PythonPanel(props: PythonPanelProps) {
     })
     setResult(null)
     setError('')
+    setCheckReport('')
     report('Example restored.')
     props.onReset?.()
   }
@@ -293,6 +328,11 @@ export default function PythonPanel(props: PythonPanelProps) {
               {runLabel} →
             </button>
           )}
+          {props.checkResult && !running && (
+            <button disabled={!canRun} onClick={() => void run(false, true)}>
+              Check result
+            </button>
+          )}
           <button disabled={running} onClick={() => setConfirmReset(true)}>
             Reset
           </button>
@@ -317,6 +357,11 @@ export default function PythonPanel(props: PythonPanelProps) {
             <p>{error}</p>
           )}
         </div>
+      )}
+      {checkReport && (
+        <p className="check-report" role="status">
+          {checkReport}
+        </p>
       )}
       {warnings.map((warning) => (
         <p className="python-warning" key={warning}>

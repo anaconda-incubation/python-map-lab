@@ -7,6 +7,8 @@ export const fingerprintFiles = [
   'src/pages/experimentRecipes.ts',
   'src/pages/workspaceState.ts',
   'src/python/centered.py',
+  'src/python/mollweide-solution.py',
+  'src/python/mollweide-scaffold.py',
   'src/python/authagraph_lesson.py',
   'src/projection/bake.ts',
   'src/projection/geometry.ts',

@@ -8,6 +8,7 @@
  * while autorotating or animating fades; state changes invalidate once.
  */
 import * as THREE from 'three'
+import { viewportAspect } from './viewportAspect'
 import { recordFrame, rendererCount } from '../utils/diagnostics'
 import type { MapQuality } from '../projection/assets'
 import { SURFACE_GRID, surfacePositions, morphProgress } from '../projection/surface'
@@ -47,7 +48,7 @@ const TISSOT_RADIUS = 0.09
 
 export function globeCameraDistance(width: number, height: number): number {
   const padding = width <= 600 ? 1.05 : 1.18
-  return padding / Math.sin((16 * Math.PI) / 180) / Math.min(1, width / Math.max(1, height))
+  return padding / Math.sin((16 * Math.PI) / 180) / Math.min(1, viewportAspect(width, height))
 }
 
 /* ---------------- shaders ---------------- */
@@ -673,9 +674,11 @@ export class MapStage {
   }
 
   private flatCamera(baked: BakedProjection): CameraKeyframe {
-    const aspect = this.container
-      ? this.container.clientWidth / Math.max(1, this.container.clientHeight)
-      : 16 / 9
+    const aspect = viewportAspect(
+      this.container?.clientWidth ?? 0,
+      this.container?.clientHeight ?? 0,
+      this.camera.aspect,
+    )
     const halfW = (baked.bounds.maxX - baked.bounds.minX) / 2
     const halfH = (baked.bounds.maxY - baked.bounds.minY) / 2
     const vFit = halfH / Math.tan(((FLAT_FOV / 2) * Math.PI) / 180)
@@ -1191,8 +1194,10 @@ export class MapStage {
 
   private handleResize(): void {
     if (!this.renderer || !this.container) return
-    const w = Math.max(1, this.container.clientWidth)
-    const h = Math.max(1, this.container.clientHeight)
+    const w = this.container.clientWidth
+    const h = this.container.clientHeight
+    // display:none while editing must not create an infinite camera or erase its size.
+    if (!w || !h) return
     this.isMobile = w < 900
     const maxPixels = this.isMobile ? 1_000_000 : 3_000_000
     this.renderer.setPixelRatio(

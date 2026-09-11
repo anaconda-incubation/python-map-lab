@@ -1,5 +1,5 @@
 {
-  "version": "ac297567ba64d858",
+  "version": "8f102a886d15646d",
   "qualities": {
     "overview": {
       "geometry": {
@@ -11,6 +11,11 @@
           "data": "/maps/overview-globe-b0b788236075.mapdata",
           "bytes": 1361488,
           "preview": "/maps/globe-b19db94b5c1f.webp"
+        },
+        "mollweide": {
+          "data": "/maps/overview-mollweide-3172d9ade8e8.mapdata",
+          "bytes": 1843588,
+          "preview": "/maps/mollweide-db1ff3932e07.webp"
         },
         "mercator": {
           "data": "/maps/overview-mercator-7a4db70729f5.mapdata",
@@ -168,6 +173,10 @@
         "globe": {
           "data": "/maps/detail-globe-dd93944998d5.mapdata",
           "bytes": 7008376
+        },
+        "mollweide": {
+          "data": "/maps/detail-mollweide-1b86cd4ce8e4.mapdata",
+          "bytes": 9321675
         },
         "mercator": {
           "data": "/maps/detail-mercator-2b9dce0e0b24.mapdata",

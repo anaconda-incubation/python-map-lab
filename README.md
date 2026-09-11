@@ -31,6 +31,8 @@ GitHub Actions runs lint, all unit tests, and a production build on pushes and p
 - `src/pages/PythonFirst.tsx`: lesson navigation, editable projections, and map state.
 - `pythonLessons.ts`, `lessonStories.ts`, `LessonReading.tsx`: teaching content.
 - `experimentRecipes.ts` and `src/python/centered.py`: the six experiments.
+- `MollweideChallenge.tsx`, `mollweideChecks.ts`, and `src/python/mollweide-*.py`: the optional unfinished challenge, hints, solution, and reference checks.
+- `src/pages/HowItWorks.tsx`: the static colophon, downloads, setup, and credits.
 - `src/python/authagraph_lesson.py`: AuthaGraph helpers, including explicit point centering.
 - `src/chapters/PythonPanel.tsx`: CodeMirror and Python execution controls.
 - `src/components/MapView.tsx`: the active renderer, transitions, and globe interaction.
@@ -45,6 +47,8 @@ GitHub Actions runs lint, all unit tests, and a production build on pushes and p
 `node scripts/compare-baseline.mjs ../app` compares teaching content, Python mathematics, and notebook exports with a baseline checkout. It defaults to the adjacent `app` directory and is separate from production checks. Old routes redirect to the field guide.
 
 ## Teaching controls
+
+Start here introduces the distortion circles. Four projection lessons lead to Try your own, with six supplied experiments and an optional Mollweide challenge. The colophon at `/how-it-works` explains the implementation and links to all six standalone notebooks. `environment.yml` provides a conda environment for running them locally. See [the final teaching-flow review](docs/FINAL_POLISH_REVIEW.md) for validation and performance limits.
 
 Mercator, Gall–Peters, and Equal Earth use a `central_meridian` in degrees, positive east and negative west. AuthaGraph instead uses `center_lat` and `center_lon` to place a selected point at the rectangle's center. Centering changes its cuts, not its distortion properties. The azimuthal equidistant experiment preserves great-circle distances from its center and supports an optional ring up to 19,000 km.
 

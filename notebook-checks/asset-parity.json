@@ -1,6 +1,12 @@
 [
   {
     "quality": "overview",
+    "preset": "mollweide",
+    "checked_vertices": 4096,
+    "max_error": 2.9521688316158645e-08
+  },
+  {
+    "quality": "overview",
     "preset": "mercator",
     "checked_vertices": 4096,
     "max_error": 2.9795583111891233e-08
@@ -172,6 +178,12 @@
     "preset": "experiment-5-north-pole",
     "checked_vertices": 4096,
     "max_error": 2.9801881185065326e-08
+  },
+  {
+    "quality": "detail",
+    "preset": "mollweide",
+    "checked_vertices": 4096,
+    "max_error": 2.9653371313997923e-08
   },
   {
     "quality": "detail",

@@ -31,46 +31,7 @@
     13px/1.4 Inter,
     sans-serif;
 }
-.mode-switch {
-  display: flex;
-  gap: 4px;
-  padding: 3px;
-  background: var(--bg-2);
-  border-radius: 7px;
-}
-.mode-switch button {
-  min-height: 40px;
-  padding: 8px 20px;
-  border-radius: 5px;
-  color: var(--fg-2);
-}
-.mode-switch button[aria-pressed='true'] {
-  background: var(--fg);
-  color: var(--bg);
-}
-.projection-picker {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-left: auto;
-  min-width: 0;
-}
-.projection-picker select {
-  border-color: transparent;
-  background: var(--bg);
-  font-size: 15px;
-  min-width: 190px;
-}
-.step-count {
-  color: var(--fg-3);
-  font-size: 11px;
-  white-space: nowrap;
-}
-.step-arrows {
-  display: flex;
-  gap: 4px;
-}
-.step-arrows button,
+
 .icon-button {
   min-width: 44px;
   min-height: 44px;
@@ -82,7 +43,6 @@
   justify-content: center;
   border-radius: 5px;
 }
-.step-arrows button:hover:not(:disabled),
 .icon-button:hover {
   background: var(--bg-2);
 }
@@ -652,6 +612,10 @@
   text-align: right;
   font-weight: 500;
 }
+.lesson-next > .lesson-previous {
+  margin-left: auto;
+  white-space: nowrap;
+}
 .context-note {
   display: grid;
   grid-template-columns: 140px 1fr;
@@ -776,30 +740,6 @@
     gap: 6px;
     padding: 5px 0;
     min-height: 54px;
-  }
-  .mode-switch {
-    padding: 2px;
-    gap: 0;
-  }
-  .mode-switch button {
-    padding: 7px 10px;
-    min-height: 40px;
-    font-size: 11px;
-  }
-  .projection-picker {
-    gap: 0;
-    flex: 1;
-  }
-  .projection-picker select {
-    min-width: 0;
-    width: 100%;
-    font-size: 12px;
-    padding-left: 7px;
-    padding-right: 18px;
-  }
-  .step-count,
-  .step-arrows {
-    display: none;
   }
   .workspace-grid {
     display: flex;
@@ -1154,9 +1094,6 @@
   display: block;
 }
 @media (max-width: 900px) {
-  .mode-switch button {
-    min-height: 44px;
-  }
   .map-heading .icon-button {
     min-height: 44px;
     min-width: 44px;
@@ -1247,5 +1184,215 @@
   }
   .can-pin-map .lesson-reading :is(h2, h3, a, button, summary, select, [tabindex]) {
     scroll-margin-top: calc(var(--mobile-dock-top) + var(--pinned-map-height) + 16px);
+  }
+}
+
+/* One learning path, with activities local to Try your own. */
+.primary-destinations {
+  display: flex;
+  width: 100%;
+  gap: 4px;
+}
+.primary-destinations button {
+  flex: 1;
+  padding: 16px 8px;
+  min-height: 48px;
+  border-bottom: 3px solid transparent;
+  color: var(--fg-2);
+  font-size: 15px;
+}
+.primary-destinations button[aria-current] {
+  border-color: var(--accent);
+  background: var(--soft-accent);
+  color: var(--fg);
+}
+.primary-destinations button:hover {
+  background: var(--bg-2);
+}
+.primary-picker {
+  display: none;
+  width: 100%;
+}
+.primary-picker select {
+  width: 100%;
+}
+.activity-picker {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 0 0;
+  font:
+    13px/1.5 Inter,
+    sans-serif;
+}
+.activity-picker span {
+  color: var(--fg-3);
+}
+.mapmaker-purpose {
+  margin: 22px 0 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--hair);
+}
+.mapmaker-purpose p {
+  color: var(--fg-2);
+  margin: 12px 0;
+}
+.mapmaker-purpose a {
+  font:
+    12px/1.5 Inter,
+    sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.mapmaker-purpose h3 {
+  margin-top: 26px;
+  font-size: 22px;
+}
+.circle-guide {
+  margin: 28px 0;
+  border-top: 1px solid var(--hair);
+  padding-top: 24px;
+}
+.circle-guide h3 {
+  font-size: 26px;
+  margin: 8px 0 14px;
+}
+.circle-guide p {
+  margin-bottom: 18px;
+  color: var(--fg-2);
+}
+.circle-guide svg {
+  width: 100%;
+  max-width: 450px;
+  margin: 10px 0;
+}
+.guide-step,
+.check-report {
+  background: var(--soft-accent);
+  border-left: 2px solid var(--accent);
+  padding: 20px;
+  margin: 20px 0;
+}
+.guide-step p {
+  margin-bottom: 12px;
+}
+.challenge-support {
+  margin: 24px 0;
+}
+.challenge-support > p,
+.worked-solution p {
+  margin: 16px 0;
+}
+.challenge-hint {
+  padding: 16px;
+  border-left: 2px solid var(--hair);
+}
+.worked-solution {
+  margin: 24px 0;
+}
+.challenge-support a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.colophon-page {
+  max-width: 820px;
+  margin: auto;
+  padding: 40px var(--gutter) 64px;
+}
+.colophon-page > .eyebrow {
+  margin-top: 48px;
+}
+.colophon-page h1 {
+  font-size: clamp(38px, 6vw, 64px);
+  line-height: 1.1;
+  margin: 16px 0 24px;
+  letter-spacing: -0.04em;
+}
+.colophon-lede {
+  font-size: 25px;
+  color: var(--fg-2);
+}
+.colophon-page section {
+  margin-top: 42px;
+  padding-top: 30px;
+  border-top: 1px solid var(--hair);
+}
+.colophon-page h2 {
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+.colophon-page p,
+.colophon-page li {
+  margin: 16px 0;
+}
+.colophon-page a:not(.text-button) {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.colophon-page pre {
+  padding: 20px;
+  background: var(--bg-2);
+  font: 13px/1.8 monospace;
+  overflow-x: auto;
+}
+.colophon-page blockquote {
+  border-left: 2px solid var(--accent);
+  padding-left: 22px;
+  margin: 24px 0;
+  font-style: italic;
+  font-size: 23px;
+}
+.notebook-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 20px;
+}
+.colophon-page .notebook-links li {
+  margin: 0;
+}
+.site-footer > a {
+  font:
+    12px/1.5 Inter,
+    sans-serif;
+  color: var(--accent);
+}
+@media (max-width: 900px) {
+  .primary-destinations {
+    display: none;
+  }
+  .primary-picker {
+    display: block;
+  }
+  .workspace-nav {
+    padding: 6px 0;
+  }
+  .primary-picker select {
+    min-height: 48px;
+    background: var(--bg);
+  }
+  .activity-picker {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding-bottom: 6px;
+  }
+  .activity-picker label {
+    width: 100%;
+    color: var(--fg-3);
+    font-size: 11px;
+  }
+  .activity-picker select {
+    flex: 1;
+    min-width: 0;
+  }
+  .activity-picker span {
+    display: none;
+  }
+  .colophon-page {
+    padding-top: 24px;
+  }
+}
+@media (max-width: 400px) {
+  .notebook-links {
+    grid-template-columns: 1fr;
   }
 }

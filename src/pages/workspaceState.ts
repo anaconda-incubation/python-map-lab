@@ -1,3 +1,4 @@
+import scaffold from '@/python/mollweide-scaffold.py?raw'
 import { lessons } from './pythonLessons'
 import { variants, experimentCode } from './experimentRecipes'
 
@@ -9,6 +10,31 @@ export const experimentNames = [
   'Make a wave',
   'Center on a place',
 ]
+export const activities = [
+  ...experimentNames.map((name, i) => ({ id: 'experiment-' + i, name })),
+  { id: 'mollweide', name: 'Challenge: build Mollweide' },
+]
+export const destinations = [
+  { id: 'globe', name: 'Start here' },
+  ...lessons.map(({ id, name }) => ({ id, name })),
+  { id: 'try', name: 'Try your own' },
+]
+export function lastActivity(): string {
+  if (typeof window === 'undefined') return 'experiment-0'
+  try {
+    const id = sessionStorage.getItem('maps-last-activity')
+    return activities.some((a) => a.id === id) ? id! : 'experiment-0'
+  } catch {
+    return 'experiment-0'
+  }
+}
+export function rememberActivity(id: string) {
+  try {
+    sessionStorage.setItem('maps-last-activity', id)
+  } catch {
+    /* Optional convenience. */
+  }
+}
 export const cities = [
   { id: 'greenwich', name: 'Greenwich', lat: 51.5, lon: 0 },
   { id: 'new-york', name: 'New York', lat: 40.7, lon: -74 },
@@ -21,9 +47,7 @@ export function readSelection(search: string, hash = ''): Selection {
   const mode =
     params.get('mode') === 'experiments' || hash === '#experiments' ? 'experiments' : 'learn'
   const allowed =
-    mode === 'learn'
-      ? ['globe', ...lessons.map((l) => l.id)]
-      : variants.map((_, i) => `experiment-${i}`)
+    mode === 'learn' ? ['globe', ...lessons.map((l) => l.id)] : activities.map((a) => a.id)
   const id = allowed.includes(params.get('map') ?? '') ? params.get('map')! : allowed[0]
   const city = [...cities.map((c) => c.id), 'north-pole'].includes(params.get('place') ?? '')
     ? params.get('place')!
@@ -39,6 +63,7 @@ export function selectionUrl(selection: Selection) {
   return `/?${params}`
 }
 export function presetCode(selection: Selection) {
+  if (selection.id === 'mollweide') return scaffold
   const lesson = lessons.find((l) => l.id === selection.id)
   let code =
     lesson?.code ??
@@ -77,9 +102,7 @@ export function readDrafts(): Record<string, Draft> {
     return Object.fromEntries(
       Object.entries(saved).filter(
         ([id, value]) =>
-          [...lessons.map((l) => l.id), ...variants.map((_, i) => `experiment-${i}`)].includes(
-            id,
-          ) &&
+          [...lessons.map((l) => l.id), ...activities.map((a) => a.id)].includes(id) &&
           value &&
           typeof value.code === 'string' &&
           value.code.length < 100_000 &&

@@ -2,7 +2,7 @@
 
 September 11, 2026. Proposed work against `mobile-redesign` at `38875f7`.
 
-This is a plan, not an implementation. The current app was reviewed in the browser at 390×844 and 1440×900, alongside its navigation, lessons, experiment recipes, notebook export paths, and Sources drawer. The local preview was restarted at http://127.0.0.1:4177/. Existing notebook output changes in the worktree were left untouched.
+This approved plan is now implemented on `final-polish`; see [the completion review](FINAL_POLISH_REVIEW.md). The original review below describes the starting point. The current app was reviewed in the browser at 390×844 and 1440×900, alongside its navigation, lessons, experiment recipes, notebook export paths, and Sources drawer. The local preview was restarted at http://127.0.0.1:4177/. Existing notebook output changes in the worktree were left untouched.
 
 ## Review findings
 

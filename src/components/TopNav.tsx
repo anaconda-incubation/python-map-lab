@@ -21,10 +21,11 @@ export default function TopNav() {
         href="https://www.anaconda.com/"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="By Anaconda (opens in a new tab)"
+        aria-label="By Anaconda Incubation (opens in a new tab)"
       >
         <span>BY</span>
         <img src="/anaconda-logo.png" width="510" height="88" alt="Anaconda" />
+        <span>INCUBATION</span>
       </a>
       <nav className="atlas-nav-links" aria-label="Site">
         <button className="desktop-sources" onClick={() => openDrawer()}>

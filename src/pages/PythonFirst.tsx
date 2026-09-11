@@ -8,7 +8,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { track } from '@/analytics/events'
 import { useAppearance } from '@/hooks/useAppearance'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
@@ -18,11 +18,16 @@ import { previewAspectRatio, previewUrl, type MapQuality } from '@/projection/as
 import type { RunProjectionResult } from '@/projection/worker-client'
 import { measure, diagnostics } from '@/utils/diagnostics'
 import { lessons } from './pythonLessons'
+import CircleGuide from './CircleGuide'
+import { lessonStories } from './lessonStories'
 import { variants } from './experimentRecipes'
 import { EqualEarthNote, LessonStory } from './LessonReading'
 import {
   cities,
-  experimentNames,
+  activities,
+  destinations,
+  lastActivity,
+  rememberActivity,
   presetCode,
   presetId,
   readDrafts,
@@ -34,6 +39,8 @@ import {
 import './python-first.css'
 import DraftConfirmation from '@/components/DraftConfirmation'
 
+const MollweideChallenge = lazy(() => import('./MollweideChallenge'))
+const ChallengePythonPanel = lazy(() => import('./ChallengePythonPanel'))
 const MapView = lazy(() => import('@/components/MapView'))
 const PythonPanel = lazy(() => import('@/chapters/PythonPanel'))
 const EquationBlock = lazy(() => import('@/components/EquationBlock'))
@@ -70,6 +77,7 @@ export default function PythonFirst() {
   const selection = readSelection(location.search, location.hash)
   const { theme } = useAppearance(),
     { reducedMotion } = useReducedMotion()
+  const [guideStep, setGuideStep] = useState(0)
   const [drafts, setDrafts] = useState(readDrafts)
   const [editorId, setEditorId] = useState(''),
     [mobilePane, setMobilePane] = useState<'map' | 'code'>('map')
@@ -124,6 +132,7 @@ export default function PythonFirst() {
   const lesson = lessons.find((l) => l.id === selection.id)
   const experiment =
     selection.mode === 'experiments' ? variants[Number(selection.id.split('-')[1])] : undefined
+  const challenge = selection.id === 'mollweide'
   const globe = selection.id === 'globe',
     editorOpen = editorId === selection.id && !globe
   const custom =
@@ -137,19 +146,37 @@ export default function PythonFirst() {
       ? Math.max(1.5, resultAspect)
       : Math.max(1, Math.min(3, resultAspect))
   const dirty = code !== baseCode && !custom
-  const options =
-    selection.mode === 'learn'
-      ? [{ id: 'globe', name: 'Globe' }, ...lessons.map((l) => ({ id: l.id, name: l.name }))]
-      : experimentNames.map((name, i) => ({ id: 'experiment-' + i, name }))
+  const options = selection.mode === 'learn' ? destinations : activities
   const position = options.findIndex((o) => o.id === selection.id)
-  const title = options[position]?.name ?? 'Globe'
+  const title = options[position]?.name ?? 'Start here'
+  const primaryId = selection.mode === 'experiments' ? 'try' : selection.id
+  const story = lesson ? lessonStories[lesson.id] : undefined
+  function chooseDestination(id: string) {
+    choose(
+      id === 'try'
+        ? { mode: 'experiments', id: lastActivity(), city: '' }
+        : { mode: 'learn', id, city: '' },
+    )
+  }
+  function nextOption(id: string) {
+    if (id === 'try') chooseDestination(id)
+    else choose({ ...selection, id, city: '' })
+  }
+
   const description = globe
-    ? 'A globe keeps Earth’s geometry on a curved surface. To lay that surface flat, we have to stretch it or cut it. Each projection makes a different bargain.'
-    : (lesson?.explanation ?? experiment?.why)
+    ? 'A sailor needs a steady bearing. A reader comparing countries needs fair areas. Flattening Earth forces a choice: every projection preserves something and changes something else.'
+    : challenge
+      ? 'Can you turn a sphere into a 2:1 ellipse while keeping relative areas? Build a Mollweide projection, step by step. The map is your target; your own function starts unfinished.'
+      : (story?.objective ?? experiment?.why)
   const question = globe
     ? 'What changes when we flatten the world?'
-    : (lesson?.question ?? 'What will this change do to the world?')
+    : challenge
+      ? 'Your challenge: an equal-area world.'
+      : (story?.question ?? 'What will this change do to the world?')
 
+  useEffect(() => {
+    if (selection.mode === 'experiments') rememberActivity(selection.id)
+  }, [selection.mode, selection.id])
   useEffect(() => {
     const query = matchMedia('(max-width: 900px)')
     const update = () => setSmall(query.matches)
@@ -158,7 +185,10 @@ export default function PythonFirst() {
   }, [])
   useEffect(() => {
     const timer = setTimeout(() => writeDrafts(drafts), 250)
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer)
+      writeDrafts(drafts)
+    }
   }, [drafts])
   useEffect(() => {
     if (!small) return
@@ -239,7 +269,11 @@ export default function PythonFirst() {
     setShareMessage('')
     if (next.mode !== selection.mode) track('Mode Selected', { mode: next.mode })
     if (next.mode === 'learn') track('Projection Selected', { projection: next.id })
-    else track('Experiment Selected', { experiment: variants[Number(next.id.split('-')[1])].name })
+    else {
+      rememberActivity(next.id)
+      if (next.id !== 'mollweide')
+        track('Experiment Selected', { experiment: variants[Number(next.id.split('-')[1])].name })
+    }
     void navigate(
       selectionUrl(next) +
         (new URLSearchParams(location.search).has('diagnostics') ? '&diagnostics' : ''),
@@ -249,6 +283,7 @@ export default function PythonFirst() {
       void frames().then(() => workspace.scrollIntoView({ block: 'start', behavior: 'instant' }))
   }
   function edit(nextCode: string) {
+    if (!running) setRunMessage('Edits not run. Your last valid map is kept.')
     setDrafts((previous) => ({ ...previous, [selection.id]: { code: nextCode, preset } }))
   }
   function openEditor() {
@@ -289,13 +324,13 @@ export default function PythonFirst() {
     const samples = await getProjectionSamples(quality)
     signal.throwIfAborted()
     const projected = projectionFromSamples(samples, result)
-    if (!projected.hasArea)
-      throw new Error(
-        'This function collapses the map to a line or point. Both x and y must span an area.',
-      )
     if (projected.invalidCount && !experiment?.allowGaps)
       throw new Error(
         'Some coordinates are not finite. Check logarithms, division by zero, and square roots. Your code and last valid map have been kept.',
+      )
+    if (!projected.hasArea)
+      throw new Error(
+        'This function collapses the map to a line or point. Both x and y must span an area.',
       )
     setRunMessage('Preparing the map…')
     const baked = await measure('result-geometry', () =>
@@ -366,15 +401,18 @@ export default function PythonFirst() {
           { id: 'north-pole', name: 'North Pole', lat: 90, lon: 0 },
         ]
       : cities
+  const Panel = challenge ? ChallengePythonPanel : PythonPanel
   const status = running
     ? runMessage || 'Running your Python…'
     : custom
       ? 'Your Python result'
       : executed?.key === location.key
         ? 'Previous Python result · your edits have not run'
-        : dirty
-          ? 'Example preview · your edits have not run'
-          : 'Example preview · generated with this Python'
+        : challenge
+          ? 'Target preview · complete the scaffold to draw your result'
+          : dirty
+            ? 'Example preview · your edits have not run'
+            : 'Example preview · generated with this Python'
 
   return (
     <div className="atlas-document">
@@ -389,59 +427,55 @@ export default function PythonFirst() {
         </p>
       </section>
       <div className="workspace-nav" ref={workspaceNav}>
-        <div className="mode-switch" role="group" aria-label="Choose how to explore">
-          <button
-            aria-pressed={selection.mode === 'learn'}
-            onClick={() => choose({ mode: 'learn', id: 'globe', city: '' })}
-            disabled={running}
-          >
-            Learn
-          </button>
-          <button
-            aria-pressed={selection.mode === 'experiments'}
-            onClick={() => choose({ mode: 'experiments', id: 'experiment-0', city: '' })}
-            disabled={running}
-          >
-            Experiment
-          </button>
-        </div>
-        <div className="projection-picker">
+        <nav className="primary-destinations" aria-label="Explore maps">
+          {destinations.map((item) => (
+            <button
+              key={item.id}
+              aria-current={primaryId === item.id ? 'page' : undefined}
+              disabled={running}
+              onClick={() => chooseDestination(item.id)}
+            >
+              {item.name}
+            </button>
+          ))}
+        </nav>
+        <div className="primary-picker">
           <label className="sr-only" htmlFor="projection">
-            Choose {selection.mode === 'learn' ? 'a projection' : 'an experiment'}
+            Explore maps
           </label>
           <select
             id="projection"
-            value={selection.id}
+            value={primaryId}
             disabled={running}
-            onChange={(e) => choose({ ...selection, id: e.target.value, city: '' })}
+            onChange={(e) => chooseDestination(e.target.value)}
           >
-            {options.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.name}
+            {destinations.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
               </option>
             ))}
           </select>
-          <span className="step-count">
-            {position + 1} / {options.length}
-          </span>
-        </div>
-        <div className="step-arrows">
-          <button
-            aria-label="Previous map"
-            disabled={position === 0 || running}
-            onClick={() => choose({ ...selection, id: options[position - 1].id, city: '' })}
-          >
-            ←
-          </button>
-          <button
-            aria-label="Next map"
-            disabled={position === options.length - 1 || running}
-            onClick={() => choose({ ...selection, id: options[position + 1].id, city: '' })}
-          >
-            →
-          </button>
         </div>
       </div>
+      {selection.mode === 'experiments' && (
+        <div className="activity-picker">
+          <label htmlFor="activity">Choose an experiment</label>
+          <select
+            id="activity"
+            disabled={running}
+            value={selection.id}
+            onChange={(e) => choose({ mode: 'experiments', id: e.target.value, city: '' })}
+          >
+            {activities.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+          <span>Start with one change. Predict, then run.</span>
+        </div>
+      )}
+
       {editorOpen && (
         <div
           className="mobile-workspace-tabs"
@@ -531,7 +565,9 @@ export default function PythonFirst() {
                 '. ' +
                 (globe
                   ? 'The curved Earth preserves its geometry.'
-                  : (lesson?.promise ?? experiment?.name))
+                  : (lesson?.promise ??
+                    experiment?.name ??
+                    'A target ellipse with equal relative areas'))
               }
               fetchPriority="high"
             />
@@ -586,7 +622,14 @@ export default function PythonFirst() {
                 <span aria-hidden="true"> ⤢</span>
               </button>
             ) : (
-              <span className="map-kind">{lesson?.promise ?? 'A change in the rules'}</span>
+              <span className="map-kind">
+                {lesson?.promise ??
+                  (challenge
+                    ? executed
+                      ? 'Your function · compare with the target'
+                      : 'Mollweide · equal-area target'
+                    : 'A change in the rules')}
+              </span>
             )}
             <MapOptions
               distortion={distortion}
@@ -647,9 +690,14 @@ export default function PythonFirst() {
           {globe && (
             <button
               className="primary-button mobile-first-action"
-              onClick={() => choose({ mode: 'learn', id: 'mercator', city: '' })}
+              onClick={() => {
+                setDistortion('circles')
+                setGuideStep(2)
+                choose({ mode: 'learn', id: 'mercator', city: '' })
+              }}
             >
-              Flatten the globe <span aria-hidden="true">→</span>
+              {guideStep === 1 ? 'Now flatten the circles' : 'Flatten the globe'}{' '}
+              <span aria-hidden="true">→</span>
             </button>
           )}
         </section>
@@ -663,14 +711,73 @@ export default function PythonFirst() {
           </p>
           <h2>{question}</h2>
           <p className="lesson-lede">{description}</p>
+          {story && (
+            <div className="mapmaker-purpose">
+              <p>{story.history}</p>
+              <a href={story.source} target="_blank" rel="noreferrer">
+                {story.sourceLabel} ↗
+              </a>
+              <h3>What changes on the map?</h3>
+              <p>{lesson!.explanation}</p>
+            </div>
+          )}
+          {guideStep === 2 && selection.id === 'mercator' && (
+            <aside className="guide-step">
+              <p>
+                <strong>2 · Same circles, different sizes.</strong> Mercator keeps small angles, but
+                the circles grow toward the poles.
+              </p>
+              <button
+                className="text-button"
+                onClick={() => {
+                  setDistortion('circles')
+                  setGuideStep(3)
+                  choose({ mode: 'learn', id: 'gallPeters', city: '' })
+                }}
+              >
+                Compare with Gall–Peters →
+              </button>
+            </aside>
+          )}
+          {guideStep === 3 && selection.id === 'gallPeters' && (
+            <aside className="guide-step">
+              <p>
+                <strong>3 · Same area, different shapes.</strong> The ellipses change shape while
+                keeping their relative area. Which tradeoff suits your map?
+              </p>
+              <button
+                className="text-button"
+                onClick={() => {
+                  setGuideStep(1)
+                  setDistortion('circles')
+                  choose({ mode: 'learn', id: 'globe', city: '' })
+                }}
+              >
+                Restart the circle guide →
+              </button>
+            </aside>
+          )}
           {globe ? (
             <>
-              <button
-                className="primary-button"
-                onClick={() => choose({ mode: 'learn', id: 'mercator', city: '' })}
-              >
-                Flatten the globe <span aria-hidden="true">→</span>
-              </button>
+              <CircleGuide
+                active={guideStep > 0}
+                start={() => {
+                  setDistortion('circles')
+                  setGuideStep(1)
+                  showMap()
+                }}
+              />
+              {guideStep === 1 && (
+                <button
+                  className="text-button"
+                  onClick={() => {
+                    setGuideStep(2)
+                    choose({ mode: 'learn', id: 'mercator', city: '' })
+                  }}
+                >
+                  Now flatten the circles →
+                </button>
+              )}
               <blockquote>
                 A map is an optimization problem.
                 <br />
@@ -690,7 +797,8 @@ export default function PythonFirst() {
                     ? 'Choose another city. What happens to the cuts?'
                     : lesson
                       ? 'Turn on distortion circles. Where do they stretch the most?'
-                      : 'Compare this preview with Mercator. What changed?'}
+                      : (experiment?.prediction ??
+                        'Before coding: what should happen to the equator, the poles, and the outline?')}
                 </p>
                 {lesson && (
                   <button
@@ -704,7 +812,7 @@ export default function PythonFirst() {
                   </button>
                 )}
               </div>
-              {(!experiment || experiment.allowGaps) && (
+              {(lesson || experiment?.allowGaps) && (
                 <div className="place-presets">
                   <label htmlFor="place-preset">
                     {lesson?.id === 'authagraph' || experiment
@@ -748,7 +856,7 @@ export default function PythonFirst() {
                   <p>Change the function. Run it here.</p>
                 </div>
                 <button className="primary-button" onClick={openEditor}>
-                  {editorOpen ? 'Return to Python' : 'Edit Python'}{' '}
+                  {editorOpen ? 'Return to Python' : challenge ? 'Start coding' : 'Edit Python'}{' '}
                   <span aria-hidden="true">↗</span>
                 </button>
               </div>
@@ -760,7 +868,8 @@ export default function PythonFirst() {
                 <a href="https://pyodide.org/" target="_blank" rel="noreferrer">
                   Pyodide
                 </a>
-                . Loads when you open Python.
+                . Loads when you open Python.{' '}
+                <Link to={'/how-it-works' + location.search}>How this was built →</Link>
               </p>
               {experiment && (
                 <pre className="selected-equation" tabIndex={0} aria-label="Selected equation">
@@ -837,11 +946,14 @@ export default function PythonFirst() {
             <details className="python-guidance" open={!small}>
               <summary>What to change</summary>
               <p>
-                {lesson?.change ?? 'Change one operation, predict the result, then run your code.'}
+                {challenge
+                  ? 'Build the missing projection steps. You can ask for one hint at a time below the editor.'
+                  : (lesson?.change ??
+                    'Change one operation, predict the result, then run your code.')}
               </p>
             </details>
             <Suspense fallback={<p className="editor-loading">Opening the Python editor…</p>}>
-              <PythonPanel
+              <Panel
                 key={selection.id + ':' + selection.city}
                 filename={lesson ? lesson.id + '.py' : 'what_if.py'}
                 analyticsNotebook={lesson?.id ?? experiment?.name}
@@ -866,6 +978,11 @@ export default function PythonFirst() {
                 }}
               />
             </Suspense>
+            {challenge && (
+              <Suspense fallback={<p>Opening the challenge…</p>}>
+                <MollweideChallenge replace={edit} running={running} />
+              </Suspense>
+            )}
             {runMessage && (
               <p className="run-message" role="status">
                 {runMessage}
@@ -898,11 +1015,18 @@ export default function PythonFirst() {
         <span>
           {position + 1} of {options.length} · {title}
         </span>
-        {position < options.length - 1 ? (
+        {position > 0 && (
           <button
+            className="lesson-previous"
             disabled={running}
-            onClick={() => choose({ ...selection, id: options[position + 1].id, city: '' })}
+            aria-label={'Previous: ' + options[position - 1].name}
+            onClick={() => nextOption(options[position - 1].id)}
           >
+            ← Previous
+          </button>
+        )}
+        {position < options.length - 1 ? (
+          <button disabled={running} onClick={() => nextOption(options[position + 1].id)}>
             Next: {options[position + 1].name} →
           </button>
         ) : (

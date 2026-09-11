@@ -1,6 +1,7 @@
 export const lessonStories: Record<
   string,
   {
+    question: string
     simple: string
     objective: string
     history: string
@@ -9,6 +10,7 @@ export const lessonStories: Record<
   }
 > = {
   mercator: {
+    question: 'Which way should a sailor steer?',
     simple:
       'Imagine putting the Earth inside a paper tube. Longitude tells us how far to move sideways. Near the poles, the real Earth’s east–west circles get smaller, but our paper stays wide. The logarithm stretches the paper vertically to match. Small angles keep their shape, while countries near the poles look much larger.',
     objective:
@@ -19,6 +21,7 @@ export const lessonStories: Record<
     sourceLabel: 'Read the USGS projection guide',
   },
   gallPeters: {
+    question: 'How much of the world does each place occupy?',
     simple:
       'Think of a country as a piece of stretchy dough. We can make it taller and narrower without adding dough. The cosine shrinks the horizontal direction, and the sine-based vertical formula compensates. Countries keep the right amount of space, but their shapes change.',
     objective:
@@ -29,6 +32,7 @@ export const lessonStories: Record<
     sourceLabel: 'Read the USGS map-projection manual',
   },
   equalEarth: {
+    question: 'Can a familiar world map keep areas fair?',
     simple:
       'Instead of forcing the world into a rectangle, let its sides curve. The polynomial decides the vertical position. Its derivative tells us how much that position is stretching locally; dividing by it adjusts the width so the area still balances.',
     objective:
@@ -39,6 +43,7 @@ export const lessonStories: Record<
     sourceLabel: 'Read the designers’ introduction',
   },
   authagraph: {
+    question: 'Can we give every continent room?',
     simple:
       'Imagine marking places on a ball. First rotate it so your chosen latitude and longitude will land in the middle of the finished map. Then move the marks onto a four-sided solid and open it into a flat sheet. The code finds the region for each place, flattens it, and arranges the pieces into a rectangle. Changing the center also moves the cuts.',
     objective:

@@ -1,0 +1,10 @@
+name: maps-with-python
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.11
+  - numpy
+  - matplotlib
+  - geopandas
+  - jupyterlab
+  - pyproj

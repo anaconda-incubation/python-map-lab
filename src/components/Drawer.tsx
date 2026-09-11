@@ -1,3 +1,4 @@
+import { Link, useLocation } from 'react-router'
 import {
   createContext,
   useCallback,
@@ -23,33 +24,21 @@ interface SourcesDrawerContextValue {
   closeDrawer: () => void
 }
 
-const SourcesDrawerContext = createContext<SourcesDrawerContextValue | null>(
-  null,
-)
+const SourcesDrawerContext = createContext<SourcesDrawerContextValue | null>(null)
 
 export function SourcesDrawerProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
   const openDrawer = useCallback(() => setOpen(true), [])
   const closeDrawer = useCallback(() => setOpen(false), [])
-  const value = useMemo(
-    () => ({ open, openDrawer, closeDrawer }),
-    [open, openDrawer, closeDrawer],
-  )
-  return (
-    <SourcesDrawerContext.Provider value={value}>
-      {children}
-    </SourcesDrawerContext.Provider>
-  )
+  const value = useMemo(() => ({ open, openDrawer, closeDrawer }), [open, openDrawer, closeDrawer])
+  return <SourcesDrawerContext.Provider value={value}>{children}</SourcesDrawerContext.Provider>
 }
 
 // Public helper intentionally colocated with its provider or teaching component.
 // eslint-disable-next-line react-refresh/only-export-components
 export function useSourcesDrawer(): SourcesDrawerContextValue {
   const ctx = useContext(SourcesDrawerContext)
-  if (!ctx)
-    throw new Error(
-      'useSourcesDrawer must be used inside <SourcesDrawerProvider>',
-    )
+  if (!ctx) throw new Error('useSourcesDrawer must be used inside <SourcesDrawerProvider>')
   return ctx
 }
 
@@ -112,8 +101,7 @@ const SOURCES: SourceEntry[] = [
   },
   {
     chapter: 'Geometry',
-    citation:
-      'Natural Earth vector data (110m and 50m land, lakes, coastline) — public domain.',
+    citation: 'Natural Earth vector data (110m and 50m land, lakes, coastline) — public domain.',
     href: 'https://www.naturalearthdata.com/about/terms-of-use/',
   },
   {
@@ -131,6 +119,7 @@ const FOCUSABLE =
 
 export default function Drawer() {
   const { open, closeDrawer } = useSourcesDrawer()
+  const location = useLocation()
   const panelRef = useRef<HTMLDivElement>(null)
   const lastFocused = useRef<HTMLElement | null>(null)
 
@@ -148,9 +137,9 @@ export default function Drawer() {
       }
       if (e.key !== 'Tab' || !panel) return
       // Focus trap
-      const items = Array.from(
-        panel.querySelectorAll<HTMLElement>(FOCUSABLE),
-      ).filter((el) => el.offsetParent !== null)
+      const items = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+        (el) => el.offsetParent !== null,
+      )
       if (items.length === 0) return
       const firstEl = items[0]
       const lastEl = items[items.length - 1]
@@ -236,16 +225,10 @@ export default function Drawer() {
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <div className="min-w-0 break-words">
-                  <p
-                    className="font-ui text-label uppercase"
-                    style={{ color: 'var(--gold)' }}
-                  >
+                  <p className="font-ui text-label uppercase" style={{ color: 'var(--gold)' }}>
                     {s.chapter}
                   </p>
-                  <p
-                    className="mt-1 font-body text-body-sm"
-                    style={{ color: 'var(--fg-2)' }}
-                  >
+                  <p className="mt-1 font-body text-body-sm" style={{ color: 'var(--fg-2)' }}>
                     {s.citation}
                   </p>
                   <a
@@ -261,36 +244,27 @@ export default function Drawer() {
               </li>
             ))}
           </ol>
-          <section
-            className="mt-8 border-t pt-6"
-            style={{ borderColor: 'var(--hair)' }}
-          >
-            <h2 className="kicker mb-3">Colophon &amp; credits</h2>
-            <p
-              className="font-ui text-caption"
-              style={{ color: 'var(--fg-2)' }}
-            >
-              Type: Source Serif 4, Inter, JetBrains Mono.
-              Mathematics: KaTeX. Built with Three.js · NumPy · Pyodide.
-              Geography: Natural Earth 110m and 50m · NASA Blue Marble. AuthaGraph
-              formulas after Narukawa (2022); Equal Earth after Šavrič,
-              Patterson &amp; Jenny (2018).
+          <section className="mt-8 border-t pt-6" style={{ borderColor: 'var(--hair)' }}>
+            <h2 className="kicker mb-3">
+              <Link to={'/how-it-works' + location.search} onClick={closeDrawer}>
+                How this was built →
+              </Link>
+            </h2>
+            <p className="font-ui text-caption" style={{ color: 'var(--fg-2)' }}>
+              Type: Source Serif 4, Inter, JetBrains Mono. Mathematics: KaTeX. Built with Three.js ·
+              NumPy · Pyodide. Geography: Natural Earth 110m and 50m · NASA Blue Marble. AuthaGraph
+              formulas after Narukawa (2022); Equal Earth after Šavrič, Patterson &amp; Jenny
+              (2018).
             </p>
           </section>
           <details className="mt-6">
-            <summary className="kicker cursor-pointer">
-              About geographical names
-            </summary>
-            <p
-              className="mt-3 font-body text-caption"
-              style={{ color: 'var(--fg-2)' }}
-            >
-              This site uses internationally recognized geographical names as
-              standardized through the UN Group of Experts on Geographical Names
-              (UNGEGN) process and, for marine features, the International
-              Hydrographic Organization. Names are drawn from a curated static
-              dataset. No live map, geocoding, or naming API is consulted at
-              runtime. Geometry: Natural Earth (public domain).
+            <summary className="kicker cursor-pointer">About geographical names</summary>
+            <p className="mt-3 font-body text-caption" style={{ color: 'var(--fg-2)' }}>
+              This site uses internationally recognized geographical names as standardized through
+              the UN Group of Experts on Geographical Names (UNGEGN) process and, for marine
+              features, the International Hydrographic Organization. Names are drawn from a curated
+              static dataset. No live map, geocoding, or naming API is consulted at runtime.
+              Geometry: Natural Earth (public domain).
             </p>
           </details>
         </div>

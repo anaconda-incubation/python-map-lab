@@ -1,11 +1,13 @@
+import { lessonStories } from './lessonStories'
 import type { Lesson } from './pythonLessons'
 
 /** Self-contained geography, so the downloaded notebook needs no data URLs. */
 export function lessonNotebook(
-  lesson: Lesson,
+  lesson: Pick<Lesson, 'id' | 'name' | 'explanation' | 'change' | 'annotations' | 'question'>,
   code: string,
   geography: unknown,
 ) {
+  const story = lessonStories[lesson.id]
   const markdown = (id: string, source: string) => ({
     id,
     cell_type: 'markdown',
@@ -41,7 +43,7 @@ export function lessonNotebook(
     cells: [
       markdown(
         'intro',
-        `# ${lesson.name}: a world from a function\n\n${lesson.explanation}\n\nRun cells from top to bottom. This notebook includes Natural Earth land geometry and uses GeoPandas, NumPy and Matplotlib. nteract reads the declared dependencies; other notebook environments can use the setup cell. First-time installation requires internet access.`,
+        `# ${lesson.name}: a world from a function\n\n${story ? `${story.objective}\n\n${story.history}\n\n[${story.sourceLabel}](${story.source})\n\n## The tradeoff\n\n` : ''}${lesson.explanation}\n\nBefore running: ${lesson.question} Make a prediction, then compare it with the map.\n\nRun cells from top to bottom. This notebook includes Natural Earth land geometry and uses GeoPandas, NumPy and Matplotlib. nteract reads the declared dependencies; other notebook environments can use the setup cell. First-time installation requires internet access.`,
       ),
       cell(
         'setup',

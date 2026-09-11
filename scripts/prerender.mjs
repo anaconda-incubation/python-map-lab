@@ -37,4 +37,7 @@ await fs.writeFile(
   'dist/index.html',
   html.replace('<div id="root"></div>', `<div id="root">${render()}</div>`),
 )
+await fs.copyFile('environment.yml', 'dist/environment.yml')
+await fs.mkdir('dist/how-it-works', { recursive: true })
+await fs.writeFile('dist/how-it-works/index.html', html.replace('<div id="root"></div>', `<div id="root">${render('/how-it-works')}</div>`))
 console.log('Prerendered the opening map and complete introductory reading.')

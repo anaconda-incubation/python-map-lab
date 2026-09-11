@@ -7,6 +7,8 @@ import { buildMasterGeometry, buildGraticule, type GeoData } from '../src/projec
 import { bakeFromFunction } from '../src/projection/bake'
 import { collectSamples, sampledProjection } from '../src/projection/sample-layout'
 import { pack, unpack } from '../src/projection/packed'
+import mollweideSolution from '../src/python/mollweide-solution.py?raw'
+import { challengeNotebook } from '../src/pages/challengeNotebook'
 import { lessons } from '../src/pages/pythonLessons'
 import { variants } from '../src/pages/experimentRecipes'
 import { cities, presetCode, presetId, type Selection } from '../src/pages/workspaceState'
@@ -20,6 +22,7 @@ const root = process.cwd(),
   temporary = path.join(root, '.asset-build')
 fs.mkdirSync(output, { recursive: true })
 const selections: Selection[] = [
+  { mode: 'experiments', id: 'mollweide', city: '' },
   ...lessons.map((l) => ({ mode: 'learn' as const, id: l.id, city: '' })),
   ...variants.map((_, i) => ({ mode: 'experiments' as const, id: 'experiment-' + i, city: '' })),
   ...lessons.flatMap((l) =>
@@ -34,7 +37,11 @@ const selections: Selection[] = [
 const sources = selections.map((selection) => ({
   id: presetId(selection),
   code:
-    (lessons.find((l) => l.id === selection.id)?.supportCode ?? '') + '\n' + presetCode(selection),
+    selection.id === 'mollweide'
+      ? mollweideSolution
+      : (lessons.find((l) => l.id === selection.id)?.supportCode ?? '') +
+        '\n' +
+        presetCode(selection),
 }))
 const version = assetFingerprint()
 const writeData = (name: string, value: unknown) => {
@@ -194,6 +201,23 @@ if (process.argv[2] === 'prepare') {
     )
       fs.writeFileSync(checkPath, notebook)
     fs.writeFileSync('public/notebooks/' + lesson.id + '-lesson.ipynb', notebook)
+  }
+  for (const kind of ['exercise', 'solution'] as const) {
+    const notebook = JSON.stringify(challengeNotebook(kind, land), null, 2)
+    fs.writeFileSync('public/notebooks/mollweide-' + kind + '.ipynb', notebook)
+    const check = 'notebook-checks/mollweide-' + kind + '.ipynb'
+    if (
+      !fs.existsSync(check) ||
+      JSON.stringify(
+        JSON.parse(fs.readFileSync(check, 'utf8')).cells.map((c: { source: string[] }) =>
+          c.source.join(''),
+        ),
+      ) !==
+        JSON.stringify(
+          JSON.parse(notebook).cells.map((c: { source: string[] }) => c.source.join('')),
+        )
+    )
+      fs.writeFileSync(check, notebook)
   }
   console.log(`Generated maps from canonical Python. Source version ${version}`)
 } else {

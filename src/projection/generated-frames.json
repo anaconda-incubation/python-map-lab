@@ -1,5 +1,6 @@
 {
   "globe": 1,
+  "mollweide": 2,
   "mercator": 1.0032865959001493,
   "gallPeters": 1.5707963267948968,
   "equalEarth": 2.054582130002854,
