@@ -621,15 +621,18 @@ export default function PythonFirst() {
           </div>
           <div className="map-toolbar">
             {globe ? (
-              <button
-                className={exploring ? 'selected' : ''}
-                aria-pressed={exploring}
-                disabled={!mapReady}
-                onClick={() => setExploring((v) => !v)}
-              >
-                {exploring ? 'Done exploring' : 'Explore globe'}
-                <span aria-hidden="true"> ⤢</span>
-              </button>
+              <>
+                <span className="map-kind mouse-globe-hint">Drag to rotate</span>
+                <button
+                  className={'touch-globe-control' + (exploring ? ' selected' : '')}
+                  aria-pressed={exploring}
+                  disabled={!mapReady}
+                  onClick={() => setExploring((v) => !v)}
+                >
+                  {exploring ? 'Done rotating' : 'Rotate globe'}
+                  <span aria-hidden="true"> ⤢</span>
+                </button>
+              </>
             ) : (
               <span className="map-kind">
                 {lesson?.promise ??
@@ -665,13 +668,24 @@ export default function PythonFirst() {
             </button>
           </div>
           <p className="map-caption" role="status">
-            {mapChanging && !running
-              ? 'Changing to ' + title + '…'
-              : globe
-                ? exploring
-                  ? 'Drag or use arrow keys to turn. + / − zoom. Done returns to reading.'
-                  : 'Our reference: a curved world, before we flatten it.'
-                : status}
+            {mapChanging && !running ? (
+              'Changing to ' + title + '…'
+            ) : globe ? (
+              exploring ? (
+                'Drag or use arrow keys to turn. + / − zoom. Done returns to reading.'
+              ) : (
+                <>
+                  <span className="mouse-globe-hint">
+                    Grab the globe to turn it. Arrow keys also work; + / − zoom.
+                  </span>
+                  <span className="touch-globe-control">
+                    Swipe to scroll. Tap Rotate globe to turn the world.
+                  </span>
+                </>
+              )
+            ) : (
+              status
+            )}
             {selection.id === 'mercator' && !expanded && (
               <span className="map-crop-note">Polar regions cropped · Expand for the full map</span>
             )}

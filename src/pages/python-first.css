@@ -103,12 +103,14 @@
   touch-action: pan-y;
   outline-offset: -5px;
 }
-.map-engine.is-exploring {
-  touch-action: none;
+.map-engine.is-globe {
   cursor: grab;
 }
-.map-engine.is-exploring:active {
+.map-engine.is-globe:active {
   cursor: grabbing;
+}
+.map-engine.is-exploring {
+  touch-action: none;
 }
 .map-preview {
   position: absolute;
@@ -161,6 +163,19 @@
 }
 .map-toolbar .selected {
   background: var(--soft-accent);
+}
+.touch-globe-control,
+.map-toolbar > button.touch-globe-control {
+  display: none;
+}
+@media (any-pointer: coarse) {
+  .touch-globe-control,
+  .map-toolbar > button.touch-globe-control {
+    display: inline-flex;
+  }
+  .mouse-globe-hint {
+    display: none;
+  }
 }
 .map-kind {
   color: var(--fg-3);

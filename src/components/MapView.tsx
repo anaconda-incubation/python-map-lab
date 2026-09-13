@@ -44,6 +44,7 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(props, ref) {
     scale: 1,
   })
   const [mounted, setMounted] = useState(0)
+  const globe = props.preset === 'globe'
 
   async function morph(id: string, signal?: AbortSignal) {
     const stage = engine.current
@@ -81,6 +82,7 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(props, ref) {
           if (t < 1) frame = requestAnimationFrame(step)
           else {
             current.current = id
+            if (id === 'globe') orbit.current = { yaw: 0, pitch: 0.05, zoom: 1 }
             finish()
           }
         }
@@ -141,7 +143,7 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(props, ref) {
         .then(() => {
           if (!alive || !stage) return
           stage.setMorph(1)
-          stage.resetCamera()
+          resetView()
           // The editor may already have hidden the canvas. Execution needs
           // prepared buffers, not a first visible frame, to become available.
           callbacks.current.onReady(true)
@@ -219,22 +221,31 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(props, ref) {
       ref={host}
       data-projection={current.current}
       data-quality={props.quality}
-      className={`map-engine ${props.exploring ? 'is-exploring' : ''}`}
-      tabIndex={props.exploring ? 0 : -1}
+      className={`map-engine ${globe ? 'is-globe' : ''} ${props.exploring ? 'is-exploring' : ''}`}
+      tabIndex={globe ? 0 : -1}
       role="region"
       aria-label={
-        props.exploring
-          ? 'Explore globe. Drag to rotate, arrow keys to turn, plus or minus to zoom, Escape to release focus.'
+        globe
+          ? 'Interactive globe. Drag with a mouse to rotate, arrow keys to turn, plus or minus to zoom. For touch, enable Rotate globe. Escape releases focus.'
           : 'World map visualization'
       }
       onPointerDown={(e) => {
-        if (!props.exploring || e.button !== 0) return
+        // Mouse and pen can grab immediately; touch keeps native page scrolling
+        // until the reader explicitly enables rotation.
+        if (
+          !globe ||
+          e.button !== 0 ||
+          !e.isPrimary ||
+          (e.pointerType === 'touch' && !props.exploring)
+        )
+          return
         drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY }
+        e.currentTarget.focus({ preventScroll: true })
         e.currentTarget.setPointerCapture(e.pointerId)
       }}
       onPointerMove={(e) => {
         const d = drag.current
-        if (!d || !props.exploring) return
+        if (!globe || !d || d.id !== e.pointerId) return
         move((d.x - e.clientX) * 0.006, (e.clientY - d.y) * 0.006)
         d.x = e.clientX
         d.y = e.clientY
@@ -249,7 +260,7 @@ const MapView = forwardRef<MapViewHandle, Props>(function MapView(props, ref) {
         drag.current = null
       }}
       onKeyDown={(e) => {
-        if (!props.exploring) return
+        if (!globe) return
         const directions: Record<string, [number, number]> = {
           ArrowLeft: [-0.15, 0],
           ArrowRight: [0.15, 0],
